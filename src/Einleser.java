@@ -1,4 +1,5 @@
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -40,14 +41,13 @@ public class Einleser {
 	/**
 	 * Initialisiert Einleser-Objekt
 	 * @param xlsname Name des Excel-Dokuments
-	 * @param tableName Name der SQL-Tabelle in der Datenbank, in die geschrieben werden soll
-	 * @throws IOException
-	 * @throws SQLException
+	 * @param tableName Name der SQL-Tabelle in der Datenbank, in die geschrieben werden
+	 * @throws SQLException 
+	 * @throws IOException 
 	 */
-	public Einleser(String xlsname, String tableName) throws IOException, SQLException {
+	public Einleser(String xlsname) throws SQLException, IOException {
 		// Dokumentname wird bei Aufruf übergeben
 		fis = new FileInputStream(xlsname);
-		this.table = tableName;
 		// Excel-Tabelle als Workbook
 		HSSFWorkbook wb = new HSSFWorkbook(fis);
 		// Alles interessante steht in Tabelle 1
@@ -63,7 +63,18 @@ public class Einleser {
 		row = sheet1.getRow(0);
 		cell = row.getCell(9);
 		klasse = cell.getStringCellValue();
-		System.out.println(klasse);
+		// Erkennung der Stufe
+		if(klasse.contains("10") || klasse.contains("K1") || klasse.contains("K2"))
+			table = "Oberstufe";
+		else if(klasse.contains("9") || klasse.contains("8") || klasse.contains("7") || klasse.equals("A1"))
+			table = "Mittelstufe";
+		else if(klasse.contains("7") || klasse.contains("6") || klasse.contains("5"))
+			table = "Unterstufe";
+		else {
+			throw new IllegalArgumentException("Keine Stufe erkannt, bitte Angabe der Klasse in der Tabelle prüfen");
+		}
+		System.out.println(table);
+		System.out.println("Klasse " + klasse);
 	}
 	
 	/**
@@ -89,11 +100,19 @@ public class Einleser {
 	 * @throws SQLException
 	 */
 	public void readAll() throws SQLException {
-		readMannschaftsSportart("FB");
+		System.out.println("Fußball 1 einlesen...");
+		readMannschaftsSportart("FB1");
+		System.out.println("Fußball 2 einlesen...");
+		readMannschaftsSportart("FB2");
+		System.out.println("Basketball einlesen...");
 		readMannschaftsSportart("BB");
+		System.out.println("Volleyball einlesen...");
 		readMannschaftsSportart("VB");
+		System.out.println("Tischtennis einlesen...");
 		readZweierSportart("TT");
+		System.out.println("Badminton einlesen...");
 		readZweierSportart("BM");
+		System.out.println("Staffellauf einlesen...");
 		readMannschaftsSportart("ST");
 	}
 	
@@ -207,7 +226,6 @@ public class Einleser {
 					cell = row.getCell(spalteNachname[block]);
 					String name = cell.getStringCellValue();
 					// Nur wenn jemand drinsteht weitermachen
-					System.out.println(name + ", " + vorname + " " + teamnr);
 					if(name.isEmpty() && vorname.isEmpty())
 						continue naechstesTeam; // TODO: Hier wäre es möglich, einen Test, ob genügen Personen in der Mannschaft sind, durchzuführen
 					// Schüler hinzufügen wenn er noch nicht vorhanden ist
