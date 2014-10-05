@@ -100,6 +100,7 @@ public class Einleser {
 	 * @throws SQLException
 	 */
 	public void readAll() throws SQLException {
+		con.setAutoCommit(false); // Beginn Transaktion
 		System.out.println("Fußball 1 einlesen...");
 		readMannschaftsSportart("FB1");
 		System.out.println("Fußball 2 einlesen...");
@@ -114,6 +115,8 @@ public class Einleser {
 		readZweierSportart("BM");
 		System.out.println("Staffellauf einlesen...");
 		readMannschaftsSportart("ST");
+		con.commit(); // Ende Transaktion
+		con.setAutoCommit(true);
 	}
 	
 	/** Liest die Mannschaftssportarten (Fußball, Basketball, Volleyball und Staffellauf) von der Excel-Tabelle ein
