@@ -1,4 +1,7 @@
 Spielplan_beta
 ==============
 
-Spielplan_alpha war nicht mehr zu retten, daher hier ein kompletter Neuanfang mit Ausrichtung auf MySQL-Datenbank.
+Erstellt automatisch Spielpläne
+
+* Liest Mannschaften von Excel-Tabellen ein + schreibt sie in eine MySQL-DB
+* Interaktives CLI
