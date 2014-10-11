@@ -15,20 +15,35 @@ public class SpielplanerApp {
 		while(true) {
 			System.out.print("> ");
 			String input = scn.nextLine();
-			int pos1 = input.indexOf(" ");
-			int pos2 = input.indexOf(" ", pos1);
-			String cmd = pos1 >= 0 ? input.substring(0, pos1) : input;
-			String arg0 = pos2 >= 0 ? input.substring(pos1 + 1) : null;
+			System.out.println(input);
+			int[] leerzeichen = new int[7];
+			for(int i = 0; i < leerzeichen.length; i++) {
+				if(i  == 0) {
+					leerzeichen[0] = input.indexOf(" ");
+					continue;
+				}
+				leerzeichen[i] = input.indexOf(" ", leerzeichen[i-1] + 1);
+			}
+			
+			String cmd = leerzeichen[0] >= 0 ? input.substring(0, leerzeichen[0]) : input;
+			String[] argumente = new String[6];
+			for(int i = 0; i < argumente.length; i++) {
+				if(leerzeichen[i] < 0){
+					break;
+				}
+				argumente[i] = leerzeichen[i+1] >= 0 ? input.substring(leerzeichen[i] + 1, leerzeichen[i+1]) : input.substring(leerzeichen[i] + 1, input.length());
+			}
+			
 			switch (cmd.toLowerCase()) {
 			case "einlesen":
-				if(arg0 == null) {
+				if(argumente[0] == null) {
 					System.out.println("Bitte den Dateinamen angeben!");
 					break;
 				}
-				System.out.println("Einlesen von " + arg0);
+				System.out.println("Einlesen von " + argumente[0]);
 				Einleser einleser = null;
 				try {
-					einleser = new Einleser(arg0);
+					einleser = new Einleser(argumente[0]);
 					einleser.readAll();
 				} catch (IOException | SQLException e) {
 					e.printStackTrace();
@@ -44,7 +59,12 @@ public class SpielplanerApp {
 			case "plane":
 			case "planen":
 				try {
-					Spielplanmaker sm = new Spielplanmaker("9a1", "9a2", "9a3", "9a4", "9a5", "9a6");
+					Spielplanmaker sm = new Spielplanmaker();
+					for(String mannschaft : argumente) {
+						if(mannschaft == null || mannschaft.isEmpty())
+							continue;
+						sm.addMannschaft(mannschaft);
+					}
 					sm.plane(13, 00, 5, 2);
 					System.out.println("Spielplan erstellt und hochgeladen");
 				} catch (SQLException e) {
