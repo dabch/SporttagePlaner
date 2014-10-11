@@ -42,7 +42,7 @@ public class Spielplanmaker {
 	int spieldauer;
 	int pausendauer;
 	
-	public Spielplanmaker(String... mannschaften) throws SQLException, IllegalArgumentException {
+	public Spielplanmaker() throws SQLException, IllegalArgumentException {
 		
 		con = DriverManager.getConnection("jdbc:mysql://" + sqlServer + '/' + dbName, username, password);
 		
@@ -54,23 +54,25 @@ public class Spielplanmaker {
 		getMannschaften = con.prepareStatement(String.format("SELECT DISTINCT %s FROM %s WHERE %s LIKE ? ORDER BY %s", sportart, tableTeams, sportart, sportart)); // PreparedStatement zum Abfragen der Mannschaften
 		addSpielF1 = con.prepareStatement(String.format("UPDATE %s SET Feld1 = ? WHERE Spielbeginn = ?", tablePlan)); // PreparedStatement zum Einfügen eines Spiels auf Feld 1 zu einer bestimmten Zeit
 		
-		for(String mannschaft : mannschaften) {
-			getMannschaften.setString(1, mannschaft); // SQL-Abfrage einstellen
+	}
+	
+	public void addMannschaft(String mannschaftsname) throws SQLException {
+			getMannschaften.setString(1, mannschaftsname); // SQL-Abfrage einstellen
 			ResultSet rs  = getMannschaften.executeQuery(); // SQL-Abfrage ausführen
-			if(!rs.next())
-				System.out.printf("FEHLER: Keine Mannschaft namens %s in der Datenbank\n", mannschaft); // Fehler bei nicht vorhandener Mannschaft
+			if(!rs.next()) {
+				System.out.printf("FEHLER: Keine Mannschaft namens %s in der Datenbank\n", mannschaftsname); // Fehler bei nicht vorhandener Mannschaft
+				return;
+			}
 			teams.add(rs.getString(1)); // Mannschaft zur ArrayList hinzufügen
-			System.out.printf("Mannschaft gefunden: %s\n", mannschaft);
+			System.out.printf("Mannschaft gefunden: %s\n", mannschaftsname);
 			rs.close(); // ResultSet schließen
-		}
+	}
+	
+	public void plane(int startH, int startM, int spieldauer, int pausendauer) throws SQLException {
 		if(teams.size() < 4) { // Minimal 4 Teams akzeptieren
 			throw new IllegalArgumentException("Minimal vier Mannschaften erlaubt");
 		}
 		System.out.printf("Anzahl Teams: %d\n", teams.size());
-		
-	}
-	
-	public void plane(int startH, int startM, int spieldauer, int pausendauer) throws SQLException {
 		this.spieldauer = spieldauer;
 		this.pausendauer = pausendauer;
 		beginn = Calendar.getInstance(); // Zeiten setzen
