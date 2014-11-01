@@ -1,12 +1,14 @@
 package danielbuecheler.sporttage;
 
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.apache.poi.hssf.usermodel.HSSFPrintSetup;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -15,10 +17,11 @@ import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-
+import org.apache.poi.ss.util.CellRangeAddress;
 
 /**
  * Liest einen Spielplan von einer MySQL-DB und schreibt ihn in eine Excel-Tabelle
+ * 
  * @author Daniel Bücheler
  *
  */
@@ -39,48 +42,113 @@ public class SpielplanWriter {
 	 * Passwort für den Benutzer der Datenbank
 	 */
 	final String password = "";
-	
+
 	private Connection con; // Datenbankverbindung
-	
+
 	private FileOutputStream fos; // FileOutputStream, auf den die Excel-Tabelle geschrieben wird
 	private HSSFWorkbook wb; // Excel-Datei
 	private Sheet sheet1; // Tabelle
-	
+
 	private CellStyle csTitel;
+	private CellStyle csUntertitel;
 	private CellStyle csTabellenueberschrift;
 	private CellStyle csSpieleEtc;
-	
+
+	private int anzahlFelder;
+
 	public SpielplanWriter(String filename) throws SQLException, IOException {
 		String tablePlan = "Testspielplan2";
-		
+
 		fos = new FileOutputStream(filename);
-		
+
+		con = DriverManager.getConnection(String.format("jdbc:mysql://%s/%s", sqlServer, dbName), username, password); // Verbindung zur Datenbank herstellen
+
 		wb = new HSSFWorkbook();
-		
+
 		Row row = null;
 		Cell cell = null;
-		
-		
+
 		sheet1 = wb.createSheet("Spielplan"); // Tabelle1 erstellen und "Spielplan" taufen
-		
-		con = DriverManager.getConnection(String.format("jdbc:mysql://%s/%s", sqlServer, dbName), username, password); // Verbindung zur Datenbank herstellen
-		
-		setStyles(); // Stile der Tabelle erstellen
+
+		PreparedStatement holeSpielplan1Feld = con.prepareStatement(String.format(
+				"SELECT Spielbeginn, Spielende, Feld1, Feld1Schiri FROM %s", tablePlan));
+
+		ResultSet spielplan = holeSpielplan1Feld.executeQuery();
+
+		while (spielplan.next()) {
+			System.out.print(spielplan.getTime(1) + " - " + spielplan.getTime(2) + ": ");
+			System.out.println(spielplan.getString(3) + " Schiri: " + spielplan.getString(4));
+		}
+
+		setStyles();
+		ueberschriftenEintragen();
+		spielplan.close();
 	}
 
-	private void close() throws IOException, SQLException {
+	public void close() throws IOException, SQLException {
+		// Spaltenbreiten anpassen
+		for (int spalte = 0; spalte < 1 + anzahlFelder * 3; spalte++) {
+			sheet1.autoSizeColumn(spalte);
+		}
+		sheet1.getPrintSetup().setPaperSize(HSSFPrintSetup.A4_ROTATED_PAPERSIZE); // A4 Querformat
 		wb.write(fos); // Excel-Datei schreiben
 		fos.close(); // FileOutputStream schließen
 		con.close(); // Datenbankverbindung schließen
 	}
 
+	private void ueberschriftenEintragen() {
+		// Row und Cell aus dem Sheet erstellen
+		Row row;
+		Cell cell;
+		anzahlFelder = 2; // TODO
+
+		// Titel
+		row = sheet1.createRow(0);
+		cell = row.createCell(0);
+		row.setHeightInPoints(30); // Höhe 30pt
+		cell.setCellStyle(csTitel); // cs anwenden
+		cell.setCellValue("Spielplan"); // TODO Sportart und Stufe statt Spielplan
+		sheet1.addMergedRegion(new CellRangeAddress(0, 0, 0, anzahlFelder * 3)); // Titel geht über mehrere Zellen
+
+		// "Made by Daniel Bücheler"
+		row = sheet1.createRow(1);
+		cell = row.createCell(0);
+		cell.setCellStyle(csUntertitel);
+		cell.setCellValue("Erstellt von Spielplan_beta by Daniel Bücheler"); // muss sein :D
+		sheet1.addMergedRegion(new CellRangeAddress(1, 1, 0, anzahlFelder * 3)); // Geht auch über mehrere Zellen
+
+		// Überschriften für Felder
+		// Zeit
+		row = sheet1.createRow(4);
+		cell = row.createCell(0);
+		row.setHeightInPoints(15);
+		cell.setCellStyle(csTabellenueberschrift);
+		cell.setCellValue("Zeit");
+		// Feld X, Schiri, Ergebnis für jedes Feld
+		for (int feld = 0; feld < anzahlFelder; feld++) { // Variable anzahl Felder
+			// Feld X
+			cell = row.createCell(1 + feld * 3); // 1 + Feld * 3, da jedes Feld 3 Spalten braucht und die Uhrzeit am Anfang eine
+			cell.setCellStyle(csTabellenueberschrift);
+			cell.setCellValue("Feld " + (feld + 1)); // feld fängt bei 0 an, deshalb + 1
+			// Schiri
+			cell = row.createCell(2 + feld * 3); // jetzt eins weiter rechts
+			cell.setCellStyle(csTabellenueberschrift);
+			cell.setCellValue("Schiri");
+			// Ergebnis
+			cell = row.createCell(3 + feld * 3); // noch eins weiter rechts
+			cell.setCellStyle(csTabellenueberschrift);
+			cell.setCellValue("Ergebnis");
+		}
+	}
+
 	private void setStyles() {
 		csSpieleEtc = wb.createCellStyle(); // Stil für Spiele, Schiris, Zeiten etc.
 		csTitel = wb.createCellStyle(); // Stil für Titel
+		csUntertitel = wb.createCellStyle(); // Stil für Untertitel
 		csTabellenueberschrift = wb.createCellStyle(); // Stil für die Tabellenüberschriften (wie für Spiele, nur fett)
-		
+
 		DataFormat dataFormat = wb.createDataFormat(); // Um das Datenformat auf Text zu setzen
-		
+
 		// Schriftart für Titel
 		Font fTitel = wb.createFont();
 		fTitel.setFontHeightInPoints((short) 24); // größe 24pt
@@ -90,7 +158,16 @@ public class SpielplanWriter {
 		csTitel.setFont(fTitel); // Schrift setzen
 		csTitel.setAlignment(CellStyle.ALIGN_CENTER_SELECTION); // Mittige Anordnung
 		csTitel.setDataFormat(dataFormat.getFormat("text")); // Datenformat Text
-		
+
+		// Schriftart für den Untertitel
+		Font fUntertitel = wb.createFont();
+		fUntertitel.setFontHeightInPoints((short) 10); // Schriftgröße auf 10pt setzen
+		fUntertitel.setColor(Font.COLOR_NORMAL); // Schriftfarbe schwarz
+		fUntertitel.setBoldweight(Font.BOLDWEIGHT_NORMAL);
+		// CellStyle für den Untertitel
+		csUntertitel.setFont(fUntertitel); // Schriftart
+		csUntertitel.setAlignment(CellStyle.ALIGN_CENTER_SELECTION); // Mittige Anordnung
+		csUntertitel.setDataFormat(dataFormat.getFormat("text")); // Datenformat Text
 		// Schriftart für Tabellenüberschriften
 		Font fTabellenueberschrift = wb.createFont();
 		fTabellenueberschrift.setFontHeightInPoints((short) 11); // größe 11pt
@@ -108,9 +185,9 @@ public class SpielplanWriter {
 		csTabellenueberschrift.setBorderRight(CellStyle.BORDER_THIN); // Umrandung rechts einschalten
 		csTabellenueberschrift.setRightBorderColor(IndexedColors.BLACK.getIndex()); // Umrandung rechts in schwarz
 		csTabellenueberschrift.setDataFormat(dataFormat.getFormat("text")); // Datenformat Text
-		
+
 		// Schriftart für Spiele, Schiris, Zeiten etc.
-		Font fSpieleEtc = wb.createFont(); 
+		Font fSpieleEtc = wb.createFont();
 		fSpieleEtc.setFontHeightInPoints((short) 10); // Schriftgröße auf 10pt setzen
 		fSpieleEtc.setColor(Font.COLOR_NORMAL); // Schriftfarbe schwarz
 		fSpieleEtc.setBoldweight(Font.BOLDWEIGHT_NORMAL);
