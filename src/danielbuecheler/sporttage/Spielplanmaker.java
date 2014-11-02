@@ -10,25 +10,8 @@ import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-
 public class Spielplanmaker {
-	/**
-	 * IP-Adresse des MySQL-Servers
-	 */
-	final String sqlServer = "192.168.2.105";
-	/**
-	 * Name der Datenbank
-	 */
-	final String dbName = "TestFuerSporttage";
-	/**
-	 * Benutzername für die Datenbank
-	 */
-	final String username = "root";
-	/**
-	 * Passwort für den Benutzer der Datenbank
-	 */
-	final String password = "";
-	
+
 	Connection con;
 	String tablePlan = "Testspielplan2";
 	String tableTeams = "Mittelstufe";
@@ -41,35 +24,43 @@ public class Spielplanmaker {
 	ArrayList<String> teams = new ArrayList<>();
 	int spieldauer;
 	int pausendauer;
-	
+
 	public Spielplanmaker() throws SQLException, IllegalArgumentException {
-		
-		con = DriverManager.getConnection("jdbc:mysql://" + sqlServer + '/' + dbName, username, password);
-		
-		// ################# TODO remove
+
+		con = DriverManager.getConnection(String.format("jdbc:mysql://%s/%s",
+				SpielplanerApp.properties.getProperty("database_ip_address"),
+				SpielplanerApp.properties.getProperty("database_name")),
+				SpielplanerApp.properties.getProperty("database_username"),
+				SpielplanerApp.properties.getProperty("database_password"));
+
+		// ################# TODO: "TRUNCATE TABLE" entfernen
 		Statement stmt = con.createStatement();
 		stmt.execute("TRUNCATE TABLE Testspielplan2");
 		// #################
-		addZeit = con.prepareStatement(String.format("INSERT INTO %s (Spielbeginn, Spielende) VALUES (?, ?)", tablePlan)); // PreparedStatement zum Einfügen einer neuen Zeit
-		getMannschaften = con.prepareStatement(String.format("SELECT DISTINCT %s FROM %s WHERE %s LIKE ? ORDER BY %s", sportart, tableTeams, sportart, sportart)); // PreparedStatement zum Abfragen der Mannschaften
-		addSpielF1 = con.prepareStatement(String.format("UPDATE %s SET Feld1 = ? WHERE Spielbeginn = ?", tablePlan)); // PreparedStatement zum Einfügen eines Spiels auf Feld 1 zu einer bestimmten Zeit
-		
+		addZeit = con.prepareStatement(String
+				.format("INSERT INTO %s (Spielbeginn, Spielende) VALUES (?, ?)", tablePlan)); // PreparedStatement zum Einfügen einer neuen Zeit
+		getMannschaften = con.prepareStatement(String.format("SELECT DISTINCT %s FROM %s WHERE %s LIKE ? ORDER BY %s",
+				sportart, tableTeams, sportart, sportart)); // PreparedStatement zum Abfragen der Mannschaften
+		addSpielF1 = con.prepareStatement(String.format("UPDATE %s SET Feld1 = ? WHERE Spielbeginn = ?", tablePlan)); // PreparedStatement zum Einfügen eines
+																														// Spiels auf Feld 1 zu einer bestimmten
+																														// Zeit
+
 	}
-	
+
 	public void addMannschaft(String mannschaftsname) throws SQLException {
-			getMannschaften.setString(1, mannschaftsname); // SQL-Abfrage einstellen
-			ResultSet rs  = getMannschaften.executeQuery(); // SQL-Abfrage ausführen
-			if(!rs.next()) {
-				System.out.printf("FEHLER: Keine Mannschaft namens %s in der Datenbank\n", mannschaftsname); // Fehler bei nicht vorhandener Mannschaft
-				return;
-			}
-			teams.add(rs.getString(1)); // Mannschaft zur ArrayList hinzufügen
-			System.out.printf("Mannschaft gefunden: %s\n", mannschaftsname);
-			rs.close(); // ResultSet schließen
+		getMannschaften.setString(1, mannschaftsname); // SQL-Abfrage einstellen
+		ResultSet rs = getMannschaften.executeQuery(); // SQL-Abfrage ausführen
+		if (!rs.next()) {
+			System.out.printf("FEHLER: Keine Mannschaft namens %s in der Datenbank\n", mannschaftsname); // Fehler bei nicht vorhandener Mannschaft
+			return;
+		}
+		teams.add(rs.getString(1)); // Mannschaft zur ArrayList hinzufügen
+		System.out.printf("Mannschaft gefunden: %s\n", mannschaftsname);
+		rs.close(); // ResultSet schließen
 	}
-	
+
 	public void plane(int startH, int startM, int spieldauer, int pausendauer) throws SQLException {
-		if(teams.size() < 4) { // Minimal 4 Teams akzeptieren
+		if (teams.size() < 4) { // Minimal 4 Teams akzeptieren
 			throw new IllegalArgumentException("Minimal vier Mannschaften erlaubt");
 		}
 		System.out.printf("Anzahl Teams: %d\n", teams.size());
@@ -86,7 +77,7 @@ public class Spielplanmaker {
 			con.setAutoCommit(false); // SQL-Transaktion beginnen
 			String team1 = teams.get(i - 1); // Teams abfragen
 			String team2 = teams.get(n - 1);
-			if(!team1.isEmpty() && !team2.isEmpty()) { // nichts tun wenn Dummy-Team spielt
+			if (!team1.isEmpty() && !team2.isEmpty()) { // nichts tun wenn Dummy-Team spielt
 				insertSpiel(team1, team2);
 			}
 
@@ -102,14 +93,14 @@ public class Spielplanmaker {
 				}
 				if (t2 == 0)
 					t2 = n - 1;
-					if (t2 < 0) {
+				if (t2 < 0) {
 					int subZ = t2;
 					t2 = n - 1 + subZ;
 				}
-					
+
 				team1 = teams.get(t1 - 1); // Teams aus ArrayList auslesen
 				team2 = teams.get(t2 - 1);
-				if(!team1.isEmpty() && !team2.isEmpty()) { // nichts tun wenn Dummy-Team spielt
+				if (!team1.isEmpty() && !team2.isEmpty()) { // nichts tun wenn Dummy-Team spielt
 					insertSpiel(team1, team2); // Spiel hochladen
 				}
 			}
@@ -117,16 +108,20 @@ public class Spielplanmaker {
 			con.setAutoCommit(true);
 		}
 	}
-	
+
 	/**
-	 * @param team1 Erster Gegner
-	 * @param team2 Zweiter Gegner
+	 * @param team1
+	 *            Erster Gegner
+	 * @param team2
+	 *            Zweiter Gegner
 	 * @throws SQLException
 	 */
 	private void insertSpiel(String team1, String team2) throws SQLException {
 		System.out.println("insertspiel called");
-		Time beginnAsSQLTime = Time.valueOf(String.format("%s:%s:00", beginn.get(Calendar.HOUR_OF_DAY), beginn.get(Calendar.MINUTE))); // Startzeit zwischenspeichern
-		Time endeAsSQLTime = Time.valueOf(String.format("%s:%s:00", ende.get(Calendar.HOUR_OF_DAY), ende.get(Calendar.MINUTE))); // Endzeit zwischenspeichern
+		Time beginnAsSQLTime = Time.valueOf(String.format("%s:%s:00", beginn.get(Calendar.HOUR_OF_DAY),
+				beginn.get(Calendar.MINUTE))); // Startzeit zwischenspeichern
+		Time endeAsSQLTime = Time.valueOf(String.format("%s:%s:00", ende.get(Calendar.HOUR_OF_DAY),
+				ende.get(Calendar.MINUTE))); // Endzeit zwischenspeichern
 		addZeit.setTime(1, beginnAsSQLTime); // Zeit für Spielbeginn setzen
 		addZeit.setTime(2, endeAsSQLTime); // Zeit für Spielende setzen
 		addSpielF1.setString(1, String.format("%s : %s", team1, team2)); // Spiel-String setzen
@@ -135,6 +130,7 @@ public class Spielplanmaker {
 		addSpielF1.executeUpdate(); // Update ausführen
 		zeitFuerNaechstesSpiel();
 	}
+
 	private void zeitFuerNaechstesSpiel() {
 		beginn.add(Calendar.MINUTE, this.spieldauer + this.pausendauer);
 		ende.add(Calendar.MINUTE, this.spieldauer + this.pausendauer);
