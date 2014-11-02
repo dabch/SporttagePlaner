@@ -231,7 +231,7 @@ public class Einleser {
 					String name = cell.getStringCellValue();
 					// Nur wenn jemand drinsteht weitermachen
 					if(name.isEmpty() && vorname.isEmpty())
-						continue naechstesTeam; // TODO: Hier wäre es möglich, einen Test, ob genügen Personen in der Mannschaft sind, durchzuführen
+						continue naechstesTeam; // IDEA: Hier wäre es möglich, einen Test, ob genügen Personen in der Mannschaft sind, durchzuführen
 					// Schüler hinzufügen wenn er noch nicht vorhanden ist
 					int id = getSchuelerID(vorname, name, klasse);
 					if(id == 0) {
