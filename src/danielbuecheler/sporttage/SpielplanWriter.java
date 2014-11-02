@@ -44,19 +44,22 @@ public class SpielplanWriter {
 	final String password = "";
 
 	private Connection con; // Datenbankverbindung
+	private ResultSet spielplan;
 
 	private FileOutputStream fos; // FileOutputStream, auf den die Excel-Tabelle geschrieben wird
 	private HSSFWorkbook wb; // Excel-Datei
 	private Sheet sheet1; // Tabelle
 
-	private CellStyle csTitel;
+	private CellStyle csTitel; // CellStyles (Formatierungen) für die Excel-Tabelle
 	private CellStyle csUntertitel;
 	private CellStyle csTabellenueberschrift;
 	private CellStyle csSpieleEtc;
 
 	private int anzahlFelder;
 
-	public SpielplanWriter(String filename) throws SQLException, IOException {
+	public SpielplanWriter(String filename) throws SQLException, IOException, IllegalArgumentException {
+		if(filename == null || filename.isEmpty())
+			throw new IllegalArgumentException("Bitte Dateinamen angeben!");
 		String tablePlan = "Testspielplan2";
 
 		fos = new FileOutputStream(filename);
@@ -65,15 +68,12 @@ public class SpielplanWriter {
 
 		wb = new HSSFWorkbook();
 
-		Row row = null;
-		Cell cell = null;
-
 		sheet1 = wb.createSheet("Spielplan"); // Tabelle1 erstellen und "Spielplan" taufen
 
 		PreparedStatement holeSpielplan1Feld = con.prepareStatement(String.format(
 				"SELECT Spielbeginn, Spielende, Feld1, Feld1Schiri FROM %s", tablePlan));
 
-		ResultSet spielplan = holeSpielplan1Feld.executeQuery();
+		spielplan = holeSpielplan1Feld.executeQuery();
 
 		while (spielplan.next()) {
 			System.out.print(spielplan.getTime(1) + " - " + spielplan.getTime(2) + ": ");
@@ -82,7 +82,7 @@ public class SpielplanWriter {
 
 		setStyles();
 		ueberschriftenEintragen();
-		spielplan.close();
+		spieleEintragen();
 	}
 
 	public void close() throws IOException, SQLException {
@@ -93,6 +93,7 @@ public class SpielplanWriter {
 		sheet1.getPrintSetup().setPaperSize(HSSFPrintSetup.A4_ROTATED_PAPERSIZE); // A4 Querformat
 		wb.write(fos); // Excel-Datei schreiben
 		fos.close(); // FileOutputStream schließen
+		spielplan.close();
 		con.close(); // Datenbankverbindung schließen
 	}
 
@@ -100,14 +101,14 @@ public class SpielplanWriter {
 		// Row und Cell aus dem Sheet erstellen
 		Row row;
 		Cell cell;
-		anzahlFelder = 2; // TODO
+		anzahlFelder = 8; // FIXME: Anzahl Felder automatisch erkennen
 
 		// Titel
 		row = sheet1.createRow(0);
 		cell = row.createCell(0);
 		row.setHeightInPoints(30); // Höhe 30pt
 		cell.setCellStyle(csTitel); // cs anwenden
-		cell.setCellValue("Spielplan"); // TODO Sportart und Stufe statt Spielplan
+		cell.setCellValue("Spielplan"); // TODO: Sportart und Stufe statt Spielplan
 		sheet1.addMergedRegion(new CellRangeAddress(0, 0, 0, anzahlFelder * 3)); // Titel geht über mehrere Zellen
 
 		// "Made by Daniel Bücheler"
@@ -126,7 +127,7 @@ public class SpielplanWriter {
 		cell.setCellValue("Zeit");
 		// Feld X, Schiri, Ergebnis für jedes Feld
 		for (int feld = 0; feld < anzahlFelder; feld++) { // Variable anzahl Felder
-			// Feld X
+			// Feld
 			cell = row.createCell(1 + feld * 3); // 1 + Feld * 3, da jedes Feld 3 Spalten braucht und die Uhrzeit am Anfang eine
 			cell.setCellStyle(csTabellenueberschrift);
 			cell.setCellValue("Feld " + (feld + 1)); // feld fängt bei 0 an, deshalb + 1
@@ -138,6 +139,34 @@ public class SpielplanWriter {
 			cell = row.createCell(3 + feld * 3); // noch eins weiter rechts
 			cell.setCellStyle(csTabellenueberschrift);
 			cell.setCellValue("Ergebnis");
+		}
+	}
+	
+	private void spieleEintragen() throws SQLException {
+		Row row;
+		Cell cell;
+		int currentRow = 5;
+		spielplan.absolute(0);
+		while(spielplan.next()) {
+			// IDEA: EXTRACT() benutzen, um die :00 Sekunden wegzukriegen
+			System.out.println("Spiel wird eingetragen");
+			row = sheet1.createRow(currentRow++);
+			// Zeit schreiben
+			cell = row.createCell(0);
+			cell.setCellStyle(csSpieleEtc);
+			cell.setCellValue(String.format("%s - %s", spielplan.getTime(1), spielplan.getTime(2))); // Von - Bis
+			// Spiel auf Feld 1
+			cell = row.createCell(1);
+			cell.setCellStyle(csSpieleEtc);
+			cell.setCellValue(spielplan.getString(3));
+			// Schiri Feld 1
+			cell = row.createCell(2);
+			cell.setCellStyle(csSpieleEtc);
+			cell.setCellValue(spielplan.getString(4));
+			// Leere Zelle für Ergebnis
+			cell = row.createCell(3);
+			cell.setCellStyle(csSpieleEtc);
+			cell.setCellValue(""); // komplett leere Zellen werden zusammengeführt -> Leerstring
 		}
 	}
 
