@@ -1,12 +1,42 @@
 package danielbuecheler.sporttage;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Properties;
 import java.util.Scanner;
 
 
 public class SpielplanerApp {
-
+	
+	static Properties properties;
+	
 	public static void main(String[] args) {
+		properties = new Properties();
+		FileReader reader = null;
+		try {
+			reader = new FileReader("sporttageplaner.properties");
+			properties.load(reader);
+		} catch (FileNotFoundException e) {
+			System.out.println("sporttageplaner.properties nicht gefunden");
+			properties.setProperty("database_ip_address", "192.168.2.105");
+			properties.setProperty("database_username", "root");
+			properties.setProperty("database_password", "");
+			properties.setProperty("database_name", "TestFuerSporttage");
+			try {
+				FileWriter writer = new FileWriter("sporttageplaner.properties");
+				properties.store(writer, "Automatisch erstellte Properties. Bitte anpassen!");
+				System.out.println("Properties-Datei wurde erstellt. Bitte anpassen und dann das Programm nochmal starten.");
+				System.exit(0);
+			} catch (IOException e1) { e1.printStackTrace(); System.exit(1); }
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		//#####################################
 		Scanner scn = new Scanner(System.in);
 		System.out.println("SporttagePlaner Beta by Daniel Bücheler");
 		System.out.println();
@@ -66,7 +96,7 @@ public class SpielplanerApp {
 							continue;
 						sm.addMannschaft(mannschaft);
 					}
-					sm.plane(13, 00, 5, 2); // Eigentliche Planung starten TODO Variable Start- / Endzeit und Spiel- / Pausendauer
+					sm.plane(13, 00, 5, 2); // Eigentliche Planung starten FIXME: Variable Start- / Endzeit und Spiel- / Pausendauer
 					System.out.println("Spielplan erstellt und hochgeladen");
 				} catch (SQLException e) {
 					e.printStackTrace();
@@ -75,12 +105,24 @@ public class SpielplanerApp {
 					System.out.println("FEHLER: Minimal vier gültige Mannschaften angeben!"); // Bei weniger als vier Mannschaften Fehler ausgeben
 				}
 				break;
-			case "help": // Hilfe anzeigen, auch hier durchfallen TODO bei mehr möglichen Befehlen anpassen
+			case "ausgeben":
+			case "ausgabe":
+				try {
+					SpielplanWriter sw = new SpielplanWriter(argumente[0]);
+					sw.close();
+				} catch (SQLException | IOException e1) {
+					e1.printStackTrace();
+				} catch (IllegalArgumentException e) {
+					System.out.println("FEHLER: " + e.getMessage());
+				}
+				break;
+			case "help": // Hilfe anzeigen, auch hier durchfallen TODO: bei mehr möglichen Befehlen Hilfe anpassen
 			case "hilfe":
 			case "h":
-				System.out.println("Mögliche Kommandos: ([..]: Pflichtargument; <...>: Optionales Argument)");
+				System.out.println("Mögliche Kommandos: ([...]: Pflichtargument; <...>: Optionales Argument)");
 				System.out.println(" einlesen [Dateiname] - Liest Mannschaften von der Excel-Tabelle ein und trägt sie in die Datenbank ein");
-				System.out.println(" planen [team1] [team2] [team3] [team4] <team5> <team6> - erstellt einen Spielplan für vier bis sechs Teams in einer Gruppe");
+				System.out.println(" planen [team1] [team2] [team3] [team4] <team5> <team6> - Erstellt einen Spielplan für vier bis sechs Teams in einer Gruppe");
+				System.out.println(" ausgeben [tabellenname] - Schreibt den Spielplan in eine Excel-Tabelle");
 				System.out.println(" h - Diese Hilfe anzeigen (auch help oder hilfe)");
 				System.out.println(" exit - Programm beenden");
 				break;
