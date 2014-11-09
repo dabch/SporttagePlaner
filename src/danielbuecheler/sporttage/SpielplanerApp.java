@@ -4,6 +4,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.Properties;
 import java.util.Scanner;
 
@@ -13,6 +15,9 @@ public class SpielplanerApp {
 	static Properties properties;
 	
 	public static void main(String[] args) {
+		System.out.println("SporttagePlaner Beta by Daniel Bücheler");
+		System.out.println(new Date());
+		System.out.println();
 		properties = new Properties();
 		FileReader reader = null;
 		try {
@@ -36,8 +41,6 @@ public class SpielplanerApp {
 		
 		//#####################################
 		Scanner scn = new Scanner(System.in);
-		System.out.println("SporttagePlaner Beta by Daniel Bücheler");
-		System.out.println();
 		System.out.println("Was möchten Sie tun? (h, help oder hilfe für Hilfe)");
 		schleife: // Zum späteren Ausstieg aus der Endlosschleife
 		while(true) { // Endlosschleife
@@ -62,7 +65,7 @@ public class SpielplanerApp {
 				}
 				argumente[i] = leerzeichen[i+1] >= 0 ? input.substring(leerzeichen[i] + 1, leerzeichen[i+1]) : input.substring(leerzeichen[i] + 1, input.length());
 			}
-			
+			System.out.println("befehl: " + cmd);
 			switch (cmd.toLowerCase()) { // je nach Befehl etwas anderes tun
 			case "einlesen": // Einlesen aus einer xls-Datei
 				if(argumente[0] == null || argumente[0].isEmpty()) { // Check, ob Dateiname angegeben wurde
@@ -74,19 +77,42 @@ public class SpielplanerApp {
 				try {
 					einleser = new Einleser(argumente[0]); // Einleser erstellen
 					einleser.readAll(); // alle Sportarten einlesen
+				} catch (FileNotFoundException e) {
+					System.out.println("FEHLER: Datei wurde nicht gefunden");
+					break;
 				} catch (IOException | SQLException e) {
 					e.printStackTrace();
-				} finally {
-					try {
-						einleser.close();
-					} catch (IOException | SQLException e) {
-						e.printStackTrace();
-					}
+				}
+				// einleser schließen
+				try {
+					einleser.close();
+				} catch (IOException | SQLException e) {
+					e.printStackTrace();
 				}
 				break;
 			case "spielplanerstellen": // Spielplan erstellen für bis zu sechs Mannschaften, drei Kommandos möglich, deshalb durchfallen
 			case "plane":
 			case "planen":
+				System.out.println("Es werden noch ein paar Infos benötigt");
+				// Uhrzeit für den Start des Blocks eingeben
+				System.out.println("Bitte geben Sie die Startzeit ein: (HH:MM)");
+				String startzeit = scn.next();
+				if(startzeit == null || startzeit.isEmpty()) {
+					System.out.println("Keine Uhrzeit eingegeben");
+					continue;
+				}
+				if(!startzeit.contains(":")) {
+					System.out.println("Bitte Uhrzeit im folgenden Format eingeben: \"HH:MM\"");
+					continue;
+				}
+				int startzeitStd = Integer.parseInt(startzeit.substring(0, 2)); // Zeit in int Minuten und int Stunden zerlegen
+				int startzeitMin = Integer.parseInt(startzeit.substring(3, 5));
+				System.out.println("Dauer eines Spiels:");
+				int spieldauer = scn.nextInt(); // Spieldauer abfragen
+				System.out.println("Dauer der Pause zwischen den Spielen:");
+				int pausendauer = scn.nextInt(); // Pausendauer abfragen
+				System.out.println("Bitte Feld eingeben:");
+//				int feld = scn.nextInt(); // Feld abfragen
 				try {
 					Spielplanmaker sm = new Spielplanmaker(); // SpielplanMaker erstellen
 					for(String mannschaft : argumente) { // Teams hinzufügen...
@@ -94,7 +120,7 @@ public class SpielplanerApp {
 							continue;
 						sm.addMannschaft(mannschaft);
 					}
-					sm.plane(13, 00, 5, 2); // Eigentliche Planung starten FIXME: Variable Start- / Endzeit und Spiel- / Pausendauer
+					sm.plane(startzeitStd, startzeitMin, spieldauer, pausendauer); // Eigentliche Planung starten
 					System.out.println("Spielplan erstellt und hochgeladen");
 				} catch (SQLException e) {
 					e.printStackTrace();
@@ -104,6 +130,7 @@ public class SpielplanerApp {
 					System.out.println("FEHLER: Minimal vier gültige Mannschaften angeben!"); // Bei weniger als vier Mannschaften Fehler ausgeben
 					System.out.println("Kein Spielplan erstellt");
 				}
+				scn.next(); // verhindern, dass das nächste nextLine() einen leeren String zurückliefert
 				break;
 			case "ausgeben":
 			case "ausgabe":
@@ -132,7 +159,6 @@ public class SpielplanerApp {
 				System.out.println("FEHLER: Befehl nicht erkannt");
 				break;
 			}
-			System.out.println();
 		}
 		System.out.println();
 		System.out.println("Programm wird beendet. Auf Wiedersehen!");
