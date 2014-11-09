@@ -106,7 +106,7 @@ public class Spielplanmaker {
 					insertSpiel(team1, team2); // Spiel hochladen
 				}
 			}
-			con.commit();
+			con.commit(); // Änderungen in der DB committen
 			con.setAutoCommit(true);
 		}
 	}
