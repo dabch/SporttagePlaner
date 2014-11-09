@@ -26,25 +26,9 @@ import org.apache.poi.ss.util.CellRangeAddress;
  *
  */
 public class SpielplanWriter {
-	/**
-	 * IP-Adresse des MySQL-Servers
-	 */
-	final String sqlServer = "192.168.2.105";
-	/**
-	 * Name der Datenbank
-	 */
-	final String dbName = "TestFuerSporttage";
-	/**
-	 * Benutzername für die Datenbank
-	 */
-	final String username = "root";
-	/**
-	 * Passwort für den Benutzer der Datenbank
-	 */
-	final String password = "";
 
 	private Connection con; // Datenbankverbindung
-	private ResultSet spielplan;
+	private ResultSet spielplan; // Spielplan als ResulSet
 
 	private FileOutputStream fos; // FileOutputStream, auf den die Excel-Tabelle geschrieben wird
 	private HSSFWorkbook wb; // Excel-Datei
@@ -56,15 +40,21 @@ public class SpielplanWriter {
 	private CellStyle csSpieleEtc;
 
 	private int anzahlFelder;
+	private String tablePlan;
 
 	public SpielplanWriter(String filename) throws SQLException, IOException, IllegalArgumentException {
 		if(filename == null || filename.isEmpty())
 			throw new IllegalArgumentException("Bitte Dateinamen angeben!");
-		String tablePlan = "Testspielplan2";
+		tablePlan = "Testspielplan2";
+		anzahlFelder = getAnzahlFelder(); // Anzahl der Felder auslesen
 
 		fos = new FileOutputStream(filename);
 
-		con = DriverManager.getConnection(String.format("jdbc:mysql://%s/%s", sqlServer, dbName), username, password); // Verbindung zur Datenbank herstellen
+		con = DriverManager.getConnection(String.format("jdbc:mysql://%s/%s",
+				SpielplanerApp.properties.getProperty("database_ip_address"),
+				SpielplanerApp.properties.getProperty("database_name")),
+				SpielplanerApp.properties.getProperty("database_username"),
+				SpielplanerApp.properties.getProperty("database_password")); // Verbindung zur Datenbank herstellen
 
 		wb = new HSSFWorkbook();
 
@@ -96,12 +86,11 @@ public class SpielplanWriter {
 		spielplan.close();
 		con.close(); // Datenbankverbindung schließen
 	}
-
+	
 	private void ueberschriftenEintragen() {
 		// Row und Cell aus dem Sheet erstellen
 		Row row;
 		Cell cell;
-		anzahlFelder = 8; // FIXME: Anzahl Felder automatisch erkennen
 
 		// Titel
 		row = sheet1.createRow(0);
@@ -232,5 +221,13 @@ public class SpielplanWriter {
 		csSpieleEtc.setBorderRight(CellStyle.BORDER_THIN); // Umrandung rechts einschalten
 		csSpieleEtc.setRightBorderColor(IndexedColors.BLACK.getIndex()); // Umrandung rechts in schwarz
 		csSpieleEtc.setDataFormat(dataFormat.getFormat("text")); // Datenformat Text
+	}
+	
+	private int getAnzahlFelder() throws SQLException {
+		PreparedStatement stmt = con.prepareStatement("SELECT COUNT(*) FROM INFORMATION_SCHEMA.Columns WHERE TABLE_NAME = ?");
+		stmt.setString(1, tablePlan);
+		ResultSet infosZumTable = stmt.executeQuery();
+		infosZumTable.next();
+		return (infosZumTable.getInt(1) -2)/ 3 ; // Zwei Spalten durch Zeiten belegt, drei Spalten pro Feld
 	}
 }

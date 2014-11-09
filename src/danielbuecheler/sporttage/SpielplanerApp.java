@@ -1,6 +1,4 @@
 package danielbuecheler.sporttage;
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -29,7 +27,7 @@ public class SpielplanerApp {
 			try {
 				FileWriter writer = new FileWriter("sporttageplaner.properties");
 				properties.store(writer, "Automatisch erstellte Properties. Bitte anpassen!");
-				System.out.println("Properties-Datei wurde erstellt. Bitte anpassen und dann das Programm nochmal starten.");
+				System.out.println("Properties-Datei. wurde erstellt. Bitte anpassen und dann das Programm nochmal starten.");
 				System.exit(0);
 			} catch (IOException e1) { e1.printStackTrace(); System.exit(1); }
 		} catch (IOException e) {
@@ -46,8 +44,8 @@ public class SpielplanerApp {
 			System.out.print("> "); // Hier soll der User etwas eingeben!
 			String input = scn.nextLine(); // Befehl einlesen
 			
-			// Eingegebenen String in Befehl und bis zu sieben Argumente zerlegen
-			int[] leerzeichen = new int[7]; // Positionen der sieben Leerzeichen
+			// Eingegebenen String in Befehln Argumente zerlegen
+			int[] leerzeichen = new int[7]; // Positionen der Leerzeichen
 			for(int i = 0; i < leerzeichen.length; i++) {
 				if(i  == 0) {
 					leerzeichen[0] = input.indexOf(" ");
@@ -57,7 +55,7 @@ public class SpielplanerApp {
 			}
 			
 			String cmd = leerzeichen[0] >= 0 ? input.substring(0, leerzeichen[0]) : input; // Erstes Wort
-			String[] argumente = new String[6]; // bis zu sechs Argumente
+			String[] argumente = new String[leerzeichen.length - 1]; // bis zu sechs Argumente
 			for(int i = 0; i < argumente.length; i++) {
 				if(leerzeichen[i] < 0){
 					break;
@@ -67,7 +65,7 @@ public class SpielplanerApp {
 			
 			switch (cmd.toLowerCase()) { // je nach Befehl etwas anderes tun
 			case "einlesen": // Einlesen aus einer xls-Datei
-				if(argumente[0] == null) { // Check, ob Dateiname angegeben wurde
+				if(argumente[0] == null || argumente[0].isEmpty()) { // Check, ob Dateiname angegeben wurde
 					System.out.println("Bitte den Dateinamen angeben!");
 					break;
 				}
@@ -100,9 +98,11 @@ public class SpielplanerApp {
 					System.out.println("Spielplan erstellt und hochgeladen");
 				} catch (SQLException e) {
 					e.printStackTrace();
+					System.out.println("FEHLER: Datenbankfehler");
 					System.out.println("Kein Spielplan erstellt");
 				} catch (IllegalArgumentException e) {
 					System.out.println("FEHLER: Minimal vier gültige Mannschaften angeben!"); // Bei weniger als vier Mannschaften Fehler ausgeben
+					System.out.println("Kein Spielplan erstellt");
 				}
 				break;
 			case "ausgeben":

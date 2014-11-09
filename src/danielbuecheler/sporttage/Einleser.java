@@ -14,22 +14,6 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
 public class Einleser {
-	/**
-	 * IP-Adresse des MySQL-Servers
-	 */
-	final String sqlServer = "192.168.2.105";
-	/**
-	 * Name der Datenbank
-	 */
-	final String dbName = "TestFuerSporttage";
-	/**
-	 * Benutzername für die Datenbank
-	 */
-	final String username = "root";
-	/**
-	 * Passwort für den Benutzer der Datenbank
-	 */
-	final String password = "";
 	private String table = "Mittelstufe";
 	private String klasse;
 	private Connection con;
@@ -57,7 +41,11 @@ public class Einleser {
 		Row row = null;
 		Cell cell = null;
 		// Verbindung zu SQL-Server aufbauen
-		con = DriverManager.getConnection("jdbc:mysql://" + sqlServer + '/' + dbName, username, password);
+		con = DriverManager.getConnection(String.format("jdbc:mysql://%s/%s",
+				SpielplanerApp.properties.getProperty("database_ip_address"),
+				SpielplanerApp.properties.getProperty("database_name")),
+				SpielplanerApp.properties.getProperty("database_username"),
+				SpielplanerApp.properties.getProperty("database_password"));
 		// SQL-Querys vorbereiten
 		holeSchuelerID = con.prepareStatement(String.format("SELECT ID, Vorname, Name FROM %s WHERE Vorname = ? AND Name = ? AND Klasse = ?", this.table));
 		addSchueler = con.prepareStatement(String.format("INSERT INTO %s (Vorname, Name, Klasse) VALUES (?, ?, ?)", this.table));

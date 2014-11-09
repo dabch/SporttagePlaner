@@ -26,6 +26,8 @@ public class Spielplanmaker {
 	int pausendauer;
 
 	public Spielplanmaker() throws SQLException, IllegalArgumentException {
+		// TODO: automatisch Tabelle erstellen
+		// TODO: automatisch richtigen Tabellennamen wählen
 
 		con = DriverManager.getConnection(String.format("jdbc:mysql://%s/%s",
 				SpielplanerApp.properties.getProperty("database_ip_address"),
@@ -33,7 +35,7 @@ public class Spielplanmaker {
 				SpielplanerApp.properties.getProperty("database_username"),
 				SpielplanerApp.properties.getProperty("database_password"));
 
-		// ################# TODO: "TRUNCATE TABLE" entfernen
+		// ################# FINAL: "TRUNCATE TABLE" entfernen
 		Statement stmt = con.createStatement();
 		stmt.execute("TRUNCATE TABLE Testspielplan2");
 		// #################
