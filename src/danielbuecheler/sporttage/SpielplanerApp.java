@@ -4,7 +4,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.text.DateFormat;
 import java.util.Date;
 import java.util.Properties;
 import java.util.Scanner;
@@ -32,7 +31,7 @@ public class SpielplanerApp {
 			try {
 				FileWriter writer = new FileWriter("sporttageplaner.properties");
 				properties.store(writer, "Automatisch erstellte Properties. Bitte anpassen!");
-				System.out.println("Properties-Datei. wurde erstellt. Bitte anpassen und dann das Programm nochmal starten.");
+				System.out.println("Properties-Datei wurde erstellt. Bitte anpassen und dann das Programm nochmal starten.");
 				System.exit(0);
 			} catch (IOException e1) { e1.printStackTrace(); System.exit(1); }
 		} catch (IOException e) {
@@ -42,6 +41,9 @@ public class SpielplanerApp {
 		//#####################################
 		Scanner scn = new Scanner(System.in);
 		System.out.println("Was möchten Sie tun? (h, help oder hilfe für Hilfe)");
+		// FIXME Variablen nicht initialisieren
+		String sportart = "BM"; // Sportart für Spielpläne
+		String stufe = "MS"; // Stufe für Spielpläne
 		schleife: // Zum späteren Ausstieg aus der Endlosschleife
 		while(true) { // Endlosschleife
 			System.out.print("> "); // Hier soll der User etwas eingeben!
@@ -65,7 +67,6 @@ public class SpielplanerApp {
 				}
 				argumente[i] = leerzeichen[i+1] >= 0 ? input.substring(leerzeichen[i] + 1, leerzeichen[i+1]) : input.substring(leerzeichen[i] + 1, input.length());
 			}
-			System.out.println("befehl: " + cmd);
 			switch (cmd.toLowerCase()) { // je nach Befehl etwas anderes tun
 			case "einlesen": // Einlesen aus einer xls-Datei
 				if(argumente[0] == null || argumente[0].isEmpty()) { // Check, ob Dateiname angegeben wurde
@@ -90,9 +91,21 @@ public class SpielplanerApp {
 					e.printStackTrace();
 				}
 				break;
+			case "sportart":
+				sportart = argumente[0];
+				System.out.printf("Sportart auf %s festgelegt\n", argumente[0]);
+				break;
+			case "stufe":
+				stufe = argumente[0];
+				System.out.printf("Stufe auf %s festgelegt\n", argumente[0]);
+				break;
 			case "spielplanerstellen": // Spielplan erstellen für bis zu sechs Mannschaften, drei Kommandos möglich, deshalb durchfallen
 			case "plane":
 			case "planen":
+				if(!kannPlanungBeginnen(sportart, stufe)) {
+					System.out.println("Bitte erst Sportart und Stufe festlegen!");
+					break;
+				}
 				System.out.println("Es werden noch ein paar Infos benötigt");
 				// Uhrzeit für den Start des Blocks eingeben
 				System.out.println("Bitte geben Sie die Startzeit ein: (HH:MM)");
@@ -112,9 +125,9 @@ public class SpielplanerApp {
 				System.out.println("Dauer der Pause zwischen den Spielen:");
 				int pausendauer = scn.nextInt(); // Pausendauer abfragen
 				System.out.println("Bitte Feld eingeben:");
-//				int feld = scn.nextInt(); // Feld abfragen
+				int feld = scn.nextInt(); // Feld abfragen
 				try {
-					Spielplanmaker sm = new Spielplanmaker(); // SpielplanMaker erstellen
+					Spielplanmaker sm = new Spielplanmaker(sportart, stufe, feld); // SpielplanMaker erstellen
 					for(String mannschaft : argumente) { // Teams hinzufügen...
 						if(mannschaft == null || mannschaft.isEmpty()) // ... natürlich nur wenn ein Team angegeben wurde
 							continue;
@@ -134,8 +147,12 @@ public class SpielplanerApp {
 				break;
 			case "ausgeben":
 			case "ausgabe":
+				if(!kannPlanungBeginnen(sportart, stufe)) {
+					System.out.println("Bitte erst Sportart und Stufe festlegen!");
+					break;
+				}
 				try {
-					SpielplanWriter sw = new SpielplanWriter(argumente[0]);
+					SpielplanWriter sw = new SpielplanWriter(argumente[0], sportart, stufe);
 					sw.close();
 				} catch (SQLException | IOException e1) {
 					e1.printStackTrace();
@@ -143,11 +160,13 @@ public class SpielplanerApp {
 					System.out.println("FEHLER: " + e.getMessage());
 				}
 				break;
-			case "help": // Hilfe anzeigen, auch hier durchfallen TODO: bei mehr möglichen Befehlen Hilfe anpassen
+			case "help": // Hilfe anzeigen, auch hier durchfallen FINAL: bei mehr möglichen Befehlen Hilfe anpassen
 			case "hilfe":
 			case "h":
 				System.out.println("Mögliche Kommandos: ([...]: Pflichtargument; <...>: Optionales Argument)");
 				System.out.println(" einlesen [Dateiname] - Liest Mannschaften von der Excel-Tabelle ein und trägt sie in die Datenbank ein");
+				System.out.println(" sportart [Sportart (z.B. BB)] - Legt die Sportart fest, für die in den folgenden Schritten Pläne erstellt oder ausgegeben werden");
+				System.out.println(" stufe [Stufe (US / MS / OS)] - Legt die Stufe fest, für die in den folgenden Schritten Pläne erstellt oder ausgegeben werden");
 				System.out.println(" planen [team1] [team2] [team3] [team4] <team5> <team6> - Erstellt einen Spielplan für vier bis sechs Teams in einer Gruppe");
 				System.out.println(" ausgeben [tabellenname] - Schreibt den Spielplan in eine Excel-Tabelle");
 				System.out.println(" h - Diese Hilfe anzeigen (auch help oder hilfe)");
@@ -163,6 +182,10 @@ public class SpielplanerApp {
 		System.out.println();
 		System.out.println("Programm wird beendet. Auf Wiedersehen!");
 		scn.close();
+	}
+	
+	private static boolean kannPlanungBeginnen(String sportart, String stufe) { // legt fest, ob Planung beginnen kann
+		return (stufe != null && sportart != null);
 	}
 
 }
