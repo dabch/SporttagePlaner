@@ -5,7 +5,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -13,7 +12,7 @@ import java.util.Calendar;
 public class Spielplanmaker {
 
 	Connection con;
-	String tablePlan = "Testspielplan2";
+	String tablePlan;
 	String tableTeams = "Mittelstufe";
 	String sportart = "BM";
 	PreparedStatement getMannschaften;
@@ -25,20 +24,18 @@ public class Spielplanmaker {
 	int spieldauer;
 	int pausendauer;
 
-	public Spielplanmaker() throws SQLException, IllegalArgumentException {
+	public Spielplanmaker(String sportart, String stufe, int feld) throws SQLException, IllegalArgumentException {
 		// TODO: automatisch Tabelle erstellen
-		// TODO: automatisch richtigen Tabellennamen wählen
-
+		
+		this.sportart = sportart; // Sportart setzen
+		this.tablePlan = String.format("%s_%s", stufe, sportart); // Tabellennamen festlegen
+		
 		con = DriverManager.getConnection(String.format("jdbc:mysql://%s/%s",
 				SpielplanerApp.properties.getProperty("database_ip_address"),
-				SpielplanerApp.properties.getProperty("database_name")),
-				SpielplanerApp.properties.getProperty("database_username"),
-				SpielplanerApp.properties.getProperty("database_password"));
+				SpielplanerApp.properties.getProperty("database_name")), SpielplanerApp.properties
+				.getProperty("database_username"), SpielplanerApp.properties.getProperty("database_password"));
 
-		// ################# FINAL: "TRUNCATE TABLE" entfernen
-		Statement stmt = con.createStatement();
-		stmt.execute("TRUNCATE TABLE Testspielplan2");
-		// #################
+		erstelleTabelleWennNoetig(); // Wenn nötig eine neue Tabell erstellen
 		addZeit = con.prepareStatement(String
 				.format("INSERT INTO %s (Spielbeginn, Spielende) VALUES (?, ?)", tablePlan)); // PreparedStatement zum Einfügen einer neuen Zeit
 		getMannschaften = con.prepareStatement(String.format("SELECT DISTINCT %s FROM %s WHERE %s LIKE ? ORDER BY %s",
@@ -46,7 +43,6 @@ public class Spielplanmaker {
 		addSpielF1 = con.prepareStatement(String.format("UPDATE %s SET Feld1 = ? WHERE Spielbeginn = ?", tablePlan)); // PreparedStatement zum Einfügen eines
 																														// Spiels auf Feld 1 zu einer bestimmten
 																														// Zeit
-
 	}
 
 	public void addMannschaft(String mannschaftsname) throws SQLException {
@@ -119,7 +115,6 @@ public class Spielplanmaker {
 	 * @throws SQLException
 	 */
 	private void insertSpiel(String team1, String team2) throws SQLException {
-		System.out.println("insertspiel called");
 		Time beginnAsSQLTime = Time.valueOf(String.format("%s:%s:00", beginn.get(Calendar.HOUR_OF_DAY),
 				beginn.get(Calendar.MINUTE))); // Startzeit zwischenspeichern
 		Time endeAsSQLTime = Time.valueOf(String.format("%s:%s:00", ende.get(Calendar.HOUR_OF_DAY),
@@ -129,7 +124,11 @@ public class Spielplanmaker {
 		addSpielF1.setString(1, String.format("%s : %s", team1, team2)); // Spiel-String setzen
 		addSpielF1.setTime(2, beginnAsSQLTime); // Abfrageparameter einsetzenaddZeit.executeUpdate(); // Zeit hinzufügen
 		addZeit.executeUpdate();
-		addSpielF1.executeUpdate(); // Update ausführen
+		if(addSpielF1.executeUpdate() > 0) { // Update ausführen
+			System.out.println("Spiel erfolgreich hinzugefügt");
+		} else {
+			System.out.println("FEHLER: Spiel konnte nicht hinzugefügt werden");
+		}
 		zeitFuerNaechstesSpiel();
 	}
 
@@ -137,4 +136,21 @@ public class Spielplanmaker {
 		beginn.add(Calendar.MINUTE, this.spieldauer + this.pausendauer);
 		ende.add(Calendar.MINUTE, this.spieldauer + this.pausendauer);
 	}
+
+	private void erstelleTabelleWennNoetig() throws SQLException {
+		System.out.println(tablePlan);
+		PreparedStatement tabellenAbfragen = con.prepareStatement(String.format("SHOW TABLES WHERE Tables_in_%s = ?", SpielplanerApp.properties.getProperty("database_name"))); 
+		tabellenAbfragen.setString(1, tablePlan);
+		ResultSet tablesInDB = tabellenAbfragen.executeQuery();
+		boolean tabelleExistiert = tablesInDB.next();
+		tablesInDB.close();
+		if(tabelleExistiert) // Wenn Tabelle schon vorhanden aussteigen
+			return;
+		else {
+			PreparedStatement tabelleHinzufuegen = con.prepareStatement(String.format("CREATE TABLE %s (Spielbeginn TIME NOT NULL PRIMARY KEY, Spielende TIME NOT NULL, Feld1 VARCHAR(15) DEFAULT '', Feld1Schiri VARCHAR(30) DEFAULT '', Feld1Ergebnis VARCHAR(10) DEFAULT '')", tablePlan));
+			System.out.println(tabelleHinzufuegen);
+			tabelleHinzufuegen.execute(); // Neue Tabelle erstellen
+		}
+	}
+
 }

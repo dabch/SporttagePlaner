@@ -42,7 +42,7 @@ public class SpielplanWriter {
 	private int anzahlFelder;
 	private String tablePlan;
 
-	public SpielplanWriter(String filename) throws SQLException, IOException, IllegalArgumentException {
+	public SpielplanWriter(String filename, String sportart, String stufe) throws SQLException, IOException, IllegalArgumentException {
 		if(filename == null || filename.isEmpty())
 			throw new IllegalArgumentException("Bitte Dateinamen angeben!");
 		tablePlan = "Testspielplan2";
@@ -50,15 +50,17 @@ public class SpielplanWriter {
 
 		fos = new FileOutputStream(filename);
 
-		con = DriverManager.getConnection(String.format("jdbc:mysql://%s/%s",
-				SpielplanerApp.properties.getProperty("database_ip_address"),
-				SpielplanerApp.properties.getProperty("database_name")),
-				SpielplanerApp.properties.getProperty("database_username"),
-				SpielplanerApp.properties.getProperty("database_password")); // Verbindung zur Datenbank herstellen
+		con = DriverManager.getConnection(String.format("jdbc:mysql://%s/%s", // Verbindung zur Datenbank herstellen
+				SpielplanerApp.properties.getProperty("database_ip_address"), // IP-Adresse des DB-Servers
+				SpielplanerApp.properties.getProperty("database_name")), // Name der DB
+				SpielplanerApp.properties.getProperty("database_username"), // Username
+				SpielplanerApp.properties.getProperty("database_password")); // Passwort
 
 		wb = new HSSFWorkbook();
 
 		sheet1 = wb.createSheet("Spielplan"); // Tabelle1 erstellen und "Spielplan" taufen
+
+		this.tablePlan = String.format("%s_%s", stufe, sportart); // Tabellennamen festlegen
 
 		PreparedStatement holeSpielplan1Feld = con.prepareStatement(String.format(
 				"SELECT Spielbeginn, Spielende, Feld1, Feld1Schiri FROM %s", tablePlan));
@@ -74,7 +76,12 @@ public class SpielplanWriter {
 		ueberschriftenEintragen();
 		spieleEintragen();
 	}
-
+	
+	/**
+	 * Schließt alle durch den SpielplanWriter geöffneten Ressourcen und schreibt die Excel-Datei
+	 * @throws IOException
+	 * @throws SQLException
+	 */
 	public void close() throws IOException, SQLException {
 		// Spaltenbreiten anpassen
 		for (int spalte = 0; spalte < 1 + anzahlFelder * 3; spalte++) {
@@ -82,8 +89,9 @@ public class SpielplanWriter {
 		}
 		sheet1.getPrintSetup().setPaperSize(HSSFPrintSetup.A4_ROTATED_PAPERSIZE); // A4 Querformat
 		wb.write(fos); // Excel-Datei schreiben
+		fos.flush();
 		fos.close(); // FileOutputStream schließen
-		spielplan.close();
+		spielplan.close(); // ResultSet schließen
 		con.close(); // Datenbankverbindung schließen
 	}
 	
