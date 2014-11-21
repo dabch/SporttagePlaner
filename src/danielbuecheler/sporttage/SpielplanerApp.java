@@ -160,6 +160,18 @@ public class SpielplanerApp {
 					System.out.println("FEHLER: " + e.getMessage());
 				}
 				break;
+			case "kontrolliste":
+				try {
+					KontrollistenWriter checklistmaker = new KontrollistenWriter(argumente[0], stufe, sportart);
+					System.out.println("Erstelle Kontrolliste");
+					checklistmaker.spielerEintragen();
+					checklistmaker.close();
+					System.out.println("Eintragen in " + argumente[0]);
+				} catch (IllegalArgumentException | SQLException | IOException e2) {
+					// TODO Auto-generated catch block
+					e2.printStackTrace();
+				}
+				break;
 			case "help": // Hilfe anzeigen, auch hier durchfallen FINAL: bei mehr möglichen Befehlen Hilfe anpassen
 			case "hilfe":
 			case "h":
@@ -168,7 +180,8 @@ public class SpielplanerApp {
 				System.out.println(" sportart [Sportart (z.B. BB)] - Legt die Sportart fest, für die in den folgenden Schritten Pläne erstellt oder ausgegeben werden");
 				System.out.println(" stufe [Stufe (US / MS / OS)] - Legt die Stufe fest, für die in den folgenden Schritten Pläne erstellt oder ausgegeben werden");
 				System.out.println(" planen [team1] [team2] [team3] [team4] <team5> <team6> - Erstellt einen Spielplan für vier bis sechs Teams in einer Gruppe");
-				System.out.println(" ausgeben [tabellenname] - Schreibt den Spielplan in eine Excel-Tabelle");
+				System.out.println(" ausgeben [Dateiname] - Schreibt den Spielplan in eine Excel-Tabelle");
+				System.out.println(" kontrolliste [Dateiname] - Erstellt eine Kontrolliste und schreibt sie in eine Excel-Tabelle");
 				System.out.println(" h - Diese Hilfe anzeigen (auch help oder hilfe)");
 				System.out.println(" exit - Programm beenden");
 				break;

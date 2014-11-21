@@ -139,6 +139,7 @@ public class SpielplanWriter {
 		}
 	}
 	
+	
 	private void spieleEintragen() throws SQLException {
 		Row row;
 		Cell cell;

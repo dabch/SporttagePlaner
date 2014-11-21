@@ -53,11 +53,11 @@ public class Einleser {
 		klasse = cell.getStringCellValue();
 		// Erkennung der Stufe
 		if(klasse.contains("10") || klasse.contains("K1") || klasse.contains("K2"))
-			table = "Oberstufe";
+			table = "Teams_OS";
 		else if(klasse.contains("9") || klasse.contains("8") || klasse.contains("7") || klasse.equals("A1"))
-			table = "Mittelstufe";
+			table = "Teams_MS";
 		else if(klasse.contains("7") || klasse.contains("6") || klasse.contains("5"))
-			table = "Unterstufe";
+			table = "Teams_US";
 		else {
 			throw new IllegalArgumentException("Keine Stufe erkannt, bitte Angabe der Klasse in der Tabelle prüfen");
 		}
