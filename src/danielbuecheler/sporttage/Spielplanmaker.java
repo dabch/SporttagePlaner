@@ -139,7 +139,7 @@ public class Spielplanmaker {
 
 	private void erstelleTabelleWennNoetig() throws SQLException {
 		System.out.println(tablePlan);
-		PreparedStatement tabellenAbfragen = con.prepareStatement(String.format("SHOW TABLES WHERE Tables_in_%s = ?", SpielplanerApp.properties.getProperty("database_name"))); 
+		PreparedStatement tabellenAbfragen = con.prepareStatement(String.format("SHOW TABLES WHERE \"Tables_in_%s\" = ?", SpielplanerApp.properties.getProperty("database_name"))); 
 		tabellenAbfragen.setString(1, tablePlan);
 		ResultSet tablesInDB = tabellenAbfragen.executeQuery();
 		boolean tabelleExistiert = tablesInDB.next();
