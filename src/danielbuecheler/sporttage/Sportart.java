@@ -34,6 +34,7 @@ public class Sportart {
 		case "Badminton":
 			type = "BM";
 			typeLang = "Badminton";
+			break;
 		default:
 			throw new IllegalArgumentException("Keine gültige Sportart angegeben!");
 		}
