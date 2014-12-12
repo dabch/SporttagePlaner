@@ -10,6 +10,7 @@ public class Stufe {
 		case "Unterstufe":
 			stufeKurz = "US";
 			stufeLang = "Unterstufe";
+			break;
 		case "MS":
 		case "Mittelstufe":
 			stufeKurz = "MS";
