@@ -50,7 +50,7 @@ public class Spielplanmaker {
 		rs.close(); // ResultSet schließen
 	}
 	
-	public void addTable() throws SQLException {
+	private void addTable() throws SQLException {
 		System.out.println(tablePlan);
 		PreparedStatement tabellenAbfragen = con.prepareStatement("SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_NAME = ? && TABLE_SCHEMA = ?");
 		tabellenAbfragen.setString(1, tablePlan);
@@ -78,9 +78,8 @@ public class Spielplanmaker {
 			throw new IllegalArgumentException("Minimal vier Mannschaften erlaubt");
 		}
 		System.out.printf("Anzahl Teams: %d\n", teams.size());
-		if(!checkObTableExistiert()) { // Wenn nötig eine neue Tabelle erstellen
-			throw new TableNotExistentException(String.format("Spielplan %s existiert noch nicht. Bitte zuerst hinzufügen!", tablePlan));
-		}
+		// Wenn nötig eine neue Tabelle erstellen
+		addTable();
 		erstelleFeld(feldnr); // Feld erstellen (wenn nötig)
 		this.spieldauer = spieldauer;
 		this.pausendauer = pausendauer;
@@ -157,15 +156,6 @@ public class Spielplanmaker {
 		ende.add(Calendar.MINUTE, this.spieldauer + this.pausendauer);
 	}
 	
-	private boolean checkObTableExistiert() throws SQLException {
-		PreparedStatement tabellenAbfragen = con.prepareStatement("SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_NAME = ? && TABLE_SCHEMA = ?");
-		tabellenAbfragen.setString(1, tablePlan);
-		tabellenAbfragen.setString(2, SpielplanerApp.properties.getProperty("database_name"));
-		ResultSet tablesInDB = tabellenAbfragen.executeQuery();
-		boolean tabelleExistiert = tablesInDB.next();
-		tablesInDB.close();
-		return tabelleExistiert;
-	}
 
 	private void erstelleFeld(int feldnr) throws SQLException {
 		PreparedStatement feldAbfragen = con.prepareStatement("SELECT TABLE_NAME, COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA LIKE ? && TABLE_Name = ? && COLUMN_NAME = ?"); // Schauen, ob schon eine Spalte FeldX existiert
