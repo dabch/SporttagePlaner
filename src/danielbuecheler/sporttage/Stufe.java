@@ -5,19 +5,19 @@ public class Stufe {
 	private String stufeLang;
 	
 	public Stufe(String stufe) throws IllegalArgumentException {
-		switch(stufe) {
-		case "US":
-		case "Unterstufe":
+		switch(stufe.toLowerCase()) {
+		case "us":
+		case "unterstufe":
 			stufeKurz = "US";
 			stufeLang = "Unterstufe";
 			break;
-		case "MS":
-		case "Mittelstufe":
+		case "ms":
+		case "mittelstufe":
 			stufeKurz = "MS";
 			stufeLang = "Mittelstufe";
 			break;
-		case "OS":
-		case "Oberstufe":
+		case "os":
+		case "oberstufe":
 			stufeKurz = "OS";
 			stufeLang = "Oberstufe";
 			break;

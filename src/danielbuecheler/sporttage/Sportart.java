@@ -5,33 +5,33 @@ public class Sportart {
 	private String typeLang;
 	
 	public Sportart(String typ) throws IllegalArgumentException {
-		switch(typ) {
-		case "FB":
-		case "Fussball":
-		case "Fußball":
+		switch(typ.toLowerCase()) {
+		case "fb":
+		case "fussball":
+		case "fußball":
 			type = "FB";
 			typeLang = "Fussball";
 			break;
-		case "BB":
-		case "Basketball":
+		case "bb":
+		case "basketball":
 			break;
-		case "VB":
-		case "Volleyball":
+		case "vb":
+		case "volleyball":
 			type = "VB";
 			typeLang = "Volleyball"; 
 			break;
-		case "ST":
-		case "Staffellauf":
+		case "st":
+		case "staffellauf":
 			type = "ST";
 			typeLang = "Staffellauf";
 			break;
-		case "TT":
-		case "Tischtennis":
+		case "tt":
+		case "tischtennis":
 			type = "TT";
 			typeLang = "Tischtennis";
 			break;
-		case "BM":
-		case "Badminton":
+		case "bm":
+		case "badminton":
 			type = "BM";
 			typeLang = "Badminton";
 			break;
