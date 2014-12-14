@@ -1,9 +1,13 @@
 package danielbuecheler.sporttage;
+
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Properties;
 import java.util.Scanner;
@@ -15,7 +19,8 @@ public class SpielplanerApp {
 	
 	public static void main(String[] args) {
 		System.out.println("SporttagePlaner Beta by Daniel Bücheler");
-		System.out.println(new Date());
+		SimpleDateFormat sdf = new SimpleDateFormat("EE, dd. MMMM yyyy, HH:mm:ss zzz"); // Datum auf Deutsch in der richtigen Reihenfolge (z.B. Fr, 31. Dezember 2000, 19:48:12 MEZ)
+		System.out.println(sdf.format(new Date()));
 		System.out.println();
 		properties = new Properties();
 		FileReader reader = null;
@@ -32,18 +37,34 @@ public class SpielplanerApp {
 				FileWriter writer = new FileWriter("sporttageplaner.properties");
 				properties.store(writer, "Automatisch erstellte Properties. Bitte anpassen!");
 				System.out.println("Properties-Datei wurde erstellt. Bitte anpassen und dann das Programm nochmal starten.");
+				writer.close();
 				System.exit(0);
-			} catch (IOException e1) { e1.printStackTrace(); System.exit(1); }
+			} catch (IOException e1) { 
+				e1.printStackTrace();
+				System.exit(1);
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			try {
+				reader.close();
+			} catch (IOException e) { e.printStackTrace(); }
 		}
 		
 		//#####################################
 		Scanner scn = new Scanner(System.in);
 		System.out.println("Was möchten Sie tun? (h, help oder hilfe für Hilfe)");
-		// FIXME Variablen nicht initialisieren
-		String sportart = "BM"; // Sportart für Spielpläne
-		String stufe = "MS"; // Stufe für Spielpläne
+		
+		// FINAL Variablen nicht initialisieren
+		Sportart sportart = new Sportart("BM"); // Sportart für Spielpläne
+		Stufe stufe = new Stufe("MS"); // Stufe für Spielpläne
+		Calendar beginnZeit = Calendar.getInstance();; // Calendar-Objekt für die Beginnzeit
+		beginnZeit.set(2015, 5, 12, 11, 7);
+		int spieldauer = 9; // Dauer eines Spiels
+		int pausendauer = 2;
+		
+		Spielplanmaker sm;
+		
 		schleife: // Zum späteren Ausstieg aus der Endlosschleife
 		while(true) { // Endlosschleife
 			System.out.print("> "); // Hier soll der User etwas eingeben!
@@ -92,48 +113,53 @@ public class SpielplanerApp {
 				}
 				break;
 			case "sportart":
-				sportart = argumente[0];
-				System.out.printf("Sportart auf %s festgelegt\n", argumente[0]);
+				sportart = new Sportart(argumente[0]);
+				System.out.printf("Sportart auf %s festgelegt\n", sportart.getSportartLang());
 				break;
 			case "stufe":
-				stufe = argumente[0];
-				System.out.printf("Stufe auf %s festgelegt\n", argumente[0]);
+				stufe = new Stufe(argumente[0]);
+				System.out.printf("Stufe auf %s festgelegt\n", stufe.getStufeLang());
+				break;
+			case "zeit":
+			case "zeitsetzen":
+			case "setzezeit":
+				beginnZeit = Calendar.getInstance();
+				SimpleDateFormat df = new SimpleDateFormat("HH:mm"); // DateFormat für die Eingabe
+				try {
+					beginnZeit.setTime(df.parse(argumente[0])); // Date-Objekt aus Eingabe erstellen und als Zeit für beginnZeit setzen
+					spieldauer = Integer.parseInt(argumente[1])	; // Die Pausendauer und Spieldauer setzen
+					pausendauer = Integer.parseInt(argumente[2]);
+				} catch (ParseException e2) {
+					System.out.println("FEHLER: Zeit im falschen Format angegeben!");  // Wenn der Nutzer nicht "HH:MM" eingegeben hat
+				} catch (NumberFormatException e) {
+					System.out.println("FEHLER: Spiel- oder Pausendauer bitte in Minuten als einfache Zahlen angeben!");
+				}
+				System.out.printf("Zeit gesetzt auf: %s Uhr\n", df.format(beginnZeit.getTime()));
+				System.out.printf("Spieldauer gesetzt auf: %d min\n", spieldauer);
+				System.out.printf("Pausendauer gesetzt auf: %d min\n", pausendauer);
 				break;
 			case "spielplanerstellen": // Spielplan erstellen für bis zu sechs Mannschaften, drei Kommandos möglich, deshalb durchfallen
 			case "plane":
 			case "planen":
-				if(!kannPlanungBeginnen(sportart, stufe)) {
-					System.out.println("Bitte erst Sportart und Stufe festlegen!");
+				int feld = 0; // Feld hier deklarieren, damit es auch außerhalb des trys gilt
+				try {
+					feld = Integer.parseInt(argumente[0]);
+				} catch (NumberFormatException e) {
+					System.out.println("FEHLER: Bitte Feld angeben!");
+					continue;
+				}
+				if(!kannPlanungBeginnen(sportart, stufe, beginnZeit, spieldauer, pausendauer)) {
+					System.out.println("Bitte erst Sportart, Stufe und Zeit festlegen!");
 					break;
 				}
-				System.out.println("Es werden noch ein paar Infos benötigt");
-				// Uhrzeit für den Start des Blocks eingeben
-				System.out.println("Bitte geben Sie die Startzeit ein: (HH:MM)");
-				String startzeit = scn.next();
-				if(startzeit == null || startzeit.isEmpty()) {
-					System.out.println("Keine Uhrzeit eingegeben");
-					continue;
-				}
-				if(!startzeit.contains(":")) {
-					System.out.println("Bitte Uhrzeit im folgenden Format eingeben: \"HH:MM\"");
-					continue;
-				}
-				int startzeitStd = Integer.parseInt(startzeit.substring(0, 2)); // Zeit in int Minuten und int Stunden zerlegen
-				int startzeitMin = Integer.parseInt(startzeit.substring(3, 5));
-				System.out.println("Dauer eines Spiels:");
-				int spieldauer = scn.nextInt(); // Spieldauer abfragen
-				System.out.println("Dauer der Pause zwischen den Spielen:");
-				int pausendauer = scn.nextInt(); // Pausendauer abfragen
-				System.out.println("Bitte Feld eingeben:");
-				int feld = scn.nextInt(); // Feld abfragen
 				try {
-					Spielplanmaker sm = new Spielplanmaker(sportart, stufe, feld); // SpielplanMaker erstellen
-					for(String mannschaft : argumente) { // Teams hinzufügen...
-						if(mannschaft == null || mannschaft.isEmpty()) // ... natürlich nur wenn ein Team angegeben wurde
+					sm = new Spielplanmaker(sportart, stufe); // SpielplanMaker erstellen
+					for(int i = 1; i < argumente.length; i++) { // Teams hinzufügen... (dabei den ersten String in argumente überspringen, da er das Feld angibt)
+						if(argumente[i] == null || argumente[i].isEmpty()) // ... natürlich nur wenn ein Team angegeben wurde
 							continue;
-						sm.addMannschaft(mannschaft);
+						sm.addMannschaft(argumente[i]);
 					}
-					sm.plane(startzeitStd, startzeitMin, spieldauer, pausendauer); // Eigentliche Planung starten
+					sm.plane(feld, beginnZeit.get(Calendar.HOUR_OF_DAY), beginnZeit.get(Calendar.MINUTE), spieldauer, pausendauer); // Eigentliche Planung starten, erstellt Tabelle wenn nötig
 					System.out.println("Spielplan erstellt und hochgeladen");
 				} catch (SQLException e) {
 					e.printStackTrace();
@@ -142,12 +168,13 @@ public class SpielplanerApp {
 				} catch (IllegalArgumentException e) {
 					System.out.println("FEHLER: Minimal vier gültige Mannschaften angeben!"); // Bei weniger als vier Mannschaften Fehler ausgeben
 					System.out.println("Kein Spielplan erstellt");
+				} catch (TableNotExistentException e) {
+					System.out.println("FEHLER: Teams-Table in der DB existiert nicht!");
 				}
-				scn.next(); // verhindern, dass das nächste nextLine() einen leeren String zurückliefert
 				break;
 			case "ausgeben":
 			case "ausgabe":
-				if(!kannPlanungBeginnen(sportart, stufe)) {
+				if(!kannPlanungBeginnen(sportart, stufe, beginnZeit, spieldauer, pausendauer)) {
 					System.out.println("Bitte erst Sportart und Stufe festlegen!");
 					break;
 				}
@@ -162,14 +189,20 @@ public class SpielplanerApp {
 				break;
 			case "kontrolliste":
 				try {
-					KontrollistenWriter checklistmaker = new KontrollistenWriter(argumente[0], stufe, sportart);
+					KontrollistenWriter checklistmaker = new KontrollistenWriter(argumente[0], sportart, stufe);
 					System.out.println("Erstelle Kontrolliste");
 					checklistmaker.spielerEintragen();
 					checklistmaker.close();
 					System.out.println("Eintragen in " + argumente[0]);
-				} catch (IllegalArgumentException | SQLException | IOException e2) {
-					// TODO Auto-generated catch block
-					e2.printStackTrace();
+				} catch (SQLException e) {
+					System.out.println("FEHLER: Datenbankfehler");
+					
+				} catch (FileNotFoundException e) {
+					System.out.println("FEHLER: Datei nicht gefunden");
+				} catch (IllegalArgumentException e) {
+					System.out.println(e.getMessage());
+				} catch (IOException e) {
+					System.out.println(e.getMessage());
 				}
 				break;
 			case "help": // Hilfe anzeigen, auch hier durchfallen FINAL: bei mehr möglichen Befehlen Hilfe anpassen
@@ -179,11 +212,14 @@ public class SpielplanerApp {
 				System.out.println(" einlesen [Dateiname] - Liest Mannschaften von der Excel-Tabelle ein und trägt sie in die Datenbank ein");
 				System.out.println(" sportart [Sportart (z.B. BB)] - Legt die Sportart fest, für die in den folgenden Schritten Pläne erstellt oder ausgegeben werden");
 				System.out.println(" stufe [Stufe (US / MS / OS)] - Legt die Stufe fest, für die in den folgenden Schritten Pläne erstellt oder ausgegeben werden");
-				System.out.println(" planen [team1] [team2] [team3] [team4] <team5> <team6> - Erstellt einen Spielplan für vier bis sechs Teams in einer Gruppe");
+				System.out.println(" zeit [HH:MM] [Spieldauer in min] [Pausendauer in min] - Setzt die Zeit, zu der ein Spielplan beginnt und die Dauer der Spiele und der Pause");
+				System.out.println(" planen [Feld] [team1] [team2] [team3] [team4] <team5> <team6> - Erstellt einen Spielplan für vier bis sechs Teams in einer Gruppe");
 				System.out.println(" ausgeben [Dateiname] - Schreibt den Spielplan in eine Excel-Tabelle");
 				System.out.println(" kontrolliste [Dateiname] - Erstellt eine Kontrolliste und schreibt sie in eine Excel-Tabelle");
 				System.out.println(" h - Diese Hilfe anzeigen (auch help oder hilfe)");
 				System.out.println(" exit - Programm beenden");
+				System.out.println();
+				System.out.println(" Bevor ein Spielplan erstellt werden kann müssen Sportart, Stufe und Zeit gesetzt werden!");
 				break;
 			case "exit": // Programm komplett beenden
 				break schleife;
@@ -197,8 +233,8 @@ public class SpielplanerApp {
 		scn.close();
 	}
 	
-	private static boolean kannPlanungBeginnen(String sportart, String stufe) { // legt fest, ob Planung beginnen kann
-		return (stufe != null && sportart != null);
+	private static boolean kannPlanungBeginnen(Sportart sportart, Stufe stufe, Calendar zeit, int spieldauer, int pausendauer) { // legt fest, ob Planung beginnen kann
+		return (stufe != null && sportart != null && zeit != null && spieldauer != 0 && pausendauer != 0);
 	}
 
 }
