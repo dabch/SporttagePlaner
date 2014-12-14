@@ -111,13 +111,6 @@ public class SpielplanWriter {
 		cell = row.createCell(0);
 		row.setHeightInPoints(30); // Höhe 30pt
 		cell.setCellStyle(csTitel); // cs anwenden
-		switch(stufe.getStufeKurz()) { // IDEA: Klasse für Stufe einführen, um Kurz- und Langnamen zu managen
-		case "US":
-		case "MS":
-			break;
-		case "OS":
-			break;
-		}
 		cell.setCellValue(String.format("Spielplan für %s %s", sportart.getSportartLang(), stufe.getStufeLang()));
 		sheet1.addMergedRegion(new CellRangeAddress(0, 0, 0, anzahlFelder * 3)); // Titel geht über mehrere Zellen
 
