@@ -38,11 +38,11 @@ public class KontrollistenWriter {
 
 	private String tablePlan;
 	
-	public KontrollistenWriter(String filename, String stufe, String sportart) throws SQLException, FileNotFoundException, IllegalArgumentException {
+	public KontrollistenWriter(String filename, Sportart sportart, Stufe stufe) throws SQLException, FileNotFoundException, IllegalArgumentException {
 		if(filename == null || filename.isEmpty())
 			throw new IllegalArgumentException("Bitte Dateinamen angeben!"); // Fehler bei leerem Dateinamen
 		
-		tablePlan = String.format("%s_%s", stufe, sportart); // Tabellennamen festlegen
+		tablePlan = String.format("%s_%s", stufe.getStufeKurz(), sportart.getSportartKurz()); // Tabellennamen festlegen
 
 		fos = new FileOutputStream(filename);
 
@@ -56,13 +56,13 @@ public class KontrollistenWriter {
 
 		sheet1 = wb.createSheet("Kontrolliste"); // Tabelle1 erstellen und "Spielplan" taufen
 
-		this.tablePlan = String.format("%s_%s", stufe, sportart); // Tabellennamen festlegen
+		this.tablePlan = String.format("%s_%s", stufe.getStufeKurz(), sportart.getSportartKurz()); // Tabellennamen festlegen
 
 		PreparedStatement holeSpielplan1Feld = con.prepareStatement(String.format(
 				"SELECT Spielbeginn, Spielende, Feld1 FROM %s", tablePlan));
 		
-		holeTeams1 = con.prepareStatement(String.format("SELECT Vorname, Name FROM Teams_%s WHERE %s = ?", stufe, sportart)); // SQL-Statement, um Spieler einer bestimmten Mannschaft abzufragen
-		holeTeams2 = con.prepareStatement(String.format("SELECT Vorname, Name FROM Teams_%s WHERE %s = ?", stufe, sportart)); // SQL-Statement, um Spieler einer bestimmten Mannschaft abzufragen
+		holeTeams1 = con.prepareStatement(String.format("SELECT Vorname, Name FROM Teams_%s WHERE %s = ?", stufe.getStufeKurz(), sportart.getSportartKurz())); // SQL-Statement, um Spieler einer bestimmten Mannschaft abzufragen
+		holeTeams2 = con.prepareStatement(String.format("SELECT Vorname, Name FROM Teams_%s WHERE %s = ?", stufe.getStufeKurz(), sportart.getSportartKurz())); // SQL-Statement, um Spieler einer bestimmten Mannschaft abzufragen
 		spielplan = holeSpielplan1Feld.executeQuery();
 		setStyles();
 		ueberschriftenEintragen();
@@ -131,7 +131,7 @@ public class KontrollistenWriter {
 	
 	public void spielerEintragen() throws SQLException {
 		while(spielplan.next()) {
-			int startReihe = aktReihe;
+//			int startReihe = aktReihe;
 			Row row = sheet1.createRow(aktReihe++); // In der aktuellen Reihe, danach um 1 erhöhen
 			Cell cell = row.createCell(0);
 			cell.setCellStyle(csNormal);
