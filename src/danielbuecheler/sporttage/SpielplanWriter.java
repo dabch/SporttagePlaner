@@ -41,12 +41,16 @@ public class SpielplanWriter {
 
 	private int anzahlFelder;
 	private String tablePlan;
+	private Stufe stufe;
+	private Sportart sportart;
 
-	public SpielplanWriter(String filename, String sportart, String stufe) throws SQLException, IOException, IllegalArgumentException {
+	public SpielplanWriter(String filename, Sportart sportart, Stufe stufe) throws SQLException, IOException, IllegalArgumentException {
+		this.stufe = stufe;
+		this.sportart = sportart;
 		if(filename == null || filename.isEmpty())
 			throw new IllegalArgumentException("Bitte Dateinamen angeben!");
-		tablePlan = "Testspielplan2";
-		anzahlFelder = getAnzahlFelder(); // Anzahl der Felder auslesen
+		
+		tablePlan = String.format("%s_%s", stufe.getStufeKurz(), sportart.getSportartKurz()); // Tabellennamen festlegen
 
 		fos = new FileOutputStream(filename);
 
@@ -55,16 +59,18 @@ public class SpielplanWriter {
 				SpielplanerApp.properties.getProperty("database_name")), // Name der DB
 				SpielplanerApp.properties.getProperty("database_username"), // Username
 				SpielplanerApp.properties.getProperty("database_password")); // Passwort
+		
+		
+		anzahlFelder = getAnzahlFelder(); // Anzahl der Felder auslesen
 
 		wb = new HSSFWorkbook();
 
 		sheet1 = wb.createSheet("Spielplan"); // Tabelle1 erstellen und "Spielplan" taufen
 
-		this.tablePlan = String.format("%s_%s", stufe, sportart); // Tabellennamen festlegen
-
 		PreparedStatement holeSpielplan1Feld = con.prepareStatement(String.format(
 				"SELECT Spielbeginn, Spielende, Feld1, Feld1Schiri FROM %s", tablePlan));
-
+		
+		System.out.println(holeSpielplan1Feld);
 		spielplan = holeSpielplan1Feld.executeQuery();
 
 		while (spielplan.next()) {
@@ -105,7 +111,14 @@ public class SpielplanWriter {
 		cell = row.createCell(0);
 		row.setHeightInPoints(30); // Höhe 30pt
 		cell.setCellStyle(csTitel); // cs anwenden
-		cell.setCellValue("Spielplan"); // TODO: Sportart und Stufe statt Spielplan
+		switch(stufe.getStufeKurz()) { // IDEA: Klasse für Stufe einführen, um Kurz- und Langnamen zu managen
+		case "US":
+		case "MS":
+			break;
+		case "OS":
+			break;
+		}
+		cell.setCellValue(String.format("Spielplan für %s %s", sportart.getSportartLang(), stufe.getStufeLang()));
 		sheet1.addMergedRegion(new CellRangeAddress(0, 0, 0, anzahlFelder * 3)); // Titel geht über mehrere Zellen
 
 		// "Made by Daniel Bücheler"
@@ -233,10 +246,10 @@ public class SpielplanWriter {
 	}
 	
 	private int getAnzahlFelder() throws SQLException {
-		PreparedStatement stmt = con.prepareStatement("SELECT COUNT(*) FROM INFORMATION_SCHEMA.Columns WHERE TABLE_NAME = ?");
-		stmt.setString(1, tablePlan);
-		ResultSet infosZumTable = stmt.executeQuery();
+		PreparedStatement selectAnzahlFelder = con.prepareStatement("SELECT COUNT(*) FROM INFORMATION_SCHEMA.Columns WHERE TABLE_NAME = ?");
+		selectAnzahlFelder.setString(1, tablePlan);
+		ResultSet infosZumTable = selectAnzahlFelder.executeQuery();
 		infosZumTable.next();
-		return (infosZumTable.getInt(1) -2)/ 3 ; // Zwei Spalten durch Zeiten belegt, drei Spalten pro Feld
+		return (infosZumTable.getInt(1) -2) / 3 ; // Zwei Spalten durch Zeiten belegt, drei Spalten pro Feld
 	}
 }
