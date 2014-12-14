@@ -2,6 +2,8 @@ package danielbuecheler.sporttage;
 
 public class TableNotExistentException extends Exception {
 
+	private static final long serialVersionUID = -8513222687598696335L;
+
 	public TableNotExistentException(String message) {
 		super(message);
 	}
