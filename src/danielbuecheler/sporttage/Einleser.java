@@ -11,9 +11,6 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.util.StringUtil;
-
-import com.mysql.jdbc.StringUtils;
 
 public class Einleser {
 	private String table = "";
