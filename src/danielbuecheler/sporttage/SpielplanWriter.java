@@ -59,8 +59,9 @@ public class SpielplanWriter {
 				SpielplanerApp.properties.getProperty("database_name")), // Name der DB
 				SpielplanerApp.properties.getProperty("database_username"), // Username
 				SpielplanerApp.properties.getProperty("database_password")); // Passwort
-		
-		
+	}
+	
+	public void write() throws SQLException {
 		anzahlFelder = getAnzahlFelder(); // Anzahl der Felder auslesen
 
 		wb = new HSSFWorkbook();
@@ -72,11 +73,6 @@ public class SpielplanWriter {
 		
 		System.out.println(holeSpielplan1Feld);
 		spielplan = holeSpielplan1Feld.executeQuery();
-
-		while (spielplan.next()) {
-			System.out.print(spielplan.getTime(1) + " - " + spielplan.getTime(2) + ": ");
-			System.out.println(spielplan.getString(3) + " Schiri: " + spielplan.getString(4));
-		}
 
 		setStyles();
 		ueberschriftenEintragen();
@@ -170,7 +166,7 @@ public class SpielplanWriter {
 			// Leere Zelle für Ergebnis
 			cell = row.createCell(3);
 			cell.setCellStyle(csSpieleEtc);
-			cell.setCellValue(""); // komplett leere Zellen werden zusammengeführt -> Leerstring
+			cell.setCellValue(""); // komplett leere Zellen werden zusammengeführt -> Leerstring einfügen um das zu verhindern
 		}
 	}
 
@@ -238,11 +234,11 @@ public class SpielplanWriter {
 		csSpieleEtc.setDataFormat(dataFormat.getFormat("text")); // Datenformat Text
 	}
 	
-	private int getAnzahlFelder() throws SQLException {
-		PreparedStatement selectAnzahlFelder = con.prepareStatement("SELECT COUNT(*) FROM INFORMATION_SCHEMA.Columns WHERE TABLE_NAME = ?");
+	private int getAnzahlFelder() throws SQLException { // LATEST
+		PreparedStatement selectAnzahlFelder = con.prepareStatement("SELECT COUNT(*) FROM INFORMATION_SCHEMA.Columns WHERE TABLE_NAME = ? AND COLUMN_NAME LIKE 'Feld_'");
 		selectAnzahlFelder.setString(1, tablePlan);
 		ResultSet infosZumTable = selectAnzahlFelder.executeQuery();
 		infosZumTable.next();
-		return (infosZumTable.getInt(1) -2) / 3 ; // Zwei Spalten durch Zeiten belegt, drei Spalten pro Feld
+		return infosZumTable.getInt(1);
 	}
 }
