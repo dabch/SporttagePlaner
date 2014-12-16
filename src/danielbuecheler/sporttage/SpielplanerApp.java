@@ -29,10 +29,10 @@ public class SpielplanerApp {
 			properties.load(reader);
 		} catch (FileNotFoundException e) {
 			System.out.println("sporttageplaner.properties nicht gefunden");
-			properties.setProperty("database_ip_address", "192.168.2.105");
+			properties.setProperty("database_ip_address", "127.0.0.0");
 			properties.setProperty("database_username", "root");
 			properties.setProperty("database_password", "");
-			properties.setProperty("database_name", "TestFuerSporttage");
+			properties.setProperty("database_name", "sporttage");
 			try {
 				FileWriter writer = new FileWriter("sporttageplaner.properties");
 				properties.store(writer, "Automatisch erstellte Properties. Bitte anpassen!");
