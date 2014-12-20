@@ -180,6 +180,7 @@ public class SpielplanerApp {
 				}
 				try {
 					SpielplanWriter sw = new SpielplanWriter(argumente[0], sportart, stufe);
+					sw.write();
 					sw.close();
 				} catch (SQLException | IOException e1) {
 					e1.printStackTrace();
