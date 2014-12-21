@@ -63,7 +63,7 @@ public class SpielplanerApp {
 		int spieldauer = 9; // Dauer eines Spiels
 		int pausendauer = 2;
 		
-		Spielplanmaker sm;
+		Planer sm;
 		
 		schleife: // Zum späteren Ausstieg aus der Endlosschleife
 		while(true) { // Endlosschleife
@@ -120,9 +120,9 @@ public class SpielplanerApp {
 				stufe = new Stufe(argumente[0]);
 				System.out.printf("Stufe auf %s festgelegt\n", stufe.getStufeLang());
 				break;
-			case "zeit":
-			case "zeitsetzen":
-			case "setzezeit":
+			case "block":
+			case "blockerstellen":
+			case "tabelleerstellen":
 				beginnZeit = Calendar.getInstance();
 				SimpleDateFormat df = new SimpleDateFormat("HH:mm"); // DateFormat für die Eingabe
 				try {
@@ -134,9 +134,14 @@ public class SpielplanerApp {
 				} catch (NumberFormatException e) {
 					System.out.println("FEHLER: Spiel- oder Pausendauer bitte in Minuten als einfache Zahlen angeben!");
 				}
-				System.out.printf("Zeit gesetzt auf: %s Uhr\n", df.format(beginnZeit.getTime()));
-				System.out.printf("Spieldauer gesetzt auf: %d min\n", spieldauer);
-				System.out.printf("Pausendauer gesetzt auf: %d min\n", pausendauer);
+				PlanMaker pm;
+				try {
+					pm = new PlanMaker(sportart, stufe);
+					pm.addTable(beginnZeit, spieldauer, pausendauer, true);
+				} catch (SQLException e2) {
+					System.out.println("FEHLER: Datenbankfehler");
+				}
+				System.out.println("Tabelle für folgen");
 				break;
 			case "spielplanerstellen": // Spielplan erstellen für bis zu sechs Mannschaften, drei Kommandos möglich, deshalb durchfallen
 			case "plane":
@@ -153,13 +158,13 @@ public class SpielplanerApp {
 					break;
 				}
 				try {
-					sm = new Spielplanmaker(sportart, stufe); // SpielplanMaker erstellen
+					sm = new Planer(sportart, stufe); // SpielplanMaker erstellen
 					for(int i = 1; i < argumente.length; i++) { // Teams hinzufügen... (dabei den ersten String in argumente überspringen, da er das Feld angibt)
 						if(argumente[i] == null || argumente[i].isEmpty()) // ... natürlich nur wenn ein Team angegeben wurde
 							continue;
 						sm.addMannschaft(argumente[i]);
 					}
-					sm.plane(feld, beginnZeit.get(Calendar.HOUR_OF_DAY), beginnZeit.get(Calendar.MINUTE), spieldauer, pausendauer); // Eigentliche Planung starten, erstellt Tabelle wenn nötig
+					sm.plane(feld); // Eigentliche Planung starten, erstellt Tabelle wenn nötig
 					System.out.println("Spielplan erstellt und hochgeladen");
 				} catch (SQLException e) {
 					e.printStackTrace();

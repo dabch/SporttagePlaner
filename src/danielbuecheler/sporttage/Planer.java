@@ -5,7 +5,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -22,6 +21,7 @@ public class Planer {
 	PreparedStatement addZeit = null;
 	int spieldauer;	
 	int pausendauer;
+	int currentID;
 
 	public Planer(Sportart sportart, Stufe stufe) throws SQLException, IllegalArgumentException {
 
@@ -50,44 +50,25 @@ public class Planer {
 		rs.close(); // ResultSet schließen
 	}
 	
-	private void addTable() throws SQLException {
-		System.out.println(tablePlan);
-		PreparedStatement tabellenAbfragen = con.prepareStatement("SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_NAME = ? && TABLE_SCHEMA = ?");
-		tabellenAbfragen.setString(1, tablePlan);
-		tabellenAbfragen.setString(2, SpielplanerApp.properties.getProperty("database_name"));
-		ResultSet tablesInDB = tabellenAbfragen.executeQuery();
-		boolean tabelleExistiert = tablesInDB.next(); // Wenn die Tabelle noch nicht existiert ist das ResultSet leer
-		System.out.println(tabellenAbfragen);
-		tablesInDB.close();
-		if (tabelleExistiert) // Wenn Tabelle schon vorhanden aussteigen
-			return;
-		else {
-			PreparedStatement tabelleHinzufuegen = con
-					.prepareStatement(String
-							.format("CREATE TABLE %s (Spielbeginn TIME NOT NULL PRIMARY KEY, Spielende TIME NOT NULL)",
-									tablePlan));
-			System.out.println(tabelleHinzufuegen);
-			tabelleHinzufuegen.execute(); // Neue Tabelle erstellen
-		}
-	}
 
-	public void plane(int feldnr, int startH, int startM, int spieldauer, int pausendauer) throws SQLException, TableNotExistentException {
-		addSpiel = con.prepareStatement(String.format("UPDATE %s SET Feld%d = ? WHERE Spielbeginn = ?", tablePlan, feldnr)); // PreparedStatement zum Einfügen eines Spiels auf Feld X zu einer bestimmten Zeit
+	public void plane(int feldnr) throws SQLException, TableNotExistentException {
+		currentID = 1;
+		addSpiel = con.prepareStatement(String.format("UPDATE %s SET Feld%d = ? WHERE ID = ?", tablePlan, feldnr)); // PreparedStatement zum Einfügen eines Spiels auf Feld X zu einer bestimmten Zeit
 		addZeit = con.prepareStatement(String.format("INSERT INTO %s (Spielbeginn, Spielende) VALUES (?, ?)", tablePlan)); // PreparedStatement zum Einfügen einer neuen Zeit
 		if (teams.size() < 4) { // Minimal 4 Teams akzeptieren
 			throw new IllegalArgumentException("Minimal vier Mannschaften erlaubt");
 		}
+		PreparedStatement tabellenAbfragen = con
+				.prepareStatement("SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_NAME = ? && TABLE_SCHEMA = ?");
+		tabellenAbfragen.setString(1, tablePlan);
+		tabellenAbfragen.setString(2, SpielplanerApp.properties.getProperty("database_name"));
+		ResultSet tablesInDB = tabellenAbfragen.executeQuery();
+		boolean tabelleExistiert = tablesInDB.next(); // Wenn die Tabelle noch nicht existiert ist das ResultSet leer
+		tablesInDB.close();
+		if(!tabelleExistiert)
+			throw new TableNotExistentException("Die SQL-Tabelle für den Spielplan existiert nicht. Bitte zuerst erstellen!");
 		System.out.printf("Anzahl Teams: %d\n", teams.size());
-		// Wenn nötig eine neue Tabelle erstellen
-		addTable();
 		erstelleFeld(feldnr); // Feld erstellen (wenn nötig)
-		this.spieldauer = spieldauer;
-		this.pausendauer = pausendauer;
-		beginn = Calendar.getInstance(); // Zeiten setzen
-		beginn.set(Calendar.HOUR_OF_DAY, startH);
-		beginn.set(Calendar.MINUTE, startM);
-		ende = (Calendar) beginn.clone();
-		ende.add(Calendar.MINUTE, spieldauer); // Ende = Beginn + Spieldauer
 		int n = teams.size();// Anzahl Teams
 
 		for (int i = 1; i <= (n - 1); i++) {
@@ -134,26 +115,14 @@ public class Planer {
 	 * @throws SQLException
 	 */
 	private void insertSpiel(String team1, String team2) throws SQLException {
-		Time beginnAsSQLTime = Time.valueOf(String.format("%s:%s:00", beginn.get(Calendar.HOUR_OF_DAY),
-				beginn.get(Calendar.MINUTE))); // Startzeit zwischenspeichern
-		Time endeAsSQLTime = Time.valueOf(String.format("%s:%s:00", ende.get(Calendar.HOUR_OF_DAY),
-				ende.get(Calendar.MINUTE))); // Endzeit zwischenspeichern
-		addZeit.setTime(1, beginnAsSQLTime); // Zeit für Spielbeginn setzen
-		addZeit.setTime(2, endeAsSQLTime); // Zeit für Spielende setzen
-		addZeit.executeUpdate();
 		addSpiel.setString(1, String.format("%s : %s", team1, team2)); // Spiel-String setzen
-		addSpiel.setTime(2, beginnAsSQLTime); // Abfrageparameter einsetzenaddZeit.executeUpdate(); // Zeit hinzufügen
+		addSpiel.setInt(2, currentID); // Abfrageparameter einsetzen
 		if (addSpiel.executeUpdate() > 0) { // Update ausführen
 			System.out.println("Spiel erfolgreich hinzugefügt");
 		} else {
 			System.out.println("FEHLER: Spiel konnte nicht hinzugefügt werden");
 		}
-		zeitFuerNaechstesSpiel();
-	}
-
-	private void zeitFuerNaechstesSpiel() {
-		beginn.add(Calendar.MINUTE, this.spieldauer + this.pausendauer);
-		ende.add(Calendar.MINUTE, this.spieldauer + this.pausendauer);
+		currentID++;
 	}
 	
 
