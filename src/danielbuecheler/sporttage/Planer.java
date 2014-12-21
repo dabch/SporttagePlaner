@@ -9,7 +9,7 @@ import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-public class Spielplanmaker {
+public class Planer {
 
 	Connection con;
 	String tablePlan;
@@ -23,7 +23,7 @@ public class Spielplanmaker {
 	int spieldauer;	
 	int pausendauer;
 
-	public Spielplanmaker(Sportart sportart, Stufe stufe) throws SQLException, IllegalArgumentException {
+	public Planer(Sportart sportart, Stufe stufe) throws SQLException, IllegalArgumentException {
 
 		this.sportart = sportart; // Sportart setzen
 		this.tablePlan = String.format("%s_%s", stufe.getStufeKurz(), sportart.getSportartKurz()); // Tabellennamen festlegen
@@ -56,7 +56,7 @@ public class Spielplanmaker {
 		tabellenAbfragen.setString(1, tablePlan);
 		tabellenAbfragen.setString(2, SpielplanerApp.properties.getProperty("database_name"));
 		ResultSet tablesInDB = tabellenAbfragen.executeQuery();
-		boolean tabelleExistiert = tablesInDB.next();
+		boolean tabelleExistiert = tablesInDB.next(); // Wenn die Tabelle noch nicht existiert ist das ResultSet leer
 		System.out.println(tabellenAbfragen);
 		tablesInDB.close();
 		if (tabelleExistiert) // Wenn Tabelle schon vorhanden aussteigen
@@ -138,9 +138,9 @@ public class Spielplanmaker {
 				beginn.get(Calendar.MINUTE))); // Startzeit zwischenspeichern
 		Time endeAsSQLTime = Time.valueOf(String.format("%s:%s:00", ende.get(Calendar.HOUR_OF_DAY),
 				ende.get(Calendar.MINUTE))); // Endzeit zwischenspeichern
-			addZeit.setTime(1, beginnAsSQLTime); // Zeit für Spielbeginn setzen
-			addZeit.setTime(2, endeAsSQLTime); // Zeit für Spielende setzen
-			addZeit.executeUpdate();
+		addZeit.setTime(1, beginnAsSQLTime); // Zeit für Spielbeginn setzen
+		addZeit.setTime(2, endeAsSQLTime); // Zeit für Spielende setzen
+		addZeit.executeUpdate();
 		addSpiel.setString(1, String.format("%s : %s", team1, team2)); // Spiel-String setzen
 		addSpiel.setTime(2, beginnAsSQLTime); // Abfrageparameter einsetzenaddZeit.executeUpdate(); // Zeit hinzufügen
 		if (addSpiel.executeUpdate() > 0) { // Update ausführen
