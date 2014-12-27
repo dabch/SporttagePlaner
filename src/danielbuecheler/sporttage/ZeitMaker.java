@@ -17,10 +17,6 @@ public class ZeitMaker {
 	public ZeitMaker(Sportart sportart, Stufe stufe, String tag) throws SQLException {
 		this.tableZeiten = String.format("%s_%s", stufe.getStufeKurz(), sportart.getSportartKurz()); // Tabellennamen festlegen
 
-		// SELECT z.ID AS ID, z.Spielbeginn AS Beginn, z.Spielende AS Ende, f1.Paarung AS Feld1, f2.Paarung AS Feld2, f3.Paarung AS Feld3 FROM MS_BM_MO_zeiten z
-		// LEFT JOIN MS_BM_MO_feld2 f2 ON f2.ID = z.ID LEFT JOIN MS_BM_MO_feld1 f1 ON f1.ID = z.ID LEFT JOIN MS_BM_MO_feld3 f3 ON f3.ID = z.ID WHERE f1.Paarung
-		// != '' OR f2.Paarung != '' OR f3.Paarung != '';
-
 		tableZeiten = String.format("%s_%s_%s_zeiten", stufe.getStufeKurz(), sportart.getSportartKurz(), tag);
 
 		con = DriverManager.getConnection(

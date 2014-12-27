@@ -62,6 +62,7 @@ public class SpielplanerApp {
 		beginnZeit.set(2015, 5, 12, 11, 7);
 		int spieldauer = 9; // Dauer eines Spiels
 		int pausendauer = 2;
+		String tag = "MO"; // True = Montag, False = Dienstag
 		
 		Planer sm;
 		
@@ -71,7 +72,7 @@ public class SpielplanerApp {
 			String input = scn.nextLine(); // Befehl einlesen
 			
 			// Eingegebenen String in Befehln Argumente zerlegen
-			int[] leerzeichen = new int[7]; // Positionen der Leerzeichen
+			int[] leerzeichen = new int[8]; // Positionen der Leerzeichen
 			for(int i = 0; i < leerzeichen.length; i++) {
 				if(i  == 0) {
 					leerzeichen[0] = input.indexOf(" ");
@@ -112,17 +113,34 @@ public class SpielplanerApp {
 					e.printStackTrace();
 				}
 				break;
-			case "sportart":
-				sportart = new Sportart(argumente[0]);
-				System.out.printf("Sportart auf %s festgelegt\n", sportart.getSportartLang());
-				break;
-			case "stufe":
+			case "setze":
+			case "set":
+				// Stufe setzen
 				stufe = new Stufe(argumente[0]);
-				System.out.printf("Stufe auf %s festgelegt\n", stufe.getStufeLang());
+				// Sportart setzen
+				sportart = new Sportart(argumente[1]);
+				// Tag setzen
+				tag = argumente[2].toUpperCase();
+				 // fällt durch, damit die Info noch angezeigt wird
+			case "info": // einfach nur kurz die umgebungsvariable anzeigen lassen
+				System.out.printf("Stufe: %s%nSportart: %s%nTag: %s%n", stufe.getStufeKurz(), sportart.getSportartKurz(), tag);
 				break;
-			case "block":
-			case "blockerstellen":
-			case "tabelleerstellen":
+			case "tag":
+				switch(argumente[0].toLowerCase()) {
+				case "montag":
+				case "mo":
+					tag = "MO";
+					break;
+				case "di":
+				case "dienstag":
+					tag = "DI";
+					break;
+				default:
+					System.out.println("FEHLER: Unbekannter Tag");
+				}
+			case "block": // xx_xx_xx_zeiten-Tabelle erstellen
+			case "blockzeiten":
+			case "zeiten":
 				beginnZeit = Calendar.getInstance();
 				SimpleDateFormat df = new SimpleDateFormat("HH:mm"); // DateFormat für die Eingabe
 				try {
@@ -134,14 +152,14 @@ public class SpielplanerApp {
 				} catch (NumberFormatException e) {
 					System.out.println("FEHLER: Spiel- oder Pausendauer bitte in Minuten als einfache Zahlen angeben!");
 				}
-				PlanMaker pm;
+				ZeitMaker pm;
 				try {
-					pm = new PlanMaker(sportart, stufe);
-					pm.addTable(beginnZeit, spieldauer, pausendauer, true);
+					pm = new ZeitMaker(sportart, stufe, tag);
+					pm.addZeiten(beginnZeit, spieldauer, pausendauer);
 				} catch (SQLException e2) {
 					System.out.println("FEHLER: Datenbankfehler");
 				}
-				System.out.println("Tabelle für folgen");
+				System.out.printf("Zeiten erstellt: %s Uhr, Spieldauer %d min, Pausendauer %d min\n", df.format(beginnZeit.getTime()), spieldauer, pausendauer);
 				break;
 			case "spielplanerstellen": // Spielplan erstellen für bis zu sechs Mannschaften, drei Kommandos möglich, deshalb durchfallen
 			case "plane":
@@ -164,7 +182,7 @@ public class SpielplanerApp {
 							continue;
 						sm.addMannschaft(argumente[i]);
 					}
-					sm.plane(feld); // Eigentliche Planung starten, erstellt Tabelle wenn nötig
+					sm.plane(feld, tag); // Eigentliche Planung starten, erstellt Tabelle wenn nötig
 					System.out.println("Spielplan erstellt und hochgeladen");
 				} catch (SQLException e) {
 					e.printStackTrace();
@@ -177,25 +195,26 @@ public class SpielplanerApp {
 					System.out.println("FEHLER: Teams-Table in der DB existiert nicht!");
 				}
 				break;
-			case "ausgeben":
+			case "ausgeben": // Spielplan in Excel-Tabelle schreiben FIXME: broken (SP)
 			case "ausgabe":
 				if(!kannPlanungBeginnen(sportart, stufe, beginnZeit, spieldauer, pausendauer)) {
 					System.out.println("Bitte erst Sportart und Stufe festlegen!");
 					break;
 				}
 				try {
-					SpielplanWriter sw = new SpielplanWriter(argumente[0], sportart, stufe);
+					SpielplanWriter sw = new SpielplanWriter(argumente[0], stufe, sportart);
 					sw.write();
 					sw.close();
 				} catch (SQLException | IOException e1) {
 					e1.printStackTrace();
 				} catch (IllegalArgumentException e) {
-					System.out.println("FEHLER: " + e.getMessage());
+					e.printStackTrace();
+//					System.out.println("FEHLER: " + e.getMessage());
 				}
 				break;
-			case "kontrolliste":
+			case "kontrolliste": // KL in Excel-Tabelle schreiben FIXME: broken (KL)
 				try {
-					KontrollistenWriter checklistmaker = new KontrollistenWriter(argumente[0], sportart, stufe);
+					KontrollistenWriter checklistmaker = new KontrollistenWriter(argumente[0], sportart, stufe, tag);
 					System.out.println("Erstelle Kontrolliste");
 					checklistmaker.spielerEintragen();
 					checklistmaker.close();
@@ -216,16 +235,18 @@ public class SpielplanerApp {
 			case "h":
 				System.out.println("Mögliche Kommandos: ([...]: Pflichtargument; <...>: Optionales Argument)");
 				System.out.println(" einlesen [Dateiname] - Liest Mannschaften von der Excel-Tabelle ein und trägt sie in die Datenbank ein");
-				System.out.println(" sportart [Sportart (z.B. BB)] - Legt die Sportart fest, für die in den folgenden Schritten Pläne erstellt oder ausgegeben werden");
-				System.out.println(" stufe [Stufe (US / MS / OS)] - Legt die Stufe fest, für die in den folgenden Schritten Pläne erstellt oder ausgegeben werden");
-				System.out.println(" zeit [HH:MM] [Spieldauer in min] [Pausendauer in min] - Setzt die Zeit, zu der ein Spielplan beginnt und die Dauer der Spiele und der Pause");
+				System.out.println(" setze [Stufe] [Sportart] [Tag] - Legt fest, mit welcher Stufe, Sportart und Tag gearbeitet wird (als Tag nur \"Mo\" oder \"Di\"");
+				System.out.println(" info - zeigt gesetzte Stufe, Sportart und Tag an");
+				System.out.println(" blockzeiten [Startzeit als \"HH:MM\"] [Spieldauer in min] [Pausendauer in min] - Erstellt einen leeren Plan mit den Zeiten (überschreibt den Plan, falls er bereits vorhanden ist!)");
 				System.out.println(" planen [Feld] [team1] [team2] [team3] [team4] <team5> <team6> - Erstellt einen Spielplan für vier bis sechs Teams in einer Gruppe");
 				System.out.println(" ausgeben [Dateiname] - Schreibt den Spielplan in eine Excel-Tabelle");
 				System.out.println(" kontrolliste [Dateiname] - Erstellt eine Kontrolliste und schreibt sie in eine Excel-Tabelle");
 				System.out.println(" h - Diese Hilfe anzeigen (auch help oder hilfe)");
 				System.out.println(" exit - Programm beenden");
 				System.out.println();
-				System.out.println(" Bevor ein Spielplan erstellt werden kann müssen Sportart, Stufe und Zeit gesetzt werden!");
+				System.out.println(" Bevor ein Spielplan erstellt werden kann müssen Sportart, Stufe und Tag gesetzt werden!");
+				System.out.println();
+				System.out.println(" Für die korrekte Funktion des Programms müssen die Felder in ihrer Reihenfolge erstellt werden - zuerst Feld1, dann Feld2, ...");
 				break;
 			case "exit": // Programm komplett beenden
 				break schleife;

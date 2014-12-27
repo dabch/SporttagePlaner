@@ -22,7 +22,7 @@ import org.apache.poi.ss.util.CellRangeAddress;
 
 public class KontrollistenWriter {
 	private Connection con; // Datenbankverbindung
-	private ResultSet spielplan; // Spielplan als ResulSet
+	private ResultSet plan; // Spielplan als ResulSet
 	PreparedStatement holeTeams1;
 	PreparedStatement holeTeams2;
 
@@ -35,14 +35,20 @@ public class KontrollistenWriter {
 	private CellStyle csNormal;
 	
 	private int aktReihe = 9; // Letzte Reihe, in die eingetragen wurde
+	private int maxFelder;
 
-	private String tablePlan;
+	private String tablePlanStamm; 
+	private String tableTeams;
 	
-	public KontrollistenWriter(String filename, Sportart sportart, Stufe stufe) throws SQLException, FileNotFoundException, IllegalArgumentException {
+	/*
+	 * FINAL automatisch Dateinamen erstellen
+	 */
+	public KontrollistenWriter(String filename, Sportart sportart, Stufe stufe, String tag) throws SQLException, FileNotFoundException, IllegalArgumentException {
 		if(filename == null || filename.isEmpty())
 			throw new IllegalArgumentException("Bitte Dateinamen angeben!"); // Fehler bei leerem Dateinamen
 		
-		tablePlan = String.format("%s_%s", stufe.getStufeKurz(), sportart.getSportartKurz()); // Tabellennamen festlegen
+		tablePlanStamm = String.format("%s_%s_%s", stufe.getStufeKurz(), sportart.getSportartKurz(), tag); // Tabellennamen festlegen
+		tableTeams = String.format("Mannschaften_%s", stufe.getStufeKurz());
 
 		fos = new FileOutputStream(filename);
 
@@ -55,15 +61,49 @@ public class KontrollistenWriter {
 		wb = new HSSFWorkbook();
 
 		sheet1 = wb.createSheet("Kontrolliste"); // Tabelle1 erstellen und "Spielplan" taufen
-
-		this.tablePlan = String.format("%s_%s", stufe.getStufeKurz(), sportart.getSportartKurz()); // Tabellennamen festlegen
+		
+		PreparedStatement holePlan = null;
+		
+		switch(sportart.getSportartKurz()) {
+		case "BM": // sechs Felder
+			holePlan = con.prepareStatement(String.format(
+					"SELECT z.ID AS ID, z.Spielbeginn AS Beginn, z.Spielende AS Ende, f1.Paarung AS Feld1, f2.Paarung AS Feld2, f3.Paarung AS Feld3, f4.Paarung AS Feld4, f5.Paarung AS Feld5, f6.Paarung AS Feld6 FROM %s_zeiten z LEFT JOIN %s_feld1 f1 ON f1.ID = z.ID LEFT JOIN %s_feld2 f2 ON f2.ID = z.ID LEFT JOIN %s_feld3 f3 ON f3.ID = z.ID LEFT JOIN %s_feld4 f4 ON f4.ID = z.ID LEFT JOIN %s_feld5 f5 ON f5.ID = z.ID LEFT JOIN %s_feld6 f6 ON f6.ID = z.ID WHERE f1.Paarung != '' OR f2.Paarung != '' OR f3.Paarung != '' OR f4.Paarung != '' OR f5.Paarung != '' OR f6.Paarung != ''",
+					tablePlanStamm, tablePlanStamm, tablePlanStamm, tablePlanStamm, tablePlanStamm, tablePlanStamm, tablePlanStamm));
+			maxFelder = 6;
+			break;
+		case "FB": // drei Felder
+		case "BB":
+			holePlan = con.prepareStatement(String.format(
+					"SELECT z.ID AS ID, z.Spielbeginn AS Beginn, z.Spielende AS Ende, f1.Paarung AS Feld1, f2.Paarung AS Feld2, f3.Paarung AS Feld3 FROM %s_zeiten z LEFT JOIN %s_feld1 f1 ON f1.ID = z.ID LEFT JOIN %s_feld2 f2 ON f2.ID = z.ID LEFT JOIN %s_feld3 f3 ON f3.ID = z.ID WHERE f1.Paarung != '' OR f2.Paarung != '' OR f3.Paarung != ''",
+					tablePlanStamm, tablePlanStamm, tablePlanStamm, tablePlanStamm));
+			maxFelder = 3;
+			break;
+		case "TT": // vier Felder
+			holePlan = con.prepareStatement(String.format(
+					"SELECT z.ID AS ID, z.Spielbeginn AS Beginn, z.Spielende AS Ende, f1.Paarung AS Feld1, f2.Paarung AS Feld2, f3.Paarung AS Feld3, f4.Paarung AS Feld4 FROM %s_zeiten z LEFT JOIN %s_feld1 f1 ON f1.ID = z.ID LEFT JOIN %s_feld2 f2 ON f2.ID = z.ID LEFT JOIN %s_feld3 f3 ON f3.ID = z.ID LEFT JOIN %s_feld4 f4 ON f4.ID = z.ID WHERE f1.Paarung != '' OR f2.Paarung != '' OR f3.Paarung != '' OR f4.Paarung != ''",
+					tablePlanStamm, tablePlanStamm, tablePlanStamm, tablePlanStamm, tablePlanStamm));
+			maxFelder = 4;
+			break;
+		case "VB": // zwei Felder
+			holePlan = con.prepareStatement(String.format(
+					"SELECT z.ID AS ID, z.Spielbeginn AS Beginn, z.Spielende AS Ende, f1.Paarung AS Feld1, f2.Paarung AS Feld2 FROM %s_zeiten z LEFT JOIN %s_feld1 f1 ON f1.ID = z.ID LEFT JOIN %s_feld2 f2 ON f2.ID = z.ID WHERE f1.Paarung != '' OR f2.Paarung != ''",
+					tablePlanStamm, tablePlanStamm, tablePlanStamm, tablePlanStamm, tablePlanStamm));
+			maxFelder = 2;
+			break;
+		default: // ein Feld
+			holePlan = con.prepareStatement(String.format(
+					"SELECT z.ID AS ID, z.Spielbeginn AS Beginn, z.Spielende AS Ende, f1.Paarung AS Feld1 FROM %s_zeiten z LEFT JOIN %s_feld1 f1 ON f1.ID = z.ID WHERE f1.Paarung != ''",
+					tablePlanStamm, tablePlanStamm, tablePlanStamm, tablePlanStamm, tablePlanStamm));
+			maxFelder = 1;
+		}
+		plan = holePlan.executeQuery();
 
 		PreparedStatement holeSpielplan1Feld = con.prepareStatement(String.format(
-				"SELECT Spielbeginn, Spielende, Feld1 FROM %s", tablePlan));
+				"SELECT Spielbeginn, Spielende, Feld1 FROM %s", tablePlanStamm));
 		
 		holeTeams1 = con.prepareStatement(String.format("SELECT Vorname, Name FROM Teams_%s WHERE %s = ?", stufe.getStufeKurz(), sportart.getSportartKurz())); // SQL-Statement, um Spieler einer bestimmten Mannschaft abzufragen
 		holeTeams2 = con.prepareStatement(String.format("SELECT Vorname, Name FROM Teams_%s WHERE %s = ?", stufe.getStufeKurz(), sportart.getSportartKurz())); // SQL-Statement, um Spieler einer bestimmten Mannschaft abzufragen
-		spielplan = holeSpielplan1Feld.executeQuery();
+		plan = holeSpielplan1Feld.executeQuery();
 		setStyles();
 		ueberschriftenEintragen();
 	}
@@ -77,7 +117,7 @@ public class KontrollistenWriter {
 		wb.write(fos); // Excel-Datei schreiben
 		fos.flush();
 		fos.close(); // FileOutputStream schließen
-		spielplan.close(); // ResultSet schließen
+		plan.close(); // ResultSet schließen
 //		spieler.close();
 		con.close(); // Datenbankverbindung schließen
 	}
@@ -130,15 +170,15 @@ public class KontrollistenWriter {
 	}
 	
 	public void spielerEintragen() throws SQLException {
-		while(spielplan.next()) {
+		while(plan.next()) {
 //			int startReihe = aktReihe;
 			Row row = sheet1.createRow(aktReihe++); // In der aktuellen Reihe, danach um 1 erhöhen
 			Cell cell = row.createCell(0);
 			cell.setCellStyle(csNormal);
 			// Zeit eintragen
 			cell.setCellStyle(csNormal);
-			cell.setCellValue(String.format("%s - %s", spielplan.getTime(1), spielplan.getTime(2)));
-			String spiel = spielplan.getString("Feld1");
+			cell.setCellValue(String.format("%s - %s", plan.getTime(1), plan.getTime(2)));
+			String spiel = plan.getString("Feld1");
 			
 			// Spiel-String in Teams zerlegen
 			String team1 = spiel.substring(0, spiel.indexOf(':')).trim();

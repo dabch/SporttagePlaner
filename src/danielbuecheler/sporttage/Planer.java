@@ -12,8 +12,9 @@ public class Planer {
 
 	Connection con;
 	String tablePlan;
-	String tableTeams = "";
+	String tableTeams;
 	Sportart sportart;
+	Stufe stufe;
 	static Calendar beginn;
 	static Calendar ende;
 	ArrayList<String> teams = new ArrayList<>();
@@ -21,13 +22,11 @@ public class Planer {
 	PreparedStatement addZeit = null;
 	int spieldauer;	
 	int pausendauer;
-	int currentID;
-
 	public Planer(Sportart sportart, Stufe stufe) throws SQLException, IllegalArgumentException {
-
+		this.stufe = stufe;
 		this.sportart = sportart; // Sportart setzen
-		this.tablePlan = String.format("%s_%s", stufe.getStufeKurz(), sportart.getSportartKurz()); // Tabellennamen festlegen
-		this.tableTeams = String.format("Teams_%s", stufe.getStufeKurz());
+
+		this.tableTeams = String.format("Mannschaften_%s", stufe.getStufeKurz());
 
 		con = DriverManager.getConnection(String.format("jdbc:mysql://%s/%s",
 				SpielplanerApp.properties.getProperty("database_ip_address"),
@@ -51,10 +50,9 @@ public class Planer {
 	}
 	
 
-	public void plane(int feldnr) throws SQLException, TableNotExistentException {
-		currentID = 1;
-		addSpiel = con.prepareStatement(String.format("UPDATE %s SET Feld%d = ? WHERE ID = ?", tablePlan, feldnr)); // PreparedStatement zum Einfügen eines Spiels auf Feld X zu einer bestimmten Zeit
-		addZeit = con.prepareStatement(String.format("INSERT INTO %s (Spielbeginn, Spielende) VALUES (?, ?)", tablePlan)); // PreparedStatement zum Einfügen einer neuen Zeit
+	public void plane(int feldnr, String tag) throws SQLException, TableNotExistentException {
+		this.tablePlan = String.format("%s_%s_%s_feld%d", stufe.getStufeKurz(), sportart.getSportartKurz(), tag, feldnr); // Tabellennamen festlegen // LATEST
+		addSpiel = con.prepareStatement(String.format("INSERT INTO %s (Paarung) VALUES (?)", tablePlan)); // PreparedStatement zum Einfügen eines Spiels auf Feld X zu einer bestimmten Zeit
 		if (teams.size() < 4) { // Minimal 4 Teams akzeptieren
 			throw new IllegalArgumentException("Minimal vier Mannschaften erlaubt");
 		}
@@ -116,13 +114,9 @@ public class Planer {
 	 */
 	private void insertSpiel(String team1, String team2) throws SQLException {
 		addSpiel.setString(1, String.format("%s : %s", team1, team2)); // Spiel-String setzen
-		addSpiel.setInt(2, currentID); // Abfrageparameter einsetzen
-		if (addSpiel.executeUpdate() > 0) { // Update ausführen
-			System.out.println("Spiel erfolgreich hinzugefügt");
-		} else {
+		if (addSpiel.executeUpdate() == 0) { // Update ausführen
 			System.out.println("FEHLER: Spiel konnte nicht hinzugefügt werden");
 		}
-		currentID++;
 	}
 	
 

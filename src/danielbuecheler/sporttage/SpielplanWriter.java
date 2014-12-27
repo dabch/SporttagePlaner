@@ -7,6 +7,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.apache.poi.hssf.usermodel.HSSFPrintSetup;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -28,7 +30,7 @@ import org.apache.poi.ss.util.CellRangeAddress;
 public class SpielplanWriter {
 
 	private Connection con; // Datenbankverbindung
-	private ResultSet spielplan; // Spielplan als ResulSet
+	private ResultSet plan; // Spielplan als ResulSet
 
 	private FileOutputStream fos; // FileOutputStream, auf den die Excel-Tabelle geschrieben wird
 	private HSSFWorkbook wb; // Excel-Datei
@@ -38,19 +40,22 @@ public class SpielplanWriter {
 	private CellStyle csUntertitel;
 	private CellStyle csTabellenueberschrift;
 	private CellStyle csSpieleEtc;
+	
+	private int currentRow = 5; // Zähler, in welcher Reihe wir 
 
-	private int anzahlFelder;
-	private String tablePlan;
+	private int hoechstesBespieltesFeld;
+	private int hoechstesBespieltesFeldMo;
+	
+	private String tableStamm;
 	private Stufe stufe;
 	private Sportart sportart;
 
-	public SpielplanWriter(String filename, Sportart sportart, Stufe stufe) throws SQLException, IOException, IllegalArgumentException {
+	public SpielplanWriter(String filename, Stufe stufe, Sportart sportart) throws SQLException,
+			IOException, IllegalArgumentException {
 		this.stufe = stufe;
 		this.sportart = sportart;
-		if(filename == null || filename.isEmpty())
+		if (filename == null || filename.isEmpty())
 			throw new IllegalArgumentException("Bitte Dateinamen angeben!");
-		
-		tablePlan = String.format("%s_%s", stufe.getStufeKurz(), sportart.getSportartKurz()); // Tabellennamen festlegen
 
 		fos = new FileOutputStream(filename);
 
@@ -60,44 +65,125 @@ public class SpielplanWriter {
 				SpielplanerApp.properties.getProperty("database_username"), // Username
 				SpielplanerApp.properties.getProperty("database_password")); // Passwort
 	}
-	
+
 	public void write() throws SQLException {
-		anzahlFelder = getAnzahlFelder(); // Anzahl der Felder auslesen
+		int maxFelder;
 
 		wb = new HSSFWorkbook();
 
 		sheet1 = wb.createSheet("Spielplan"); // Tabelle1 erstellen und "Spielplan" taufen
-
-		PreparedStatement holeSpielplan1Feld = con.prepareStatement(String.format(
-				"SELECT Spielbeginn, Spielende, Feld1, Feld1Schiri FROM %s", tablePlan));
 		
-		System.out.println(holeSpielplan1Feld);
-		spielplan = holeSpielplan1Feld.executeQuery();
+		setStyles(); // Tabellen-Styles setzen
+		// Montag
+		tableStamm = String.format("%s_%s_%s", stufe.getStufeKurz(), sportart.getSportartKurz(), "MO"); // Tabellennamen festlegen
+		
+		PreparedStatement holePlan = null;
+		
+		switch(sportart.getSportartKurz()) {
+		case "BM": // sechs Felder
+			holePlan = con.prepareStatement(String.format(
+					"SELECT z.ID AS ID, z.Spielbeginn AS Beginn, z.Spielende AS Ende, f1.Paarung AS Feld1, f2.Paarung AS Feld2, f3.Paarung AS Feld3, f4.Paarung AS Feld4, f5.Paarung AS Feld5, f6.Paarung AS Feld6 FROM %s_zeiten z LEFT JOIN %s_feld1 f1 ON f1.ID = z.ID LEFT JOIN %s_feld2 f2 ON f2.ID = z.ID LEFT JOIN %s_feld3 f3 ON f3.ID = z.ID LEFT JOIN %s_feld4 f4 ON f4.ID = z.ID LEFT JOIN %s_feld5 f5 ON f5.ID = z.ID LEFT JOIN %s_feld6 f6 ON f6.ID = z.ID WHERE f1.Paarung != '' OR f2.Paarung != '' OR f3.Paarung != '' OR f4.Paarung != '' OR f5.Paarung != '' OR f6.Paarung != ''",
+					tableStamm, tableStamm, tableStamm, tableStamm, tableStamm, tableStamm, tableStamm));
+			maxFelder = 6;
+			break;
+		case "FB": // drei Felder
+		case "BB":
+			holePlan = con.prepareStatement(String.format(
+					"SELECT z.ID AS ID, z.Spielbeginn AS Beginn, z.Spielende AS Ende, f1.Paarung AS Feld1, f2.Paarung AS Feld2, f3.Paarung AS Feld3 FROM %s_zeiten z LEFT JOIN %s_feld1 f1 ON f1.ID = z.ID LEFT JOIN %s_feld2 f2 ON f2.ID = z.ID LEFT JOIN %s_feld3 f3 ON f3.ID = z.ID WHERE f1.Paarung != '' OR f2.Paarung != '' OR f3.Paarung != ''",
+					tableStamm, tableStamm, tableStamm, tableStamm));
+			maxFelder = 3;
+			break;
+		case "TT": // vier Felder
+			holePlan = con.prepareStatement(String.format(
+					"SELECT z.ID AS ID, z.Spielbeginn AS Beginn, z.Spielende AS Ende, f1.Paarung AS Feld1, f2.Paarung AS Feld2, f3.Paarung AS Feld3, f4.Paarung AS Feld4 FROM %s_zeiten z LEFT JOIN %s_feld1 f1 ON f1.ID = z.ID LEFT JOIN %s_feld2 f2 ON f2.ID = z.ID LEFT JOIN %s_feld3 f3 ON f3.ID = z.ID LEFT JOIN %s_feld4 f4 ON f4.ID = z.ID WHERE f1.Paarung != '' OR f2.Paarung != '' OR f3.Paarung != '' OR f4.Paarung != ''",
+					tableStamm, tableStamm, tableStamm, tableStamm, tableStamm));
+			maxFelder = 4;
+			break;
+		case "VB": // zwei Felder
+			holePlan = con.prepareStatement(String.format(
+					"SELECT z.ID AS ID, z.Spielbeginn AS Beginn, z.Spielende AS Ende, f1.Paarung AS Feld1, f2.Paarung AS Feld2 FROM %s_zeiten z LEFT JOIN %s_feld1 f1 ON f1.ID = z.ID LEFT JOIN %s_feld2 f2 ON f2.ID = z.ID WHERE f1.Paarung != '' OR f2.Paarung != ''",
+					tableStamm, tableStamm, tableStamm, tableStamm, tableStamm));
+			maxFelder = 2;
+			break;
+		default: // ein Feld
+			holePlan = con.prepareStatement(String.format(
+					"SELECT z.ID AS ID, z.Spielbeginn AS Beginn, z.Spielende AS Ende, f1.Paarung AS Feld1 FROM %s_zeiten z LEFT JOIN %s_feld1 f1 ON f1.ID = z.ID WHERE f1.Paarung != ''",
+					tableStamm, tableStamm, tableStamm, tableStamm, tableStamm));
+			maxFelder = 1;
+		}
+		plan = holePlan.executeQuery();
+		hoechstesBespieltesFeld = hoechstesBespieltesFeld(maxFelder);
 
-		setStyles();
-		ueberschriftenEintragen();
+		titelEintragen(); // "Spielplan für xxxxxxxx" usw.
+		ueberschriftenEintragen("Montag");
+		spieleEintragen();
+		
+		currentRow += 3; // 5 Reihen frei zwischen den Tagen
+		
+		// Dienstag
+		holePlan = null;
+		tableStamm = String.format("%s_%s_%s", stufe.getStufeKurz(), sportart.getSportartKurz(), "DI"); // Tabellennamen festlegen
+		
+		switch(sportart.getSportartKurz()) {
+		case "BM": // sechs Felder
+			holePlan = con.prepareStatement(String.format(
+					"SELECT z.ID AS ID, z.Spielbeginn AS Beginn, z.Spielende AS Ende, f1.Paarung AS Feld1, f2.Paarung AS Feld2, f3.Paarung AS Feld3, f4.Paarung AS Feld4, f5.Paarung AS Feld5, f6.Paarung AS Feld6 FROM %s_zeiten z LEFT JOIN %s_feld1 f1 ON f1.ID = z.ID LEFT JOIN %s_feld2 f2 ON f2.ID = z.ID LEFT JOIN %s_feld3 f3 ON f3.ID = z.ID LEFT JOIN %s_feld4 f4 ON f4.ID = z.ID LEFT JOIN %s_feld5 f5 ON f5.ID = z.ID LEFT JOIN %s_feld6 f6 ON f6.ID = z.ID WHERE f1.Paarung != '' OR f2.Paarung != '' OR f3.Paarung != '' OR f4.Paarung != '' OR f5.Paarung != '' OR f6.Paarung != ''",
+					tableStamm, tableStamm, tableStamm, tableStamm, tableStamm, tableStamm, tableStamm));
+			maxFelder = 6;
+			break;
+		case "FB": // drei Felder
+		case "BB":
+			holePlan = con.prepareStatement(String.format(
+					"SELECT z.ID AS ID, z.Spielbeginn AS Beginn, z.Spielende AS Ende, f1.Paarung AS Feld1, f2.Paarung AS Feld2, f3.Paarung AS Feld3 FROM %s_zeiten z LEFT JOIN %s_feld1 f1 ON f1.ID = z.ID LEFT JOIN %s_feld2 f2 ON f2.ID = z.ID LEFT JOIN %s_feld3 f3 ON f3.ID = z.ID WHERE f1.Paarung != '' OR f2.Paarung != '' OR f3.Paarung != ''",
+					tableStamm, tableStamm, tableStamm, tableStamm));
+			maxFelder = 3;
+			break;
+		case "TT": // vier Felder
+			holePlan = con.prepareStatement(String.format(
+					"SELECT z.ID AS ID, z.Spielbeginn AS Beginn, z.Spielende AS Ende, f1.Paarung AS Feld1, f2.Paarung AS Feld2, f3.Paarung AS Feld3, f4.Paarung AS Feld4 FROM %s_zeiten z LEFT JOIN %s_feld1 f1 ON f1.ID = z.ID LEFT JOIN %s_feld2 f2 ON f2.ID = z.ID LEFT JOIN %s_feld3 f3 ON f3.ID = z.ID LEFT JOIN %s_feld4 f4 ON f4.ID = z.ID WHERE f1.Paarung != '' OR f2.Paarung != '' OR f3.Paarung != '' OR f4.Paarung != ''",
+					tableStamm, tableStamm, tableStamm, tableStamm, tableStamm));
+			maxFelder = 4;
+			break;
+		case "VB": // zwei Felder
+			holePlan = con.prepareStatement(String.format(
+					"SELECT z.ID AS ID, z.Spielbeginn AS Beginn, z.Spielende AS Ende, f1.Paarung AS Feld1, f2.Paarung AS Feld2 FROM %s_zeiten z LEFT JOIN %s_feld1 f1 ON f1.ID = z.ID LEFT JOIN %s_feld2 f2 ON f2.ID = z.ID WHERE f1.Paarung != '' OR f2.Paarung != ''",
+					tableStamm, tableStamm, tableStamm, tableStamm, tableStamm));
+			maxFelder = 2;
+			break;
+		default: // ein Feld
+			holePlan = con.prepareStatement(String.format(
+					"SELECT z.ID AS ID, z.Spielbeginn AS Beginn, z.Spielende AS Ende, f1.Paarung AS Feld1 FROM %s_zeiten z LEFT JOIN %s_feld1 f1 ON f1.ID = z.ID WHERE f1.Paarung != ''",
+					tableStamm, tableStamm, tableStamm, tableStamm, tableStamm));
+			maxFelder = 1;
+		}
+		plan = holePlan.executeQuery();
+		hoechstesBespieltesFeldMo = hoechstesBespieltesFeld; // speichern
+		hoechstesBespieltesFeld = hoechstesBespieltesFeld(maxFelder);
+		ueberschriftenEintragen("Montag");
 		spieleEintragen();
 	}
-	
+
 	/**
 	 * Schließt alle durch den SpielplanWriter geöffneten Ressourcen und schreibt die Excel-Datei
+	 * 
 	 * @throws IOException
 	 * @throws SQLException
 	 */
 	public void close() throws IOException, SQLException {
 		// Spaltenbreiten anpassen
-		for (int spalte = 0; spalte < 1 + anzahlFelder * 3; spalte++) {
+		hoechstesBespieltesFeld = (hoechstesBespieltesFeld > hoechstesBespieltesFeldMo) ? hoechstesBespieltesFeld : hoechstesBespieltesFeldMo; 
+		for (int spalte = 0; spalte < 1 + hoechstesBespieltesFeld * 3; spalte++) {
 			sheet1.autoSizeColumn(spalte);
 		}
 		sheet1.getPrintSetup().setPaperSize(HSSFPrintSetup.A4_ROTATED_PAPERSIZE); // A4 Querformat
 		wb.write(fos); // Excel-Datei schreiben
 		fos.flush();
 		fos.close(); // FileOutputStream schließen
-		spielplan.close(); // ResultSet schließen
+		plan.close(); // ResultSet schließen
 		con.close(); // Datenbankverbindung schließen
 	}
-	
-	private void ueberschriftenEintragen() {
+
+	private void titelEintragen() throws SQLException {
 		// Row und Cell aus dem Sheet erstellen
 		Row row;
 		Cell cell;
@@ -108,24 +194,32 @@ public class SpielplanWriter {
 		row.setHeightInPoints(30); // Höhe 30pt
 		cell.setCellStyle(csTitel); // cs anwenden
 		cell.setCellValue(String.format("Spielplan für %s %s", sportart.getSportartLang(), stufe.getStufeLang()));
-		sheet1.addMergedRegion(new CellRangeAddress(0, 0, 0, anzahlFelder * 3)); // Titel geht über mehrere Zellen
+		sheet1.addMergedRegion(new CellRangeAddress(0, 0, 0, hoechstesBespieltesFeld * 3)); // Titel geht über mehrere Zellen
 
 		// "Made by Daniel Bücheler"
 		row = sheet1.createRow(1);
 		cell = row.createCell(0);
 		cell.setCellStyle(csUntertitel);
 		cell.setCellValue("Erstellt von Spielplan_beta by Daniel Bücheler"); // muss sein :D
-		sheet1.addMergedRegion(new CellRangeAddress(1, 1, 0, anzahlFelder * 3)); // Geht auch über mehrere Zellen
-
+		sheet1.addMergedRegion(new CellRangeAddress(1, 1, 0, hoechstesBespieltesFeld * 3)); // Geht auch über mehrere Zellen
+	}
+	
+	private void ueberschriftenEintragen(String tag) {
+		// Mo / Di
+		Row row = sheet1.createRow(currentRow++);
+		Cell cell = row.createCell(0);
+		row.setHeightInPoints(15);
+		cell.setCellStyle(csTabellenueberschrift);
+		cell.setCellValue(tag);
 		// Überschriften für Felder
 		// Zeit
-		row = sheet1.createRow(4);
+		row = sheet1.createRow(currentRow++);
 		cell = row.createCell(0);
 		row.setHeightInPoints(15);
 		cell.setCellStyle(csTabellenueberschrift);
 		cell.setCellValue("Zeit");
 		// Feld X, Schiri, Ergebnis für jedes Feld
-		for (int feld = 0; feld < anzahlFelder; feld++) { // Variable anzahl Felder
+		for (int feld = 0; feld < hoechstesBespieltesFeld; feld++) { // Variable anzahl Felder
 			// Feld
 			cell = row.createCell(1 + feld * 3); // 1 + Feld * 3, da jedes Feld 3 Spalten braucht und die Uhrzeit am Anfang eine
 			cell.setCellStyle(csTabellenueberschrift);
@@ -140,33 +234,42 @@ public class SpielplanWriter {
 			cell.setCellValue("Ergebnis");
 		}
 	}
-	
-	
+
 	private void spieleEintragen() throws SQLException {
 		Row row;
 		Cell cell;
-		int currentRow = 5;
-		spielplan.absolute(0);
-		while(spielplan.next()) {
-			// IDEA: EXTRACT() benutzen, um die :00 Sekunden wegzukriegen
-			System.out.println("Spiel wird eingetragen");
+		plan.absolute(0);
+		while (plan.next()) {
 			row = sheet1.createRow(currentRow++);
+
 			// Zeit schreiben
 			cell = row.createCell(0);
 			cell.setCellStyle(csSpieleEtc);
-			cell.setCellValue(String.format("%s - %s", spielplan.getTime(1), spielplan.getTime(2))); // Von - Bis
-			// Spiel auf Feld 1
-			cell = row.createCell(1);
-			cell.setCellStyle(csSpieleEtc);
-			cell.setCellValue(spielplan.getString(3));
-			// Schiri Feld 1
-			cell = row.createCell(2);
-			cell.setCellStyle(csSpieleEtc);
-			cell.setCellValue(spielplan.getString(4));
-			// Leere Zelle für Ergebnis
-			cell = row.createCell(3);
-			cell.setCellStyle(csSpieleEtc);
-			cell.setCellValue(""); // komplett leere Zellen werden zusammengeführt -> Leerstring einfügen um das zu verhindern
+			Date beginn = new Date(plan.getTime("Beginn").getTime());
+			Date ende = new Date(plan.getTime("Ende").getTime());
+			SimpleDateFormat sdf = new SimpleDateFormat("HH:mm"); // Zur formatierung -> damit die :00 Sekunden weggehen
+			cell.setCellValue(String.format("%s - %s", sdf.format(beginn), sdf.format(ende))); // Von - Bis
+			
+			// Felder schreiben
+			for (int feld = 0; feld < hoechstesBespieltesFeld; feld++) {
+				// Paarung
+				cell = row.createCell(1 + feld * 3); // neue cell
+				cell.setCellStyle(csSpieleEtc);
+				String paarung = plan.getString("Feld" + (feld + 1));
+				if(paarung == null || paarung.isEmpty()) {  // Wenn kein Spiel stattfindet
+					cell.setCellValue(""); // Leerstring um merge zu verhindern und neu anfangen
+				} else {
+					cell.setCellValue(paarung); // Spiel eintragen
+				}
+				// Schiri (bisher Leerstring) TODO Schiri-Verwaltung
+				cell = row.createCell(2 + feld * 3);
+				cell.setCellStyle(csSpieleEtc);
+				cell.setCellValue("");
+				// Ergebnis (immer Leerstring
+				cell = row.createCell(3 + feld * 3);
+				cell.setCellStyle(csSpieleEtc);
+				cell.setCellValue("");
+			}
 		}
 	}
 
@@ -233,12 +336,24 @@ public class SpielplanWriter {
 		csSpieleEtc.setRightBorderColor(IndexedColors.BLACK.getIndex()); // Umrandung rechts in schwarz
 		csSpieleEtc.setDataFormat(dataFormat.getFormat("text")); // Datenformat Text
 	}
-	
-	private int getAnzahlFelder() throws SQLException { // LATEST
-		PreparedStatement selectAnzahlFelder = con.prepareStatement("SELECT COUNT(*) FROM INFORMATION_SCHEMA.Columns WHERE TABLE_NAME = ? AND COLUMN_NAME LIKE 'Feld_'");
-		selectAnzahlFelder.setString(1, tablePlan);
-		ResultSet infosZumTable = selectAnzahlFelder.executeQuery();
-		infosZumTable.next();
-		return infosZumTable.getInt(1);
+
+	/**
+	 * Ermittelt die Anzahl der beplanten Felder aus dem resultset
+	 * 
+	 * @return
+	 * @throws SQLException
+	 */
+	private int hoechstesBespieltesFeld(int maxFelder) throws SQLException {
+		if (!plan.next()) // Wenn das rs leer ist
+			return 0;
+		int hoechstes = 0;
+		for (int i = maxFelder; i > 0; i--) { // Jedes Feld abchecken, ob es bespielt wird
+			if (plan.getString("Feld" + (i)) != null) {
+				hoechstes = i;
+				break;
+			}
+		}
+		plan.first(); // An den Anfang gehen
+		return hoechstes;
 	}
 }

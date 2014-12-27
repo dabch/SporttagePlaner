@@ -45,11 +45,11 @@ public class Einleser {
 		klasse = cell.getStringCellValue();
 		// Erkennung der Stufe
 		if(klasse.contains("10") || klasse.contains("K1") || klasse.contains("K2"))
-			table = "Teams_OS";
+			table = "Mannschaften_OS";
 		else if(klasse.contains("9") || klasse.contains("8") || klasse.contains("7") || klasse.equals("A1"))
-			table = "Teams_MS";
+			table = "Mannschaften_MS";
 		else if(klasse.contains("7") || klasse.contains("6") || klasse.contains("5"))
-			table = "Teams_US";
+			table = "Mannschaften_US";
 		else {
 			throw new IllegalArgumentException("Keine Stufe erkannt, bitte Angabe der Klasse in der Tabelle prüfen");
 		}
