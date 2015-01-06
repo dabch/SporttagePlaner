@@ -74,7 +74,7 @@ public class SpielplanWriter {
 		sheet1 = wb.createSheet("Spielplan"); // Tabelle1 erstellen und "Spielplan" taufen
 		
 		setStyles(); // Tabellen-Styles setzen
-		// Montag
+		// f
 		tableStamm = String.format("%s_%s_%s", stufe.getStufeKurz(), sportart.getSportartKurz(), "MO"); // Tabellennamen festlegen
 		
 		PreparedStatement holePlan = null;
@@ -159,7 +159,7 @@ public class SpielplanWriter {
 		plan = holePlan.executeQuery();
 		hoechstesBespieltesFeldMo = hoechstesBespieltesFeld; // speichern
 		hoechstesBespieltesFeld = hoechstesBespieltesFeld(maxFelder);
-		ueberschriftenEintragen("Montag");
+		ueberschriftenEintragen("Dienstag");
 		spieleEintragen();
 	}
 
