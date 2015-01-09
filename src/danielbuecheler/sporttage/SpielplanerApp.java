@@ -136,7 +136,7 @@ public class SpielplanerApp {
 					tag = "DI";
 					break;
 				default:
-					System.out.println("FEHLER: Unbekannter Tag");
+					System.out.println("FEHLER: Unbekannter Tag (nur Montag oder Dienstag)");
 				}
 			case "block": // xx_xx_xx_zeiten-Tabelle erstellen
 			case "blockzeiten":
@@ -195,7 +195,7 @@ public class SpielplanerApp {
 					System.out.println("FEHLER: Teams-Table in der DB existiert nicht!");
 				}
 				break;
-			case "ausgeben": // Spielplan in Excel-Tabelle schreiben FIXME: broken (SP)
+			case "ausgeben": // Spielplan in Excel-Tabelle schreiben
 			case "ausgabe":
 				if(!kannPlanungBeginnen(sportart, stufe, beginnZeit, spieldauer, pausendauer)) {
 					System.out.println("Bitte erst Sportart und Stufe festlegen!");
@@ -214,14 +214,13 @@ public class SpielplanerApp {
 				break;
 			case "kontrolliste": // KL in Excel-Tabelle schreiben FIXME: broken (KL)
 				try {
-					KontrollistenWriter checklistmaker = new KontrollistenWriter(argumente[0], sportart, stufe, tag);
+					KontrollistenWriter checklistmaker = new KontrollistenWriter(sportart, stufe, tag);
 					System.out.println("Erstelle Kontrolliste");
-					checklistmaker.spielerEintragen();
+					checklistmaker.eintragen();
 					checklistmaker.close();
-					System.out.println("Eintragen in " + argumente[0]);
 				} catch (SQLException e) {
 					System.out.println("FEHLER: Datenbankfehler");
-					
+					e.printStackTrace();
 				} catch (FileNotFoundException e) {
 					System.out.println("FEHLER: Datei nicht gefunden");
 				} catch (IllegalArgumentException e) {
