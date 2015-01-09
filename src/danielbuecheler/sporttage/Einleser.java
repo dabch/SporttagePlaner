@@ -30,8 +30,9 @@ public class Einleser {
 	 * @throws IOException 
 	 */
 	public Einleser(String xlsname) throws SQLException, IOException {
+		String filename = SpielplanerApp.dirMannschaftslisten.getCanonicalPath() + xlsname;
 		// Dokumentname wird bei Aufruf übergeben
-		fis = new FileInputStream(xlsname);
+		fis = new FileInputStream(filename);
 		// Excel-Tabelle als Workbook
 		HSSFWorkbook wb = new HSSFWorkbook(fis);
 		// Alles interessante steht in Tabelle 1

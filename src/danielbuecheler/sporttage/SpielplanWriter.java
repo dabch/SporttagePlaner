@@ -50,13 +50,13 @@ public class SpielplanWriter {
 	private Stufe stufe;
 	private Sportart sportart;
 
-	public SpielplanWriter(String filename, Stufe stufe, Sportart sportart) throws SQLException,
+	public SpielplanWriter(Stufe stufe, Sportart sportart) throws SQLException,
 			IOException, IllegalArgumentException {
 		this.stufe = stufe;
 		this.sportart = sportart;
-		if (filename == null || filename.isEmpty())
-			throw new IllegalArgumentException("Bitte Dateinamen angeben!");
-
+		
+		String filename = String.format("Sporttage Planung/Spielpläne/Plan_%s_%s.xls", stufe.getStufeKurz(), sportart.getSportartKurz());
+		
 		fos = new FileOutputStream(filename);
 
 		con = DriverManager.getConnection(String.format("jdbc:mysql://%s/%s", // Verbindung zur Datenbank herstellen

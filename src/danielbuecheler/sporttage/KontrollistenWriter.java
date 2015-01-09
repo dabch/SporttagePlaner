@@ -47,9 +47,9 @@ public class KontrollistenWriter {
 	private Stufe stufe;
 	private String tablePlanStamm; 
 
-	public KontrollistenWriter(Sportart sportart, Stufe stufe, String tag) throws SQLException, FileNotFoundException, IllegalArgumentException {
+	public KontrollistenWriter(Sportart sportart, Stufe stufe, String tag) throws SQLException, IllegalArgumentException, IOException {
 		
-		String filename = String.format("Kontrolliste_%s_%s_%s.xls", stufe.getStufeKurz(), sportart.getSportartKurz(), tag); // der Dateiname ist automatisch generiert
+		String filename = String.format("%s/Kontrolliste_%s_%s_%s.xls", SpielplanerApp.dirKontrollisten.getCanonicalPath(), stufe.getStufeKurz(), sportart.getSportartKurz(), tag); // der Dateiname ist automatisch generiert
 		
 		tablePlanStamm = String.format("%s_%s_%s", stufe.getStufeKurz(), sportart.getSportartKurz(), tag); // Tabellennamen festlegen
 		String.format("Mannschaften_%s", stufe.getStufeKurz());

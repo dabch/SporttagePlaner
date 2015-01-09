@@ -1,5 +1,6 @@
 package danielbuecheler.sporttage;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -17,26 +18,61 @@ public class SpielplanerApp {
 	
 	static Properties properties;
 	
+	static File dirMannschaftslisten;
+	static File dirSpielplaene;
+	static File dirKontrollisten;
+	
 	public static void main(String[] args) {
 		System.out.println("SporttagePlaner Beta by Daniel Bücheler");
 		SimpleDateFormat sdf = new SimpleDateFormat("EE, dd. MMMM yyyy, HH:mm:ss zzz"); // Datum auf Deutsch in der richtigen Reihenfolge (z.B. Fr, 31. Dezember 2000, 19:48:12 MEZ)
 		System.out.println(sdf.format(new Date()));
 		System.out.println();
+
+		String dirRoot = "Sporttage Planung";
+		
+		// Ordnerstruktur erstellen
+		dirMannschaftslisten = new File(dirRoot + "/Mannschaftslisten/");
+		if(!dirMannschaftslisten.canRead()) {
+			System.out.println("Mannschaftslisten-Ordner nicht vorhanden. Wird erstellt.");
+			if(!dirMannschaftslisten.mkdirs()) {
+				System.out.println("Mannschaftslisten-Ordner konnte nicht erstellt werden. Bitte Problem lösen und erneut versuchen.");
+				System.exit(2);
+			}
+		}
+		dirKontrollisten = new File(dirRoot + "/Kontrollisten/");
+		if(!dirKontrollisten.canRead()) {
+			System.out.println("Kontrollisten-Ordner nicht vorhanden. Wird erstellt.");
+			if(!dirKontrollisten.mkdirs()) {
+				System.out.println("Kontrollisten-Ordner konnte nicht erstellt werden. Bitte Problem lösen und erneut versuchen.");
+				System.exit(2);
+			}
+		}
+		dirSpielplaene = new File(dirRoot + "/Spielpläne/");
+		if(!dirSpielplaene.canRead()) {
+			System.out.println("Spielplan-Ordner nicht vorhanden. Wird erstellt.");
+			if(!dirSpielplaene.mkdirs()) {
+				System.out.println("Spielplan-Ordner konnte nicht erstellt werden. Bitte Problem lösen und erneut versuchen.");
+				System.exit(2);
+			}
+		}
+		
+		// Properties aus Datei lesen oder erstellen
 		properties = new Properties();
 		FileReader reader = null;
 		try {
-			reader = new FileReader("sporttageplaner.properties");
+			reader = new FileReader(dirRoot + "/sporttageplaner.properties");
 			properties.load(reader);
 		} catch (FileNotFoundException e) {
+			e.printStackTrace();
 			System.out.println("sporttageplaner.properties nicht gefunden");
 			properties.setProperty("database_ip_address", "127.0.0.0");
 			properties.setProperty("database_username", "root");
 			properties.setProperty("database_password", "");
 			properties.setProperty("database_name", "sporttage");
 			try {
-				FileWriter writer = new FileWriter("sporttageplaner.properties");
+				FileWriter writer = new FileWriter(dirRoot + "/sporttageplaner.properties");
 				properties.store(writer, "Automatisch erstellte Properties. Bitte anpassen!");
-				System.out.println("Properties-Datei wurde erstellt. Bitte anpassen und dann das Programm nochmal starten.");
+				System.out.printf("Properties-Datei wurde im Ordner \"%s\" erstellt. Bitte anpassen und dann das Programm nochmal starten.%n", dirRoot);
 				writer.close();
 				System.exit(0);
 			} catch (IOException e1) { 
@@ -51,6 +87,7 @@ public class SpielplanerApp {
 			} catch (IOException e) { e.printStackTrace(); }
 		}
 		
+		
 		//#####################################
 		Scanner scn = new Scanner(System.in);
 		System.out.println("Was möchten Sie tun? (h, help oder hilfe für Hilfe)");
@@ -63,8 +100,6 @@ public class SpielplanerApp {
 		int spieldauer = 9; // Dauer eines Spiels
 		int pausendauer = 2;
 		String tag = "MO"; // True = Montag, False = Dienstag
-		
-		Planer sm;
 		
 		schleife: // Zum späteren Ausstieg aus der Endlosschleife
 		while(true) { // Endlosschleife
@@ -101,7 +136,7 @@ public class SpielplanerApp {
 					einleser = new Einleser(argumente[0]); // Einleser erstellen
 					einleser.readAll(); // alle Sportarten einlesen
 				} catch (FileNotFoundException e) {
-					System.out.println("FEHLER: Datei wurde nicht gefunden");
+					System.out.println("FEHLER: Datei wurde nicht gefunden. Mannschaftslisten müssen sich im Ordner %s/Mannschaftslisten befinden");
 					break;
 				} catch (IOException | SQLException e) {
 					e.printStackTrace();
@@ -176,13 +211,13 @@ public class SpielplanerApp {
 					break;
 				}
 				try {
-					sm = new Planer(sportart, stufe); // SpielplanMaker erstellen
+					Planer spielplaner = new Planer(sportart, stufe); // SpielplanMaker erstellen
 					for(int i = 1; i < argumente.length; i++) { // Teams hinzufügen... (dabei den ersten String in argumente überspringen, da er das Feld angibt)
 						if(argumente[i] == null || argumente[i].isEmpty()) // ... natürlich nur wenn ein Team angegeben wurde
 							continue;
-						sm.addMannschaft(argumente[i]);
+						spielplaner.addMannschaft(argumente[i]);
 					}
-					sm.plane(feld, tag); // Eigentliche Planung starten, erstellt Tabelle wenn nötig
+					spielplaner.plane(feld, tag); // Eigentliche Planung starten, erstellt Tabelle wenn nötig
 					System.out.println("Spielplan erstellt und hochgeladen");
 				} catch (SQLException e) {
 					e.printStackTrace();
@@ -202,20 +237,27 @@ public class SpielplanerApp {
 					break;
 				}
 				try {
-					SpielplanWriter sw = new SpielplanWriter(argumente[0], stufe, sportart);
+					SpielplanWriter sw = new SpielplanWriter(stufe, sportart);
+					System.out.printf("Schreibe Spielplan in \"Plan_%s_%s.xls\"%n", stufe.getStufeKurz(), sportart.getSportartKurz());
 					sw.write();
 					sw.close();
 				} catch (SQLException | IOException e1) {
 					e1.printStackTrace();
 				} catch (IllegalArgumentException e) {
 					e.printStackTrace();
-//					System.out.println("FEHLER: " + e.getMessage());
+					System.out.println("FEHLER: " + e.getMessage());
 				}
 				break;
-			case "kontrolliste": // KL in Excel-Tabelle schreiben FIXME: broken (KL)
+			case "kontrolliste": // KL in Excel-Tabelle schreiben
 				try {
-					KontrollistenWriter checklistmaker = new KontrollistenWriter(sportart, stufe, tag);
-					System.out.println("Erstelle Kontrolliste");
+					// Montag
+					KontrollistenWriter checklistmaker = new KontrollistenWriter(sportart, stufe, "MO");
+					System.out.printf("Erstelle Kontrolliste in \"Kontrolliste_%s_%s_%s.xls\"%n", stufe.getStufeKurz(), sportart.getSportartKurz(), "MO");
+					checklistmaker.eintragen();
+					checklistmaker.close();
+					// Dienstag
+					checklistmaker = new KontrollistenWriter(sportart, stufe, "DI");
+					System.out.printf("Erstelle Kontrolliste in \"Kontrolliste_%s_%s_%s.xls\"%n", stufe.getStufeKurz(), sportart.getSportartKurz(), "DI");
 					checklistmaker.eintragen();
 					checklistmaker.close();
 				} catch (SQLException e) {
@@ -238,8 +280,8 @@ public class SpielplanerApp {
 				System.out.println(" info - zeigt gesetzte Stufe, Sportart und Tag an");
 				System.out.println(" blockzeiten [Startzeit als \"HH:MM\"] [Spieldauer in min] [Pausendauer in min] - Erstellt einen leeren Plan mit den Zeiten (überschreibt den Plan, falls er bereits vorhanden ist!)");
 				System.out.println(" planen [Feld] [team1] [team2] [team3] [team4] <team5> <team6> - Erstellt einen Spielplan für vier bis sechs Teams in einer Gruppe");
-				System.out.println(" ausgeben [Dateiname] - Schreibt den Spielplan in eine Excel-Tabelle");
-				System.out.println(" kontrolliste [Dateiname] - Erstellt eine Kontrolliste und schreibt sie in eine Excel-Tabelle");
+				System.out.println(" ausgeben - Schreibt den Spielplan in eine Excel-Tabelle, der Dateiname wird automatisch generiert");
+				System.out.println(" kontrolliste- Erstellt eine Kontrolliste und schreibt sie in eine Excel-Tabelle, der Dateiname wird automatisch generiert");
 				System.out.println(" h - Diese Hilfe anzeigen (auch help oder hilfe)");
 				System.out.println(" exit - Programm beenden");
 				System.out.println();
