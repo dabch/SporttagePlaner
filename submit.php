@@ -16,7 +16,7 @@ $abfrageSchueler = $conn->prepare("SELECT ID FROM Mannschaften_MS WHERE Vorname 
 $abfrageSchueler->bind_param("sss", $vorname, $name, $klasse);
 
 $insertSchueler = $conn->prepare("INSERT INTO MyGuests (Name, Vorname, Klasse, BM, FB, BB, VB, TT, ST, FT) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-$insertSchueler->bind_param("sssssssssss", $name, $vorname, $klasse, $bm, $fb, $bb, $vb, $tt, $st, $ft);
+$insertSchueler->bind_param("ssssssssss", $name, $vorname, $klasse, $bm, $fb, $bb, $vb, $tt, $st, $ft);
 
 function getSchuelerID($name, $vorname, $klasse) {
     $result = $conn->query($abfrageSchueler);
