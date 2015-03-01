@@ -12,10 +12,18 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-function isInDatabase($name, $vorname, $klasse) {
+function getSchuelerID($name, $vorname, $klasse) {
     $abfrageSchueler = $conn->prepare("SELECT ID, Vorname, Name FROM Mannschaften_MS WHERE Vorname = ? AND Name = ? AND Klasse = ?");
     $abfrageSchueler->bind_param("sss", $vorname, $name, $klasse);
-    $abfrageSchueler->execute();
+    $result = $conn->query($abfrageSchueler);
+    if ($result->num_rows > 0) {
+    // output data of each row
+    while($row = $result->fetch_assoc()) {
+        $id = $row["id"];
+    }
+} else {
+    //neu erstellen
+}
 }
 
 // prepare and bind
