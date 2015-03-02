@@ -7,11 +7,12 @@
 
 <body>
 	<?php
-	echo PHP_VERSION;
 	$servername = 'wp052.webpack.hosteurope.de';
 	$username = 'db1093417-sport';
 	$password = '%&SporTTage14@!';
 	$dbname = 'db1093417-sporttage';
+	
+	$klasse = $_POST['klasse'];
 
 	$conn = new mysqli($servername, $username, $password, $dbname);
 
@@ -27,11 +28,10 @@
 	    echo $name;
 	    echo $vorname;
 	    echo $klasse;
-	    $GLOBALS['abfrageSchueler']->bind_param("sss", $vorname, $name, $klasse);
+	    $GLOBALS['abfrageSchueler']->bind_param('sss', $vorname, $name, $klasse);
 	    $GLOBALS['abfrageSchueler']->execute();
 	    $GLOBALS['abfrageSchueler']->bind_result($id);
 	    if($GLOBALS['abfrageSchueler']->fetch()) {
-	    	echo $id;
 	    	return $id;
 	    } else {
 	    	$GLOBALS['schuelerHinzufuegen']->bind_param('sss',  $vorname, $name, $klasse);
@@ -39,7 +39,6 @@
 	    	$GLOBALS['abfrageSchueler']->execute();
 	    	$GLOBALS['abfrageSchueler']->bind_result($id);
 	    	if($GLOBALS['abfrageSchueler']->fetch()) {
-		    	echo $id;
 		    	return $id;
 	    	} 
 	    }
@@ -50,6 +49,17 @@
 	$conn->close();
 
 	echo ' conn closed';
+	
+	$vornamen = $_POST['fb1_v'];
+	$nachnamen = $_POST['fb1_n'];
+	echo '<br>';
+	echo $klasse . '<br>';
+	getSchuelerID($nachnamen[0], $vornamen[0], '9a');
+	for($i = 0; $i < count($vornamen); $i++) {
+		echo $vornamen[$i] . ' ';
+		echo $nachnamen[$i] . '<br>';
+		
+	}
 
 	?>
 </body>
