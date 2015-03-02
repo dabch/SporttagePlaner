@@ -1,58 +1,56 @@
-<?p
-$servername = 'wp052.webpack.hosteurope.de';
-$username = 'db1093417-sport';
-$password = '%&SporTTage14@!';
-$dbname = 'db1093417-sporttage';
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='UTF-8' name='viewport' content='width=device-width' />
+<title>Eingabe Klassenlisten @ Sporttage-Kepler</title>
+</head>
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
+<body>
+	<?php
+	echo PHP_VERSION;
+	$servername = 'wp052.webpack.hosteurope.de';
+	$username = 'db1093417-sport';
+	$password = '%&SporTTage14@!';
+	$dbname = 'db1093417-sporttage';
 
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+	$conn = new mysqli($servername, $username, $password, $dbname);
 
-$abfrageSchueler = $conn->prepare("SELECT ID FROM Mannschaften_MS WHERE Vorname = ? AND Name = ? AND Klasse = ?;");
-$abfrageSchueler->bind_param("sss", $vorname, $name, $klasse);
+	if($conn->connect_error){
+		die('Connection failed:\n' . $conn->connect_error);
+	}
+	
+	$abfrageSchueler = $conn->prepare('SELECT ID FROM Mannschaften_MS WHERE Vorname = ? AND Name = ? AND Klasse = ?');
+	
+	$schuelerHinzufuegen = $conn->prepare('INSERT INTO Mannschaften_MS (Vorname, Name, Klasse) VALUES (?, ?, ?);');
 
-$insertSchueler = $conn->prepare("INSERT INTO MyGuests (Name, Vorname, Klasse, BM, FB, BB, VB, TT, ST, FT) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-$insertSchueler->bind_param("ssssssssss", $name, $vorname, $klasse, $bm, $fb, $bb, $vb, $tt, $st, $ft);
+	function getSchuelerID($name, $vorname, $klasse) {
+	    echo $name;
+	    echo $vorname;
+	    echo $klasse;
+	    $GLOBALS['abfrageSchueler']->bind_param("sss", $vorname, $name, $klasse);
+	    $GLOBALS['abfrageSchueler']->execute();
+	    $GLOBALS['abfrageSchueler']->bind_result($id);
+	    if($GLOBALS['abfrageSchueler']->fetch()) {
+	    	echo $id;
+	    	return $id;
+	    } else {
+	    	$GLOBALS['schuelerHinzufuegen']->bind_param('sss',  $vorname, $name, $klasse);
+	    	$GLOBALS['schuelerHinzufuegen']->execute();
+	    	$GLOBALS['abfrageSchueler']->execute();
+	    	$GLOBALS['abfrageSchueler']->bind_result($id);
+	    	if($GLOBALS['abfrageSchueler']->fetch()) {
+		    	echo $id;
+		    	return $id;
+	    	} 
+	    }
+	}
 
-function getSchuelerID($name, $vorname, $klasse) {
-    $result = $conn->query($abfrageSchueler);
-    if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc()
-        $id = $row["id"];
-    } else {
-        //neu erstellen
-        $insertSchueler->execute();
-    }
-}
+	echo getSchuelerID('Herbert', 'Idris', '9a');
 
-// prepare and bind
-$insertSchueler = $conn->prepare("INSERT INTO MyGuests (ID, Name, Vorname, Klasse, BM, FB, BB, VB, TT, ST, FT) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-$insertSchueler->bind_param("sssssssssss", $id, $name, $vorname, $klasse, $bm, $fb, $bb, $vb, $tt, $st, $ft);
+	$conn->close();
 
-// set parameters and execute
-$name = $_POST['']
-$vorname
-$klasse
-$bm
-$fb
-$bb
-$vb
-$tt
-$st
-$ft
+	echo ' conn closed';
 
-$firstname = "John";
-$lastname = "Doe";
-$email = "john@example.com";
-$insertSchueler->execute();
-
-echo "New records created successfully";
-
-$stmt->close();
-$conn->close();
-
-?>
+	?>
+</body>
+</html>
