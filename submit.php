@@ -25,16 +25,16 @@
 	$schuelerHinzufuegen = $conn->prepare('INSERT INTO Mannschaften_MS (Vorname, Name, Klasse) VALUES (?, ?, ?);');
 
 	function getSchuelerID($name, $vorname, $klasse) {
-	    echo $name;
-	    echo $vorname;
-	    echo $klasse;
+	   // echo $name;
+	    //echo $vorname;
+	    //echo $klasse;
 	    $GLOBALS['abfrageSchueler']->bind_param('sss', $vorname, $name, $klasse);
 	    $GLOBALS['abfrageSchueler']->execute();
 	    $GLOBALS['abfrageSchueler']->bind_result($id);
 	    if($GLOBALS['abfrageSchueler']->fetch()) {
 	    	return $id;
 	    } else {
-	    	$GLOBALS['schuelerHinzufuegen']->bind_param('sss',  $vorname, $name, $klasse);
+	    	$GLOBALS['schuelerHinzufuegen']->bind_param('sss', $vorname, $name, $klasse);
 	    	$GLOBALS['schuelerHinzufuegen']->execute();
 	    	$GLOBALS['abfrageSchueler']->execute();
 	    	$GLOBALS['abfrageSchueler']->bind_result($id);
@@ -44,9 +44,9 @@
 	    }
 	}
 
-	echo getSchuelerID('Herbert', 'Idris', '9a');
+	//echo getSchuelerID('Herbert', 'Idris', '9a');
 
-	$conn->close();
+//	$conn->close();
 
 	echo ' conn closed';
 	
@@ -54,13 +54,19 @@
 	$nachnamen = $_POST['fb1_n'];
 	echo '<br>';
 	echo $klasse . '<br>';
-	getSchuelerID($nachnamen[0], $vornamen[0], '9a');
+	
 	for($i = 0; $i < count($vornamen); $i++) {
+    if ($vornamen[$i] != '' && $nachnamen[$i] != '')  {
+    getSchuelerID($nachnamen[$i], $vornamen[$i], $klasse);
 		echo $vornamen[$i] . ' ';
 		echo $nachnamen[$i] . '<br>';
+    }
+
 		
 	}
-
+ 
+ $conn->close();
+ 
 	?>
 </body>
 </html>
