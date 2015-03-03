@@ -54,12 +54,23 @@
 	$nachnamen = $_POST['fb1_n'];
 	echo '<br>';
 	echo $klasse . '<br>';
-	
+	 $id = 0;
+   $mannschaft = $klasse .  '1';
+  $addSportartToSchueler = $conn->prepare('UPDATE Mannschaften_MS SET FB = ? WHERE ID = ?');
+    $addSportartToSchueler->bind_param('si', $mannschaft, $id);
+  
 	for($i = 0; $i < count($vornamen); $i++) {
     if ($vornamen[$i] != '' && $nachnamen[$i] != '')  {
-    getSchuelerID($nachnamen[$i], $vornamen[$i], $klasse);
+    $id = getSchuelerID($nachnamen[$i], $vornamen[$i], $klasse);
+   
+    echo $id;
+    echo $mannschaft;
+    $addSportartToSchueler->bind_param('ss', $mannschaft, $id);
+  //  echo $addSportartToSchueler;
+    $addSportartToSchueler->execute();
 		echo $vornamen[$i] . ' ';
 		echo $nachnamen[$i] . '<br>';
+    
     }
 
 		
