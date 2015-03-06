@@ -67,38 +67,31 @@
 
 //	$conn->close();
 
-	echo ' conn closed';
-	
+//	echo ' conn closed';
+	//Fuﬂball1
 	$vornamen = $_POST['fb1_v'];
 	$nachnamen = $_POST['fb1_n'];
 	echo '<br>';
 	echo $klasse . '<br>';
 	 $id = 0;
-   $mannschaft = $klasse .  '1';
+   $mannschaftFB1 = $klasse .  '1';
   //$addSportartToSchueler = $conn->prepare('UPDATE Mannschaften_MS SET FB = ? WHERE ID = ?;');
   $addSportartToSchueler = "UPDATE Mannschaften_MS SET FB = " . $mannschaft . " WHERE ID = ". $id . " ";
  // $addSportartToSchueler2 = $conn->prepare('INSERT INTO Mannschaften_MS (FB) VALUES (?) WHERE ID = ?');
  // $addSportartToSchueler->bind_param('si', $mannschaft, $id);
   //$addSportartToSchueler->bind_param('si', $mannschaft, $id);
   
-   $mannschaft= '"' . $mannschaft .  '"';
+   $mannschaftFB1= '"' . $mannschaftFB1 .  '"';
    
 	for($i = 0; $i < count($vornamen); $i++) {
     if ($vornamen[$i] != '' && $nachnamen[$i] != '')  {
       $id = getSchuelerID($nachnamen[$i], $vornamen[$i], $klasse);
    
       echo $id;
-   // echo gettype($id);
-  //  echo gettype($mannschaft);
-      echo $mannschaft;
-   //   $mannschaft= '"' . $mannschaft .  '"';
-      $addSportartToSchueler = "UPDATE Mannschaften_MS SET FB = " . $mannschaft . " WHERE ID = ". $id . " ";
-      echo $mannschaft;
-  //  $addSportartToSchueler->bind_param("si", $mannschaft, $id);
+      echo $mannschaftFB1;
+      $addSportartToSchueler = "UPDATE Mannschaften_MS SET FB = " . $mannschaftFB1 . " WHERE ID = ". $id . " ";
+    //  echo $mannschaftFB2;
       echo $addSportartToSchueler;
-      //$conn->query($addSportartToSchueler);
-      //$whatever = $conn->use_result();
-      //$conn->free();
       if ($conn->query($addSportartToSchueler) === TRUE) {
         echo "update succesfully";
       } else {
@@ -113,6 +106,104 @@
 
 		
 	}
+   //Fuﬂball 2
+  $vornamen = $_POST['fb2_v'];
+	$nachnamen = $_POST['fb2_n'];
+	echo '<br>';
+	echo $klasse . '<br>';
+	 $id = 0;
+   $mannschaftFB2 = $klasse .  '2';
+  //$addSportartToSchueler = $conn->prepare('UPDATE Mannschaften_MS SET FB = ? WHERE ID = ?;');
+  $addSportartToSchueler = "UPDATE Mannschaften_MS SET FB = " . $mannschaftFB2 . " WHERE ID = ". $id . " ";
+   $mannschaftFB2= '"' . $mannschaftFB2 .  '"';
+     	for($i = 0; $i < count($vornamen); $i++) {
+        if ($vornamen[$i] != '' && $nachnamen[$i] != '')  {
+           $id = getSchuelerID($nachnamen[$i], $vornamen[$i], $klasse);
+   
+            echo $id;
+            echo $mannschaftFB2;
+            $addSportartToSchueler = "UPDATE Mannschaften_MS SET FB = " . $mannschaftFB2 . " WHERE ID = ". $id . " ";
+         //  echo $mannschaftFB2;
+             echo $addSportartToSchueler;
+              if ($conn->query($addSportartToSchueler) === TRUE) {
+                  echo "update succesfully";
+              } else {
+                  echo "error: " . $conn->error;
+              }
+   // echo $addSportartToSchueler->execute();
+   // echo $addSportartToSchueler->rowCount() . "records UPDATED succesflly";
+		          echo $vornamen[$i] . ' ';
+		          echo $nachnamen[$i] . '<br>';
+    
+       }	
+	   }
+     
+     
+     //basketball
+     
+  $vornamen = $_POST['bb_v'];
+	$nachnamen = $_POST['bb_n'];
+	echo '<br>';
+	echo $klasse . '<br>';
+	 $id = 0;
+   $mannschaftBB = $klasse .  '1';
+  //$addSportartToSchueler = $conn->prepare('UPDATE Mannschaften_MS SET FB = ? WHERE ID = ?;');
+  $addSportartToSchueler = "UPDATE Mannschaften_MS SET BB = " . $mannschaftBB . " WHERE ID = ". $id . " ";
+   $mannschaftBB= '"' . $mannschaftBB .  '"';
+     	for($i = 0; $i < count($vornamen); $i++) {
+        if ($vornamen[$i] != '' && $nachnamen[$i] != '')  {
+           $id = getSchuelerID($nachnamen[$i], $vornamen[$i], $klasse);
+   
+            echo $id;
+            echo $mannschaftBB;
+            $addSportartToSchueler = "UPDATE Mannschaften_MS SET BB = " . $mannschaftBB . " WHERE ID = ". $id . " ";
+         //  echo $mannschaftFB2;
+             echo $addSportartToSchueler;
+              if ($conn->query($addSportartToSchueler) === TRUE) {
+                  echo "Basketball update succesfully";
+              } else {
+                  echo "error: " . $conn->error;
+              }
+   // echo $addSportartToSchueler->execute();
+   // echo $addSportartToSchueler->rowCount() . "records UPDATED succesflly";
+		          echo $vornamen[$i] . ' ';
+		          echo $nachnamen[$i] . '<br>';
+    
+       }	
+	   }
+     
+     //volleyball
+  $vornamen = $_POST['vb_v'];
+	$nachnamen = $_POST['vb_n'];
+	echo '<br>';
+	echo $klasse . '<br>';
+	 $id = 0;
+   $mannschaftVB = $klasse .  '1';
+  //$addSportartToSchueler = $conn->prepare('UPDATE Mannschaften_MS SET FB = ? WHERE ID = ?;');
+  $addSportartToSchueler = "UPDATE Mannschaften_MS SET VB = " . $mannschaftVB . " WHERE ID = ". $id . " ";
+   $mannschaftVB= '"' . $mannschaftVB .  '"';
+     	for($i = 0; $i < count($vornamen); $i++) {
+        if ($vornamen[$i] != '' && $nachnamen[$i] != '')  {
+           $id = getSchuelerID($nachnamen[$i], $vornamen[$i], $klasse);
+   
+            echo $id;
+            echo $mannschaftVB;
+            $addSportartToSchueler = "UPDATE Mannschaften_MS SET VB = " . $mannschaftVB . " WHERE ID = ". $id . " ";
+         //  echo $mannschaftFB2;
+             echo $addSportartToSchueler;
+              if ($conn->query($addSportartToSchueler) === TRUE) {
+                  echo "Volleyball update succesfully";
+              } else {
+                  echo "error: " . $conn->error;
+              }
+   // echo $addSportartToSchueler->execute();
+   // echo $addSportartToSchueler->rowCount() . "records UPDATED succesflly";
+		          echo $vornamen[$i] . ' ';
+		          echo $nachnamen[$i] . '<br>';
+    
+       }	
+	   }         
+     
  
  $conn->close();
  
