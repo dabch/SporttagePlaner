@@ -16,8 +16,8 @@ th, td {
 </style>
 
 <body>
-Klasse eingeben: 
-<form action="" method="post">
+Klasse eingeben:
+<form action="submit.php" method="post">
 <input type="text" name="klasse"/>
 
 <table>
@@ -172,25 +172,25 @@ Klasse eingeben:
 	</tr>
 		<td> <input type="text" name="bm_v[]"/>
 		<td> <input type="text" name="bm_n[]"/>
-		<td> <input type="text" name="st_v[]"/>
-		<td> <input type="text" name="st_n[]"/>
-		
 		<td> <input type="text" name="tt_v[]"/>
 		<td> <input type="text" name="tt_n[]"/>
+		
 		<td> <input type="text" name="vb_v[]"/>
 		<td> <input type="text" name="vb_n[]"/>
+		<td> <input type="text" name="st_v[]"/>
+		<td> <input type="text" name="st_n[]"/>
 	<tr>
 	
 	</tr>
 		<td> <input type="text" name="bm_v[]"/>
 		<td> <input type="text" name="bm_n[]"/>
-		<td> <input type="text" name="st_v[]"/>
-		<td> <input type="text" name="st_n[]"/>
-		
 		<td> <input type="text" name="tt_v[]"/>
 		<td> <input type="text" name="tt_n[]"/>
+		
 		<td> <input type="text" name="vb_v[]"/>
 		<td> <input type="text" name="vb_n[]"/>
+		<td> <input type="text" name="st_v[]"/>
+		<td> <input type="text" name="st_n[]"/>
 	<tr>
 	
 	<!-- Team2 -->
@@ -205,25 +205,25 @@ Klasse eingeben:
 	</tr>
 		<td> <input type="text" name="bm_v[]"/>
 		<td> <input type="text" name="bm_n[]"/>
-		<td> <input type="text" name="st_v[]"/>
-		<td> <input type="text" name="st_n[]"/>
-		
 		<td> <input type="text" name="tt_v[]"/>
 		<td> <input type="text" name="tt_n[]"/>
+		
 		<td> <input type="text" name="vb_v[]"/>
 		<td> <input type="text" name="vb_n[]"/>
+		<td> <input type="text" name="st_v[]"/>
+		<td> <input type="text" name="st_n[]"/>
 	<tr>
 	
 	</tr>
 		<td> <input type="text" name="bm_v[]"/>
 		<td> <input type="text" name="bm_n[]"/>
-		<td> <input type="text" name="st_v[]"/>
-		<td> <input type="text" name="st_n[]"/>
-		
 		<td> <input type="text" name="tt_v[]"/>
 		<td> <input type="text" name="tt_n[]"/>
+		
 		<td> <input type="text" name="vb_v[]"/>
 		<td> <input type="text" name="vb_n[]"/>
+		<td> <input type="text" name="st_v[]"/>
+		<td> <input type="text" name="st_n[]"/>
 	<tr>
 	
 	<!-- Team3 -->
@@ -238,25 +238,25 @@ Klasse eingeben:
 	</tr>
 		<td> <input type="text" name="bm_v[]"/>
 		<td> <input type="text" name="bm_n[]"/>
-		<td> <input type="text" name="st_v[]"/>
-		<td> <input type="text" name="st_n[]"/>
-		
 		<td> <input type="text" name="tt_v[]"/>
 		<td> <input type="text" name="tt_n[]"/>
+		
 		<td> <input type="text" name="vb_v[]"/>
 		<td> <input type="text" name="vb_n[]"/>
+		<td> <input type="text" name="st_v[]"/>
+		<td> <input type="text" name="st_n[]"/>
 	<tr>
 	
 	</tr>
 		<td> <input type="text" name="bm_v[]"/>
 		<td> <input type="text" name="bm_n[]"/>
-		
-		<td> <input type="text" name="st_v[]"/>
-		<td> <input type="text" name="st_n[]"/>
 		<td> <input type="text" name="tt_v[]"/>
 		<td> <input type="text" name="tt_n[]"/>
+		
 		<td> <input type="text" name="vb_v[]"/>
 		<td> <input type="text" name="vb_n[]"/>
+		<td> <input type="text" name="st_v[]"/>
+		<td> <input type="text" name="st_n[]"/>
 	<tr>
 		
 	<!-- Team4 -->
