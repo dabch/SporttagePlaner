@@ -314,7 +314,152 @@ Klasse eingeben:
 		<td> <input type="text" name="tt_v[]"/>
 		<td> <input type="text" name="tt_n[]"/>
 	<tr>
+  
+  	<!-- Team7 -->
+	<tr>
+		<td colspan="2" style="text-align:center"> Team 7
+		<td colspan="2" style="text-align:center"> Team 7
+	</tr>
+		<td> <input type="text" name="bm_v[]"/>
+		<td> <input type="text" name="bm_n[]"/>
+		<td> <input type="text" name="tt_v[]"/>
+		<td> <input type="text" name="tt_n[]"/>
+	<tr>
 	
+	</tr>
+		<td> <input type="text" name="bm_v[]"/>
+		<td> <input type="text" name="bm_n[]"/>
+		<td> <input type="text" name="tt_v[]"/>
+		<td> <input type="text" name="tt_n[]"/>
+	<tr>
+  
+  	<!-- Team8 -->
+	<tr>
+		<td colspan="2" style="text-align:center"> Team 8
+		<td colspan="2" style="text-align:center"> Team 8
+	</tr>
+		<td> <input type="text" name="bm_v[]"/>
+		<td> <input type="text" name="bm_n[]"/>
+		<td> <input type="text" name="tt_v[]"/>
+		<td> <input type="text" name="tt_n[]"/>
+	<tr>
+	
+	</tr>
+		<td> <input type="text" name="bm_v[]"/>
+		<td> <input type="text" name="bm_n[]"/>
+		<td> <input type="text" name="tt_v[]"/>
+		<td> <input type="text" name="tt_n[]"/>
+	<tr>
+  
+  	<!-- Team9 -->
+	<tr>
+		<td colspan="2" style="text-align:center"> Team 9
+		<td colspan="2" style="text-align:center"> Team 9
+	</tr>
+		<td> <input type="text" name="bm_v[]"/>
+		<td> <input type="text" name="bm_n[]"/>
+		<td> <input type="text" name="tt_v[]"/>
+		<td> <input type="text" name="tt_n[]"/>
+	<tr>
+	
+	</tr>
+		<td> <input type="text" name="bm_v[]"/>
+		<td> <input type="text" name="bm_n[]"/>
+		<td> <input type="text" name="tt_v[]"/>
+		<td> <input type="text" name="tt_n[]"/>
+	<tr>
+  
+  	<!-- Team10 -->
+	<tr>
+		<td colspan="2" style="text-align:center"> Team 10
+		<td colspan="2" style="text-align:center"> Team 10
+	</tr>
+		<td> <input type="text" name="bm_v[]"/>
+		<td> <input type="text" name="bm_n[]"/>
+		<td> <input type="text" name="tt_v[]"/>
+		<td> <input type="text" name="tt_n[]"/>
+	<tr>
+	
+	</tr>
+		<td> <input type="text" name="bm_v[]"/>
+		<td> <input type="text" name="bm_n[]"/>
+		<td> <input type="text" name="tt_v[]"/>
+		<td> <input type="text" name="tt_n[]"/>
+	<tr>
+  
+  	<!-- Team11 -->
+	<tr>
+		<td colspan="2" style="text-align:center"> Team 11
+		<td colspan="2" style="text-align:center"> Team 11
+	</tr>
+		<td> <input type="text" name="bm_v[]"/>
+		<td> <input type="text" name="bm_n[]"/>
+		<td> <input type="text" name="tt_v[]"/>
+		<td> <input type="text" name="tt_n[]"/>
+	<tr>
+	
+	</tr>
+		<td> <input type="text" name="bm_v[]"/>
+		<td> <input type="text" name="bm_n[]"/>
+		<td> <input type="text" name="tt_v[]"/>
+		<td> <input type="text" name="tt_n[]"/>
+	<tr>
+  
+  	<!-- Team12 -->
+	<tr>
+		<td colspan="2" style="text-align:center"> Team 12
+		<td colspan="2" style="text-align:center"> Team 12
+	</tr>
+		<td> <input type="text" name="bm_v[]"/>
+		<td> <input type="text" name="bm_n[]"/>
+		<td> <input type="text" name="tt_v[]"/>
+		<td> <input type="text" name="tt_n[]"/>
+	<tr>
+	
+	</tr>
+		<td> <input type="text" name="bm_v[]"/>
+		<td> <input type="text" name="bm_n[]"/>
+		<td> <input type="text" name="tt_v[]"/>
+		<td> <input type="text" name="tt_n[]"/>
+	<tr>
+  
+  	<!-- Team13 -->
+	<tr>
+		<td colspan="2" style="text-align:center"> Team 13
+		<td colspan="2" style="text-align:center"> Team 13
+	</tr>
+		<td> <input type="text" name="bm_v[]"/>
+		<td> <input type="text" name="bm_n[]"/>
+		<td> <input type="text" name="tt_v[]"/>
+		<td> <input type="text" name="tt_n[]"/>
+	<tr>
+	
+	</tr>
+		<td> <input type="text" name="bm_v[]"/>
+		<td> <input type="text" name="bm_n[]"/>
+		<td> <input type="text" name="tt_v[]"/>
+		<td> <input type="text" name="tt_n[]"/>
+	<tr>
+	
+    	<!-- Team14 -->
+	<tr>
+		<td colspan="2" style="text-align:center"> Team 14
+		<td colspan="2" style="text-align:center"> Team 14
+	</tr>
+		<td> <input type="text" name="bm_v[]"/>
+		<td> <input type="text" name="bm_n[]"/>
+		<td> <input type="text" name="tt_v[]"/>
+		<td> <input type="text" name="tt_n[]"/>
+	<tr>
+	
+	</tr>
+		<td> <input type="text" name="bm_v[]"/>
+		<td> <input type="text" name="bm_n[]"/>
+		<td> <input type="text" name="tt_v[]"/>
+		<td> <input type="text" name="tt_n[]"/>
+	<tr>
+  
+  
 </table>
   <input type="submit" name="submit">
 </form>
