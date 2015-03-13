@@ -13,6 +13,13 @@ $password = '%&SporTTage14@!';
 $dbname = 'db1093417-sporttage';
 	
 $klasse = $_POST['klasse'];
+if (strpos($klasse,'5') !== false || $klasse,'6') !== false) {
+	$stufenListe = "Mannschaften_US";
+} else if (strpos($klasse,'7') !== false || $klasse,'8') !== false || $klasse,'9') !== false || $klasse,'A1') !== false) {
+	$stufenListe = "Mannschaften_MS";
+} else if (strpos($klasse,'10') !== false || $klasse,'K1') !== false || $klasse,'K2') !== false) {
+	$stufenListe = "Mannschaften_OS";	
+}
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
@@ -23,13 +30,13 @@ if($conn->connect_error){
   // Umlaute fixen
   $conn->query('SET NAMES "utf8"');
   	
-	$abfrageSchueler = $conn->prepare('SELECT ID FROM Mannschaften_MS WHERE Vorname = ? AND Name = ? AND Klasse = ?');
+	$abfrageSchueler = $conn->prepare('SELECT ID FROM $stufenListe WHERE Vorname = ? AND Name = ? AND Klasse = ?');
 	
-	$schuelerHinzufuegen = $conn->prepare('INSERT INTO Mannschaften_MS (Vorname, Name, Klasse) VALUES (?, ?, ?);');
+	$schuelerHinzufuegen = $conn->prepare('INSERT INTO $stufenListe (Vorname, Name, Klasse) VALUES (?, ?, ?);');
 
 	function getSchuelerID($name, $vorname, $klasse) {
 	  //nun lokale variable damit man sie schließen und öffnen kann
-		$abfrageSchueler = $GLOBALS['conn']->prepare('SELECT ID FROM Mannschaften_MS WHERE Vorname = ? AND Name = ? AND Klasse = ?');	    $abfrageSchueler->bind_param('sss', $vorname, $name, $klasse);
+		$abfrageSchueler = $GLOBALS['conn']->prepare('SELECT ID FROM $stufenListe WHERE Vorname = ? AND Name = ? AND Klasse = ?');	    $abfrageSchueler->bind_param('sss', $vorname, $name, $klasse);
 	    	$abfrageSchueler->execute();
 	    	$abfrageSchueler->bind_result($id);
 		if($abfrageSchueler->fetch()) {
@@ -63,7 +70,7 @@ $mannschaftFB1= '"' . $mannschaftFB1 .  '"';
 for($i = 0; $i < count($vornamen); $i++) {
 	if ($vornamen[$i] != '' && $nachnamen[$i] != '')  { //wenn etwas eingetragen ist
       		$id = getSchuelerID($nachnamen[$i], $vornamen[$i], $klasse);   //id holen
-		$addSportartToSchueler = "UPDATE Mannschaften_MS SET FB = " . $mannschaftFB1 . " WHERE ID = ". $id . " "; // string erstellenn
+		$addSportartToSchueler = "UPDATE $stufenListe SET FB = " . $mannschaftFB1 . " WHERE ID = ". $id . " "; // string erstellenn
 		if ($conn->query($addSportartToSchueler) === TRUE) {	//string ausführen und mit rückgabewert weitermachen
 			echo "Fussball update erfolgreich bei: ";		//erfolg ausgeben
 		} else {
@@ -85,7 +92,7 @@ $mannschaftFB2= '"' . $mannschaftFB2 .  '"';
            $id = getSchuelerID($nachnamen[$i], $vornamen[$i], $klasse);
             echo $id;
             echo $mannschaftFB2;
-            $addSportartToSchueler = "UPDATE Mannschaften_MS SET FB = " . $mannschaftFB2 . " WHERE ID = ". $id . " ";
+            $addSportartToSchueler = "UPDATE $stufenListe SET FB = " . $mannschaftFB2 . " WHERE ID = ". $id . " ";
              echo $addSportartToSchueler;
               if ($conn->query($addSportartToSchueler) === TRUE) {
                   echo "update succesfully";
@@ -114,7 +121,7 @@ $mannschaftFB2= '"' . $mannschaftFB2 .  '"';
    
             echo $id;
             echo $mannschaftBB;
-            $addSportartToSchueler = "UPDATE Mannschaften_MS SET BB = " . $mannschaftBB . " WHERE ID = ". $id . " ";
+            $addSportartToSchueler = "UPDATE $stufenListe SET BB = " . $mannschaftBB . " WHERE ID = ". $id . " ";
          //  echo $mannschaftFB2;
              echo $addSportartToSchueler;
               if ($conn->query($addSportartToSchueler) === TRUE) {
@@ -143,7 +150,7 @@ $mannschaftFB2= '"' . $mannschaftFB2 .  '"';
    
             echo $id;
             echo $mannschaftVB;
-            $addSportartToSchueler = "UPDATE Mannschaften_MS SET VB = " . $mannschaftVB . " WHERE ID = ". $id . " ";
+            $addSportartToSchueler = "UPDATE $stufenListe SET VB = " . $mannschaftVB . " WHERE ID = ". $id . " ";
          //  echo $mannschaftFB2;
              echo $addSportartToSchueler;
               if ($conn->query($addSportartToSchueler) === TRUE) {
@@ -172,7 +179,7 @@ $mannschaftFB2= '"' . $mannschaftFB2 .  '"';
    
             echo $id;
             echo $mannschaftST;
-            $addSportartToSchueler = "UPDATE Mannschaften_MS SET ST = " . $mannschaftST . " WHERE ID = ". $id . " ";
+            $addSportartToSchueler = "UPDATE $stufenListe SET ST = " . $mannschaftST . " WHERE ID = ". $id . " ";
          //  echo $mannschaftFB2;
              echo $addSportartToSchueler;
               if ($conn->query($addSportartToSchueler) === TRUE) {
@@ -201,7 +208,7 @@ $mannschaftFB2= '"' . $mannschaftFB2 .  '"';
    
             echo $id;
             echo $mannschaftFT;
-            $addSportartToSchueler = "UPDATE Mannschaften_MS SET FT = " . $mannschaftFT . " WHERE ID = ". $id . " ";
+            $addSportartToSchueler = "UPDATE $stufenListe SET FT = " . $mannschaftFT . " WHERE ID = ". $id . " ";
          //  echo $mannschaftFB2;
              echo $addSportartToSchueler;
               if ($conn->query($addSportartToSchueler) === TRUE) {
@@ -237,8 +244,8 @@ $mannschaftFB2= '"' . $mannschaftFB2 .  '"';
             echo $id1;
             echo $id2;
             echo $mannschaftTT;
-            $addSportartToSchueler1 = "UPDATE Mannschaften_MS SET TT = " . $mannschaftTT . " WHERE ID = ". $id1 . " ";
-            $addSportartToSchueler2 = "UPDATE Mannschaften_MS SET TT = " . $mannschaftTT . " WHERE ID = ". $id2 . " ";
+            $addSportartToSchueler1 = "UPDATE $stufenListe SET TT = " . $mannschaftTT . " WHERE ID = ". $id1 . " ";
+            $addSportartToSchueler2 = "UPDATE $stufenListe SET TT = " . $mannschaftTT . " WHERE ID = ". $id2 . " ";
          //  echo $mannschaftFB2;
          //    echo $addSportartToSchueler1;
           //  echo $addSportartToSchueler2;
@@ -282,8 +289,8 @@ $mannschaftFB2= '"' . $mannschaftFB2 .  '"';
             echo $id1;
             echo $id2;
             echo $mannschaftBM . "<br>";
-            $addSportartToSchueler1 = "UPDATE Mannschaften_MS SET BM = " . $mannschaftBM . " WHERE ID = ". $id1 . " ";
-            $addSportartToSchueler2 = "UPDATE Mannschaften_MS SET BM = " . $mannschaftBM . " WHERE ID = ". $id2 . " ";
+            $addSportartToSchueler1 = "UPDATE $stufenListe SET BM = " . $mannschaftBM . " WHERE ID = ". $id1 . " ";
+            $addSportartToSchueler2 = "UPDATE $stufenListe SET BM = " . $mannschaftBM . " WHERE ID = ". $id2 . " ";
          //  echo $mannschaftFB2;
          //    echo $addSportartToSchueler1;
          //   echo $addSportartToSchueler2;
