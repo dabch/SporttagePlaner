@@ -13,11 +13,11 @@ $password = '%&SporTTage14@!';
 $dbname = 'db1093417-sporttage';
 	
 $klasse = $_POST['klasse'];
-if (strpos($klasse,'5') !== false || $klasse,'6') !== false) {
+if (strpos($klasse,'5') !== false || strpos($klasse,'6') !== false) {
 	$stufenListe = "Mannschaften_US";
-} else if (strpos($klasse,'7') !== false || $klasse,'8') !== false || $klasse,'9') !== false || $klasse,'A1') !== false) {
+} else if (strpos($klasse,'7') !== false || strpos($klasse,'8') !== false || strpos($klasse,'9') !== false || strpos($klasse,'A1') !== false) {
 	$stufenListe = "Mannschaften_MS";
-} else if (strpos($klasse,'10') !== false || $klasse,'K1') !== false || $klasse,'K2') !== false) {
+} else if (strpos($klasse,'10') !== false || strpos($klasse,'K1') !== false || strpos($klasse,'K2') !== false) {
 	$stufenListe = "Mannschaften_OS";	
 }
 
