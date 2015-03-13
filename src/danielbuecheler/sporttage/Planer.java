@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 
 public class Planer {
 
@@ -32,8 +33,7 @@ public class Planer {
 				SpielplanerApp.properties.getProperty("database_ip_address"),
 				SpielplanerApp.properties.getProperty("database_name")),
 				SpielplanerApp.properties.getProperty("database_username"),
-				SpielplanerApp.properties.getProperty("database_password"));
-		
+				SpielplanerApp.properties.getProperty("database_password"));		
 	}
 
 	public void addMannschaft(String mannschaftsname) throws SQLException {
@@ -49,9 +49,29 @@ public class Planer {
 		rs.close(); // ResultSet schließen
 	}
 	
+	public void holeAlleMannschaften() throws SQLException {
+		PreparedStatement holeMannschaften = con.prepareStatement(String.format("SELECT DISTINCT %s FROM %s WHERE %s != ''", sportart.getSportartKurz(), tableTeams, sportart.getSportartKurz()));
+		ResultSet rs = holeMannschaften.executeQuery();
+		ArrayList<String> alleMannschaften = new ArrayList<>();
+		System.out.println(holeMannschaften.toString());
+		rs.last();
+		System.out.println(rs.getRow());
+		rs.beforeFirst();
+		while(rs.next()) { // alle Teams aus dem rs in die ArrayList einfügen
+			alleMannschaften.add(rs.getString(1));
+		}
+		Collections.shuffle(alleMannschaften); // Mannschaftsverteilung zufällig
+		for(String team : alleMannschaften) {
+			System.out.println(team);
+		}
+//		String[][] gruppen = new String[sportart.getAnzahlFelder()][]; // so viele gruppen wie es felder gibt, die anzahl der teams pro gruppe bleiben noch offen
+//		gruppen[1][4] = "Jo";
+//		System.out.println(gruppen[1][4]);
+	}
+	
 
 	public void plane(int feldnr, String tag) throws SQLException, TableNotExistentException {
-		this.tablePlan = String.format("%s_%s_%s_feld%d", stufe.getStufeKurz(), sportart.getSportartKurz(), tag, feldnr); // Tabellennamen festlegen // LATEST
+		this.tablePlan = String.format("%s_%s_%s_feld%d", stufe.getStufeKurz(), sportart.getSportartKurz(), tag, feldnr); // Tabellennamen festlegen
 		addSpiel = con.prepareStatement(String.format("INSERT INTO %s (Paarung) VALUES (?)", tablePlan)); // PreparedStatement zum Einfügen eines Spiels auf Feld X zu einer bestimmten Zeit
 		if (teams.size() < 4) { // Minimal 4 Teams akzeptieren
 			throw new IllegalArgumentException("Minimal vier Mannschaften erlaubt");
@@ -66,7 +86,6 @@ public class Planer {
 		if(!tabelleExistiert)
 			throw new TableNotExistentException("Die SQL-Tabelle für den Spielplan existiert nicht. Bitte zuerst erstellen!");
 		System.out.printf("Anzahl Teams: %d\n", teams.size());
-		erstelleFeld(feldnr); // Feld erstellen (wenn nötig)
 		int n = teams.size();// Anzahl Teams
 
 		for (int i = 1; i <= (n - 1); i++) {
@@ -118,20 +137,4 @@ public class Planer {
 			System.out.println("FEHLER: Spiel konnte nicht hinzugefügt werden");
 		}
 	}
-	
-
-	private void erstelleFeld(int feldnr) throws SQLException {
-		PreparedStatement feldAbfragen = con.prepareStatement("SELECT TABLE_NAME, COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA LIKE ? && TABLE_Name = ? && COLUMN_NAME = ?"); // Schauen, ob schon eine Spalte FeldX existiert
-		feldAbfragen.setString(1, SpielplanerApp.properties.getProperty("database_name"));
-		feldAbfragen.setString(2, tablePlan);
-		feldAbfragen.setString(3, String.format("Feld%d", feldnr));
-		ResultSet feldXinDB = feldAbfragen.executeQuery();
-		boolean feldExistiert = feldXinDB.next();
-		feldXinDB.close();
-		if(!feldExistiert) {
-			PreparedStatement addFeld = con.prepareStatement(String.format("ALTER TABLE %s ADD Feld%d VARCHAR(15) DEFAULT '', ADD Feld%dSchiri VARCHAR(30) DEFAULT '', ADD Feld%dErgebnis VARCHAR(10) DEFAULT ''", tablePlan, feldnr, feldnr, feldnr));
-			addFeld.executeUpdate();
-		}
-	}
-
 }
