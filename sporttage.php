@@ -16,8 +16,13 @@ th, td {
 </style>
 
 <body>
+Bitte die K1-Kurse so eingeben: "K1-D1", "K1-D2"... <br>
+KEINE LEERZEICHEN benutzen!<br>
+Umlaute können problemlos verarbeitet werden, aber bitte darauf achten, dass Namen nicht falsch geschrieben werden (oder wenn falsch, dann einheitlich falsch)<br>
+Zu einem Vornamen gehört IMMER ein Nachname, sonst geht die Welt unter!<br>
+<br>
 Klasse eingeben:
-<form action="submit.php" method="post">
+<form action="check.php" method="post">
 <input type="text" name="klasse"/>
 
 <table>
