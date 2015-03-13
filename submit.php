@@ -12,6 +12,7 @@ $username = 'db1093417-sport';
 $password = '%&SporTTage14@!';
 $dbname = 'db1093417-sporttage';
 	
+
 $klasse = $_POST['klasse'];
 if (strpos($klasse,'5') !== false || strpos($klasse,'6') !== false) {
 	$stufenListe = "Mannschaften_US";
@@ -54,13 +55,11 @@ if($conn->connect_error){
 	    	}	
 	}
 
-	//echo getSchuelerID('Herbert', 'Idris', '9a');
-
-
 	//Fußball1
 //variablen wird der wert zugewiesen	
-$vornamen = $_POST['fb1_v'];
-$nachnamen = $_POST['fb1_n'];
+$vornamen = $_SESSION['fb1_v'];
+$nachnamen = $_SESSION['fb1_n'];
+echo $vornamen
 $id = 0;
 //manschaftname besteht aus klasse + zahl, z.B. 9a1 9a2, es geht hier um mannschaft 1
 $mannschaftFB1 = $klasse .  '1';
@@ -82,8 +81,8 @@ for($i = 0; $i < count($vornamen); $i++) {
 }	
 	
    //Fußball 2
-$vornamen = $_POST['fb2_v'];
-$nachnamen = $_POST['fb2_n'];
+$vornamen = $_SESSION['fb2_v'];
+$nachnamen = $_SESSION['fb2_n'];
 $id = 0;
 $mannschaftFB2 = $klasse .  '2';
 $mannschaftFB2= '"' . $mannschaftFB2 .  '"';
@@ -108,8 +107,8 @@ $mannschaftFB2= '"' . $mannschaftFB2 .  '"';
      
      //basketball
      
-  $vornamen = $_POST['bb_v'];
-	$nachnamen = $_POST['bb_n'];
+  $vornamen = $_SESSION['bb_v'];
+	$nachnamen = $_SESSION['bb_n'];
 	echo '<br>';
 	echo $klasse . '<br>';
 	 $id = 0;
@@ -136,8 +135,8 @@ $mannschaftFB2= '"' . $mannschaftFB2 .  '"';
 	   }
      
      //volleyball
-  $vornamen = $_POST['vb_v'];
-	$nachnamen = $_POST['vb_n'];
+  $vornamen = $_SESSION['vb_v'];
+	$nachnamen = $_SESSION['vb_n'];
  // echo $nachnamen[1];
 	echo '<br>';
 	echo $klasse . '<br>';
@@ -165,8 +164,8 @@ $mannschaftFB2= '"' . $mannschaftFB2 .  '"';
 	   }
      
           //staffellauf
-  $vornamen = $_POST['st_v'];
-	$nachnamen = $_POST['st_n'];
+  $vornamen = $_SESSION['st_v'];
+	$nachnamen = $_SESSION['st_n'];
  // echo $nachnamen[1];
 	echo '<br>';
 	echo $klasse . '<br>';
@@ -194,8 +193,8 @@ $mannschaftFB2= '"' . $mannschaftFB2 .  '"';
 	   }
      
                //fahrradtour
-  $vornamen = $_POST['ft_v'];
-	$nachnamen = $_POST['ft_n'];
+  $vornamen = $_SESSION['ft_v'];
+	$nachnamen = $_SESSION['ft_n'];
  // echo $nachnamen[1];
 	echo '<br>';
 	echo $klasse . '<br>';
@@ -223,8 +222,8 @@ $mannschaftFB2= '"' . $mannschaftFB2 .  '"';
 	   }
      
      //tt
-  $vornamen = $_POST['tt_v'];
-	$nachnamen = $_POST['tt_n'];
+  $vornamen = $_SESSION['tt_v'];
+	$nachnamen = $_SESSION['tt_n'];
 	echo '<br>';
 	echo $klasse . '<br>'; 
   // echo $vornamen[0];
@@ -268,8 +267,8 @@ $mannschaftFB2= '"' . $mannschaftFB2 .  '"';
 	   }        
      
        //bm
-  $vornamen = $_POST['bm_v'];
-	$nachnamen = $_POST['bm_n'];
+  $vornamen = $_SESSION['bm_v'];
+	$nachnamen = $_SESSION['bm_n'];
 	echo '<br>';
 	echo $klasse . '<br>'; 
   // echo $vornamen[0];
