@@ -12,7 +12,6 @@ $username = 'db1093417-sport';
 $password = '%&SporTTage14@!';
 $dbname = 'db1093417-sporttage';
 	
-<<<<<<< Updated upstream
 
 $klasse = $_POST['klasse'];
 if (strpos($klasse,'5') !== false || strpos($klasse,'6') !== false) {
@@ -22,9 +21,6 @@ if (strpos($klasse,'5') !== false || strpos($klasse,'6') !== false) {
 } else if (strpos($klasse,'10') !== false || strpos($klasse,'K1') !== false || strpos($klasse,'K2') !== false) {
 	$stufenListe = "Mannschaften_OS";	
 }
-=======
-$klasse = $_SESSION['klasse'];
->>>>>>> Stashed changes
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
