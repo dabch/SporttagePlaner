@@ -19,7 +19,10 @@
 	if($conn->connect_error){
 		die('Connection failed:\n' . $conn->connect_error);
 	}
-	
+
+  // Umlaute fixen
+  $conn->query('SET NAMES "utf8"');
+  	
 	$abfrageSchueler = $conn->prepare('SELECT ID FROM Mannschaften_MS WHERE Vorname = ? AND Name = ? AND Klasse = ?');
 	
 	$schuelerHinzufuegen = $conn->prepare('INSERT INTO Mannschaften_MS (Vorname, Name, Klasse) VALUES (?, ?, ?);');
