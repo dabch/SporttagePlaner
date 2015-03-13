@@ -21,6 +21,7 @@ public class SpielplanerApp {
 	static File dirMannschaftslisten;
 	static File dirSpielplaene;
 	static File dirKontrollisten;
+	static File dirPfeiflisten;
 	
 	public static void main(String[] args) {
 		System.out.println("SporttagePlaner Beta by Daniel Bücheler");
@@ -32,29 +33,39 @@ public class SpielplanerApp {
 		
 		// Ordnerstruktur erstellen
 		dirMannschaftslisten = new File(dirRoot + "/Mannschaftslisten/");
-		if(!dirMannschaftslisten.canRead()) {
+		if(!dirMannschaftslisten.canWrite()) {
 			System.out.println("Mannschaftslisten-Ordner nicht vorhanden. Wird erstellt.");
 			if(!dirMannschaftslisten.mkdirs()) {
-				System.out.println("Mannschaftslisten-Ordner konnte nicht erstellt werden. Bitte Problem lösen und erneut versuchen.");
+				System.out.println("Mannschaftslisten-Ordner konnte nicht erstellt werden. Bitte von Hand erstellen, ohne kann das Programm nicht starten.");
 				System.exit(2);
 			}
 		}
 		dirKontrollisten = new File(dirRoot + "/Kontrollisten/");
-		if(!dirKontrollisten.canRead()) {
+		if(!dirKontrollisten.canWrite()) {
 			System.out.println("Kontrollisten-Ordner nicht vorhanden. Wird erstellt.");
 			if(!dirKontrollisten.mkdirs()) {
-				System.out.println("Kontrollisten-Ordner konnte nicht erstellt werden. Bitte Problem lösen und erneut versuchen.");
+				System.out.println("Kontrollisten-Ordner konnte nicht erstellt werden. Bitte von Hand erstellen, ohne kann das Programm nicht starten.");
 				System.exit(2);
 			}
 		}
 		dirSpielplaene = new File(dirRoot + "/Spielpläne/");
-		if(!dirSpielplaene.canRead()) {
+		if(!dirSpielplaene.canWrite()) {
 			System.out.println("Spielplan-Ordner nicht vorhanden. Wird erstellt.");
 			if(!dirSpielplaene.mkdirs()) {
-				System.out.println("Spielplan-Ordner konnte nicht erstellt werden. Bitte Problem lösen und erneut versuchen.");
+				System.out.println("Spielplan-Ordner konnte nicht erstellt werden. Bitte von Hand erstellen, ohne kann das Programm nicht starten.");
 				System.exit(2);
 			}
 		}
+		dirPfeiflisten = new File(dirRoot + "/Pfeiflisten/");
+		if(!dirPfeiflisten.canWrite()) {
+			System.out.println("Pfeiflisten-Ordner nicht vorhanden. Wird erstellt.");
+			if(!dirPfeiflisten.mkdirs()) {
+				System.out.println("Pfeiflisten-Ordner konnte nicht erstellt werden. Bitte von Hand erstellen, ohne kann das Programm nicht starten.");
+				System.exit(2);
+			}
+		}
+		
+		System.out.println();
 		
 		// Properties aus Datei lesen oder erstellen
 		properties = new Properties();
@@ -63,7 +74,6 @@ public class SpielplanerApp {
 			reader = new FileReader(dirRoot + "/sporttageplaner.properties");
 			properties.load(reader);
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
 			System.out.println("sporttageplaner.properties nicht gefunden");
 			properties.setProperty("database_ip_address", "127.0.0.0");
 			properties.setProperty("database_username", "root");
@@ -76,7 +86,6 @@ public class SpielplanerApp {
 				writer.close();
 				System.exit(0);
 			} catch (IOException e1) { 
-				e1.printStackTrace();
 				System.exit(1);
 			}
 		} catch (IOException e) {
@@ -87,6 +96,15 @@ public class SpielplanerApp {
 			} catch (IOException e) { e.printStackTrace(); }
 		}
 		
+		
+		try {
+			Planer pl2 = new Planer(new Sportart("BM"), new Stufe("mS"));
+			pl2.holeAlleMannschaften();
+		} catch (SQLException e3) {
+			// TODO Auto-generated catch block
+			e3.printStackTrace();
+		}
+		System.exit(0);
 		
 		//#####################################
 		Scanner scn = new Scanner(System.in);
@@ -101,7 +119,7 @@ public class SpielplanerApp {
 		int pausendauer = 2;
 		String tag = "MO"; // True = Montag, False = Dienstag
 		
-		schleife: // Zum späteren Ausstieg aus der Endlosschleife
+		endlosschleife: // Zum späteren Ausstieg aus der Endlosschleife
 		while(true) { // Endlosschleife
 			System.out.print("> "); // Hier soll der User etwas eingeben!
 			String input = scn.nextLine(); // Befehl einlesen
@@ -136,7 +154,7 @@ public class SpielplanerApp {
 					einleser = new Einleser(argumente[0]); // Einleser erstellen
 					einleser.readAll(); // alle Sportarten einlesen
 				} catch (FileNotFoundException e) {
-					System.out.println("FEHLER: Datei wurde nicht gefunden. Mannschaftslisten müssen sich im Ordner %s/Mannschaftslisten befinden");
+					System.out.printf("FEHLER: Datei wurde nicht gefunden. Mannschaftslisten müssen sich im Ordner %s/Mannschaftslisten befinden%n", dirRoot);
 					break;
 				} catch (IOException | SQLException e) {
 					e.printStackTrace();
@@ -271,6 +289,22 @@ public class SpielplanerApp {
 					System.out.println(e.getMessage());
 				}
 				break;
+			case "pfeifliste":
+				try {
+					Stufe stufe1 = new Stufe(argumente[1].trim());
+					Stufe stufe2 = new Stufe(argumente[2].trim());
+					Stufe stufe3 = argumente[3]== null || argumente[3].trim().isEmpty() ? null : new Stufe(argumente[3]); // Null übergeben wenn keine dritte Stufe angegeben wurde
+					PfeiflistenMaker pl = new PfeiflistenMaker(argumente[0]);
+					pl.erstellePfeifliste(tag, stufe1, stufe2, stufe3);
+					pl.close();
+				} catch (SQLException e) {
+					System.out.println("FEHLER: Datenbankfehler");
+				} catch (FileNotFoundException e) {
+					System.out.println("FEHLER: Datei nicht gefunden / konnte nicht erstellt werden.");
+				} catch (IOException e) {
+					System.out.println("FEHLER: Konnte keine Pfeifliste erstellen");
+				}
+				break;
 			case "help": // Hilfe anzeigen, auch hier durchfallen FINAL: bei mehr möglichen Befehlen Hilfe anpassen
 			case "hilfe":
 			case "h":
@@ -278,19 +312,19 @@ public class SpielplanerApp {
 				System.out.println(" einlesen [Dateiname] - Liest Mannschaften von der Excel-Tabelle ein und trägt sie in die Datenbank ein");
 				System.out.println(" setze [Stufe] [Sportart] [Tag] - Legt fest, mit welcher Stufe, Sportart und Tag gearbeitet wird (als Tag nur \"Mo\" oder \"Di\"");
 				System.out.println(" info - zeigt gesetzte Stufe, Sportart und Tag an");
-				System.out.println(" blockzeiten [Startzeit als \"HH:MM\"] [Spieldauer in min] [Pausendauer in min] - Erstellt einen leeren Plan mit den Zeiten (überschreibt den Plan, falls er bereits vorhanden ist!)");
+				System.out.println(" blockzeiten [Startzeit als \"HH:MM\"] [Spieldauer in min] [Pausendauer in min] - Erstellt die Zeiten für den Spielplan (überschreibt alte Zeiten!)");
 				System.out.println(" planen [Feld] [team1] [team2] [team3] [team4] <team5> <team6> - Erstellt einen Spielplan für vier bis sechs Teams in einer Gruppe");
 				System.out.println(" ausgeben - Schreibt den Spielplan in eine Excel-Tabelle, der Dateiname wird automatisch generiert");
-				System.out.println(" kontrolliste- Erstellt eine Kontrolliste und schreibt sie in eine Excel-Tabelle, der Dateiname wird automatisch generiert");
+				System.out.println(" kontrolliste - Erstellt eine Kontrolliste und schreibt sie in eine Excel-Tabelle, der Dateiname wird automatisch generiert");
+				System.out.println(" pfeifliste [Dateiname] [VB-Stufe] [BM- oder FB-Stufe] <BB-Stufe> - Erstellt eine Pfeifliste und schreibt sie in eine Excel-Tabelle");
 				System.out.println(" h - Diese Hilfe anzeigen (auch help oder hilfe)");
 				System.out.println(" exit - Programm beenden");
 				System.out.println();
 				System.out.println(" Bevor ein Spielplan erstellt werden kann müssen Sportart, Stufe und Tag gesetzt werden!");
 				System.out.println();
-				System.out.println(" Für die korrekte Funktion des Programms müssen die Felder in ihrer Reihenfolge erstellt werden - zuerst Feld1, dann Feld2, ...");
 				break;
 			case "exit": // Programm komplett beenden
-				break schleife;
+				break endlosschleife;
 			default: // Bei unbekannten Befehlen Fehler ausgeben
 				System.out.println("FEHLER: Befehl nicht erkannt");
 				break;
