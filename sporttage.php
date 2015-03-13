@@ -45,10 +45,10 @@ Klasse eingeben:
 	</tr>
 	
 	<tr>
-		<td> <input type="text" name="fb1_v[]"/>
-		<td> <input type="text" name="fb1_n[]"/>
-		<td> <input type="text" name="fb2_v[]"/>
-		<td> <input type="text" name="fb2_n[]"/>
+		<td> <input type="text" name="fb1_v[]" tabindex=1/>
+		<td> <input type="text" name="fb1_n[]" tabindex=2/>
+		<td> <input type="text" name="fb2_v[]" tabindex=19/>
+		<td> <input type="text" name="fb2_n[]" tabindex=20/>
 		<td> <input type="text" name="bb_v[]"/>
 		<td> <input type="text" name="bb_n[]"/>
 		<td> <input type="text" name="ft_v[]"/>
@@ -56,10 +56,10 @@ Klasse eingeben:
 	</tr>
 	
 	<tr>
-		<td> <input type="text" name="fb1_v[]"/>
-		<td> <input type="text" name="fb1_n[]"/>
-		<td> <input type="text" name="fb2_v[]"/>
-		<td> <input type="text" name="fb2_n[]"/>
+		<td> <input type="text" name="fb1_v[]" tabindex=3/>
+		<td> <input type="text" name="fb1_n[]" tabindex=4/>
+		<td> <input type="text" name="fb2_v[]" tabindex=21/>
+		<td> <input type="text" name="fb2_n[]" tabindex=22/>
 		<td> <input type="text" name="bb_v[]"/>
 		<td> <input type="text" name="bb_n[]"/>
 		<td> <input type="text" name="ft_v[]"/>
@@ -67,10 +67,10 @@ Klasse eingeben:
 	</tr>
 	
 	<tr>
-		<td> <input type="text" name="fb1_v[]"/>
-		<td> <input type="text" name="fb1_n[]"/>
-		<td> <input type="text" name="fb2_v[]"/>
-		<td> <input type="text" name="fb2_n[]"/>
+		<td> <input type="text" name="fb1_v[]" tabindex=5/>
+		<td> <input type="text" name="fb1_n[]" tabindex=6/>
+		<td> <input type="text" name="fb2_v[]" tabindex=23/>
+		<td> <input type="text" name="fb2_n[]" tabindex=24/>
 		<td> <input type="text" name="bb_v[]"/>
 		<td> <input type="text" name="bb_n[]"/>
 		<td> <input type="text" name="ft_v[]"/>
@@ -78,10 +78,10 @@ Klasse eingeben:
 	</tr>
 	
 	<tr>
-		<td> <input type="text" name="fb1_v[]"/>
-		<td> <input type="text" name="fb1_n[]"/>
-		<td> <input type="text" name="fb2_v[]"/>
-		<td> <input type="text" name="fb2_n[]"/>
+		<td> <input type="text" name="fb1_v[]" tabindex=7/>
+		<td> <input type="text" name="fb1_n[]" tabindex=8/>
+		<td> <input type="text" name="fb2_v[]" tabindex=25/>
+		<td> <input type="text" name="fb2_n[]" tabindex=26/>
 		<td> <input type="text" name="bb_v[]"/>
 		<td> <input type="text" name="bb_n[]"/>
 		<td> <input type="text" name="ft_v[]"/>
@@ -89,10 +89,10 @@ Klasse eingeben:
 	</tr>
 	
 	<tr>
-		<td> <input type="text" name="fb1_v[]"/>
-		<td> <input type="text" name="fb1_n[]"/>
-		<td> <input type="text" name="fb2_v[]"/>
-		<td> <input type="text" name="fb2_n[]"/>
+		<td> <input type="text" name="fb1_v[]" tabindex=9/>
+		<td> <input type="text" name="fb1_n[]" tabindex=10/>
+		<td> <input type="text" name="fb2_v[]" tabindex=27/>
+		<td> <input type="text" name="fb2_n[]" tabindex=28/>
 		<td> <input type="text" name="bb_v[]"/>
 		<td> <input type="text" name="bb_n[]"/>
 		<td> <input type="text" name="ft_v[]"/>
@@ -100,10 +100,10 @@ Klasse eingeben:
 	</tr>
 	
 	<tr>
-		<td> <input type="text" name="fb1_v[]"/>
-		<td> <input type="text" name="fb1_n[]"/>
-		<td> <input type="text" name="fb2_v[]"/>
-		<td> <input type="text" name="fb2_n[]"/>
+		<td> <input type="text" name="fb1_v[]" tabindex=11/>
+		<td> <input type="text" name="fb1_n[]" tabindex=12/>
+		<td> <input type="text" name="fb2_v[]" tabindex=29/>
+		<td> <input type="text" name="fb2_n[]" tabindex=30/>
 		<td> <input type="text" name="bb_v[]"/>
 		<td> <input type="text" name="bb_n[]"/>
 		<td> <input type="text" name="ft_v[]"/>
@@ -111,10 +111,10 @@ Klasse eingeben:
 	</tr>
 	
 	<tr>
-		<td> <input type="text" name="fb1_v[]"/>
-		<td> <input type="text" name="fb1_n[]"/>
-		<td> <input type="text" name="fb2_v[]"/>
-		<td> <input type="text" name="fb2_n[]"/>
+		<td> <input type="text" name="fb1_v[]" tabindex=13/>
+		<td> <input type="text" name="fb1_n[]" tabindex=14/>
+		<td> <input type="text" name="fb2_v[]" tabindex=31/>
+		<td> <input type="text" name="fb2_n[]" tabindex=32/>
 		<td> <input type="text" name="bb_v[]"/>
 		<td> <input type="text" name="bb_n[]"/>
 		<td> <input type="text" name="ft_v[]"/>
@@ -122,10 +122,10 @@ Klasse eingeben:
 	</tr>
 	
 	<tr>
-		<td> <input type="text" name="fb1_v[]"/>
-		<td> <input type="text" name="fb1_n[]"/>
-		<td> <input type="text" name="fb2_v[]"/>
-		<td> <input type="text" name="fb2_n[]"/>
+		<td> <input type="text" name="fb1_v[]" tabindex=15/>
+		<td> <input type="text" name="fb1_n[]" tabindex=16/>
+		<td> <input type="text" name="fb2_v[]" tabindex=33/>
+		<td> <input type="text" name="fb2_n[]" tabindex=34/>
 		<td> <input type="text" name="bb_v[]"/>
 		<td> <input type="text" name="bb_n[]"/>
 		<td> <input type="text" name="ft_v[]"/>
@@ -133,10 +133,10 @@ Klasse eingeben:
 	</tr>
 	
 	<tr>
-		<td> <input type="text" name="fb1_v[]"/>
-		<td> <input type="text" name="fb1_n[]"/>
-		<td> <input type="text" name="fb2_v[]"/>
-		<td> <input type="text" name="fb2_n[]"/>
+		<td> <input type="text" name="fb1_v[]" tabindex=17/>
+		<td> <input type="text" name="fb1_n[]" tabindex=18/>
+		<td> <input type="text" name="fb2_v[]" tabindex=35/>
+		<td> <input type="text" name="fb2_n[]" tabindex=36/>
 		<td> <input type="text" name="bb_v[]"/>
 		<td> <input type="text" name="bb_n[]"/>
 		<td> <input type="text" name="ft_v[]"/>
