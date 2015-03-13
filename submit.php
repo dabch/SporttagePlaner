@@ -6,19 +6,19 @@
 </head>
 
 <body>
-	<?php
-	$servername = 'wp052.webpack.hosteurope.de';
-	$username = 'db1093417-sport';
-	$password = '%&SporTTage14@!';
-	$dbname = 'db1093417-sporttage';
+<?php
+$servername = 'wp052.webpack.hosteurope.de';
+$username = 'db1093417-sport';
+$password = '%&SporTTage14@!';
+$dbname = 'db1093417-sporttage';
 	
-	$klasse = $_POST['klasse'];
+$klasse = $_POST['klasse'];
 
-	$conn = new mysqli($servername, $username, $password, $dbname);
+$conn = new mysqli($servername, $username, $password, $dbname);
 
-	if($conn->connect_error){
-		die('Connection failed:\n' . $conn->connect_error);
-	}
+if($conn->connect_error){
+	die('Connection failed:\n' . $conn->connect_error);
+}
 
   // Umlaute fixen
   $conn->query('SET NAMES "utf8"');
@@ -28,92 +28,64 @@
 	$schuelerHinzufuegen = $conn->prepare('INSERT INTO Mannschaften_MS (Vorname, Name, Klasse) VALUES (?, ?, ?);');
 
 	function getSchuelerID($name, $vorname, $klasse) {
-	  //nun lokale variable damit man sie schlieﬂen und ˆffnen kann
-    /*  $GLOBALS['abfrageSchueler'] = $conn->prepare('SELECT ID FROM Mannschaften_MS WHERE Vorname = ? AND Name = ? AND Klasse = ?');
-	    $GLOBALS['abfrageSchueler']->bind_param('sss', $vorname, $name, $klasse);
-	    $GLOBALS['abfrageSchueler']->execute();
-	    $GLOBALS['abfrageSchueler']->bind_result($id);
-	    if($GLOBALS['abfrageSchueler']->fetch()) {
-        $GLOBALS['abfrageSchueler']->close;
-	    	return $id;
-	    } else {
-	    	$GLOBALS['schuelerHinzufuegen']->bind_param('sss', $vorname, $name, $klasse);
-	    	$GLOBALS['schuelerHinzufuegen']->execute();
-	    	$GLOBALS['abfrageSchueler']->execute();
-	    	$GLOBALS['abfrageSchueler']->bind_result($id);
-	    	if($GLOBALS['abfrageSchueler']->fetch()) {
-          $GLOBALS['abfrageSchueler']->close();
-		    	return $id;
-	    	} 
-	    }
-      */
-      $abfrageSchueler = $GLOBALS['conn']->prepare('SELECT ID FROM Mannschaften_MS WHERE Vorname = ? AND Name = ? AND Klasse = ?');
-	    $abfrageSchueler->bind_param('sss', $vorname, $name, $klasse);
-	    $abfrageSchueler->execute();
-	    $abfrageSchueler->bind_result($id);
-	    if($abfrageSchueler->fetch()) {
-        $abfrageSchueler->close;
-	    	return $id;
-	    } else {
-	    	$GLOBALS['schuelerHinzufuegen']->bind_param('sss', $vorname, $name, $klasse);
-	    	$GLOBALS['schuelerHinzufuegen']->execute();
+	  //nun lokale variable damit man sie schlie√üen und √∂ffnen kann
+		$abfrageSchueler = $GLOBALS['conn']->prepare('SELECT ID FROM Mannschaften_MS WHERE Vorname = ? AND Name = ? AND Klasse = ?');	    $abfrageSchueler->bind_param('sss', $vorname, $name, $klasse);
 	    	$abfrageSchueler->execute();
 	    	$abfrageSchueler->bind_result($id);
-	    	if($abfrageSchueler->fetch()) {
-          $abfrageSchueler->close();
-		    	return $id;
-	    	} 
-	    }
+		if($abfrageSchueler->fetch()) {
+        		$abfrageSchueler->close;
+	    		return $id;
+		 } else {
+	    		$GLOBALS['schuelerHinzufuegen']->bind_param('sss', $vorname, $name, $klasse);
+	    		$GLOBALS['schuelerHinzufuegen']->execute();
+	    		$abfrageSchueler->execute();
+	    		$abfrageSchueler->bind_result($id);
+	    		if($abfrageSchueler->fetch()) {
+        			 $abfrageSchueler->close();
+			 	return $id;
+	    		} 
+	    	}	
 	}
 
 	//echo getSchuelerID('Herbert', 'Idris', '9a');
 
 
-	//Fuﬂball1
-	$vornamen = $_POST['fb1_v'];
-	$nachnamen = $_POST['fb1_n'];
-	echo '<br>';
-	echo $klasse . '<br>';
-	 $id = 0;
-   $mannschaftFB1 = $klasse .  '1';
-  //f¸r die SQL Anweisung muss die Mannschaft in Anf¸hrungszeichen sein:
-   $mannschaftFB1= '"' . $mannschaftFB1 .  '"';
-   
-	for($i = 0; $i < count($vornamen); $i++) {
-    if ($vornamen[$i] != '' && $nachnamen[$i] != '')  {
-      $id = getSchuelerID($nachnamen[$i], $vornamen[$i], $klasse);
-      echo $id . " ";
-      echo $mannschaftFB1 . "  ";
-      $addSportartToSchueler = "UPDATE Mannschaften_MS SET FB = " . $mannschaftFB1 . " WHERE ID = ". $id . " ";
-     // echo $addSportartToSchueler;
-      if ($conn->query($addSportartToSchueler) === TRUE) {
-        echo "update succesfully";
-      } else {
-        echo "error: " . $conn->error;
-      }
-		  echo $vornamen[$i] . ' ';
-		  echo $nachnamen[$i] . '<br>';
-    
-    }
-
-		
+	//Fu√üball1
+//variablen wird der wert zugewiesen	
+$vornamen = $_POST['fb1_v'];
+$nachnamen = $_POST['fb1_n'];
+$id = 0;
+//manschaftname besteht aus klasse + zahl, z.B. 9a1 9a2, es geht hier um mannschaft 1
+$mannschaftFB1 = $klasse .  '1';
+//f√ºr die SQL Anweisung muss die Mannschaft in Anf√ºhrungszeichen sein:
+$mannschaftFB1= '"' . $mannschaftFB1 .  '"';
+   //f√ºr alle eingetragenen namen
+for($i = 0; $i < count($vornamen); $i++) {
+	if ($vornamen[$i] != '' && $nachnamen[$i] != '')  { //wenn etwas eingetragen ist
+      		$id = getSchuelerID($nachnamen[$i], $vornamen[$i], $klasse);   //id holen
+		$addSportartToSchueler = "UPDATE Mannschaften_MS SET FB = " . $mannschaftFB1 . " WHERE ID = ". $id . " "; // string erstellenn
+		if ($conn->query($addSportartToSchueler) === TRUE) {	//string ausf√ºhren und mit r√ºckgabewert weitermachen
+			echo "Fussball update erfolgreich bei: ";		//erfolg ausgeben
+		} else {
+			echo "error: " . $conn->error . " bei: ";		//fehler ausgeben
+		}
+		echo $vornamen[$i] . ' ';		//jeweils den Namen des Sch√ºlers ausgeben
+		echo $nachnamen[$i] . '<br>';
 	}
-   //Fuﬂball 2
-  $vornamen = $_POST['fb2_v'];
-	$nachnamen = $_POST['fb2_n'];
-	echo '<br>';
-	echo $klasse . '<br>';
-	 $id = 0;
-   $mannschaftFB2 = $klasse .  '2';
-   $mannschaftFB2= '"' . $mannschaftFB2 .  '"';
+}	
+	
+   //Fu√üball 2
+$vornamen = $_POST['fb2_v'];
+$nachnamen = $_POST['fb2_n'];
+$id = 0;
+$mannschaftFB2 = $klasse .  '2';
+$mannschaftFB2= '"' . $mannschaftFB2 .  '"';
      	for($i = 0; $i < count($vornamen); $i++) {
         if ($vornamen[$i] != '' && $nachnamen[$i] != '')  {
            $id = getSchuelerID($nachnamen[$i], $vornamen[$i], $klasse);
-   
             echo $id;
             echo $mannschaftFB2;
             $addSportartToSchueler = "UPDATE Mannschaften_MS SET FB = " . $mannschaftFB2 . " WHERE ID = ". $id . " ";
-         //  echo $mannschaftFB2;
              echo $addSportartToSchueler;
               if ($conn->query($addSportartToSchueler) === TRUE) {
                   echo "update succesfully";
@@ -204,7 +176,7 @@
          //  echo $mannschaftFB2;
              echo $addSportartToSchueler;
               if ($conn->query($addSportartToSchueler) === TRUE) {
-                  echo "Staffellauf update succesfully f¸r Sch¸ler: ";
+                  echo "Staffellauf update succesfully f√ºr Sch√ºler: ";
               } else {
                   echo "error: " . $conn->error;
               }
@@ -233,7 +205,7 @@
          //  echo $mannschaftFB2;
              echo $addSportartToSchueler;
               if ($conn->query($addSportartToSchueler) === TRUE) {
-                  echo "Fahrradtour update succesfully f¸r Sch¸ler: ";
+                  echo "Fahrradtour update succesfully f√ºr Sch√ºler: ";
               } else {
                   echo "error: " . $conn->error;
               }
