@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
 <meta charset='UTF-8' name='viewport' content='width=device-width' />
@@ -13,11 +13,12 @@ $username = 'db1093417-sport';
 $password = '%&SporTTage14@!';
 $dbname = 'db1093417-sporttage';
 
+
 $klasse = $_SESSION['klasse'];
 $k1 = $_SESSION['k1'];
 
    
-if (strpos($klasse,'10') !== false || $k1 == "k1" || strpos($klasse,'K1') !== false ||  strpos($klasse,'K2') !== false) {
+if (strpos($klasse,'10') !== false || $k1 == "k1" || strpos($klasse,'K2') !== false) {
 	$stufenListe = "Mannschaften_OS";
 } else if (strpos($klasse,'7') !== false || strpos($klasse,'8') !== false || strpos($klasse,'9') !== false || strpos($klasse,'A1') !== false) {
 	$stufenListe = "Mannschaften_MS";
@@ -64,9 +65,6 @@ if($conn->connect_error){
 	    		} 
 	    	}	
 	}
-
-	//echo getSchuelerID('Herbert', 'Idris', '9a');
-
 
 	//Fußball1
 //variablen wird der wert zugewiesen	

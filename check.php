@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <?php session_start(); ?>
 <html>
 <head>
@@ -13,7 +13,7 @@
 	$klasse = $_POST['klasse'];
   //k1 in session speichern
   $k1 = $_POST['k1'];
-	$_SESSION['k1'] = $k1;
+  $_SESSION['k1'] = $k1;
   
 	// Klasse ausgeben und in Session speichern
 	echo 'Klasse: ';
@@ -30,6 +30,7 @@
 	$nachnamen = $_POST['fb1_n'];
 	$_SESSION['fb1_v'] = $vornamen; // In session abspeichern
 	$_SESSION['fb1_n'] = $nachnamen;
+
 	
 	echo '<b> Fußball 1 </b><br>';
    
@@ -46,6 +47,7 @@
 	$nachnamen = $_POST['fb2_n'];
 	$_SESSION['fb2_v'] = $vornamen;
 	$_SESSION['fb2_n'] = $nachnamen;
+
 	
 	echo '<b> Fußball 2 </b><br>';
    
