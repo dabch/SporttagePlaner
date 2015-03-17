@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <?php session_start(); ?>
 <html>
 <head>
@@ -13,7 +13,7 @@
 	$klasse = $_POST['klasse'];
   //k1 in session speichern
   $k1 = $_POST['k1'];
-  $_SESSION['k1'] = $k1;
+	$_SESSION['k1'] = $k1;
   
 	// Klasse ausgeben und in Session speichern
 	echo 'Klasse: ';
@@ -30,16 +30,24 @@
 	$nachnamen = $_POST['fb1_n'];
 	$_SESSION['fb1_v'] = $vornamen; // In session abspeichern
 	$_SESSION['fb1_n'] = $nachnamen;
-
-	
+  
+  
 	echo '<b> Fußball 1 </b><br>';
-   
+  
+  $namenZaehler=0;  //zaehler erstellen
 	for($i = 0; $i < count($vornamen); $i++) {
 		if ($vornamen[$i] != '' && $nachnamen[$i] != '')  {
 			echo $vornamen[$i] . ' ';
 			echo $nachnamen[$i] . '<br>';
+      $namenZaehler++;  //zaehler+1 je mannschaftsteam
 		}
 	}
+  //testen ob die richtige anzahl vorhanden ist, sonst fehlermeldung
+  if ($namenZaehler>0 && $namenZaehler < 6) {
+      	echo '<b><font color="#FF0000"> Achtung: zu wenig Schüler in diesem Team (FB braucht mind 6)</font> </b><br>';
+  }
+  
+
 	echo '<br>';
 	
 	//Fußball2
@@ -47,16 +55,19 @@
 	$nachnamen = $_POST['fb2_n'];
 	$_SESSION['fb2_v'] = $vornamen;
 	$_SESSION['fb2_n'] = $nachnamen;
-
 	
 	echo '<b> Fußball 2 </b><br>';
-   
+  $namenZaehler=0; 
 	for($i = 0; $i < count($vornamen); $i++) {
 		if ($vornamen[$i] != '' && $nachnamen[$i] != '')  {
 			echo $vornamen[$i] . ' ';
 			echo $nachnamen[$i] . '<br>';
+      $namenZaehler++;
 		}
 	}
+  if ($namenZaehler>0 && $namenZaehler < 6) {
+      	echo '<b><font color="#FF0000"> Achtung: zu wenig Schüler in diesem Team (FB braucht mind 6)</font> </b><br>';
+  }
 	echo '<br>';
 	
 	// Basketball
@@ -66,13 +77,18 @@
 	$_SESSION['bb_n'] = $nachnamen;
 	
 	echo '<b> Basketball </b><br>';
-   
+  $namenZaehler=0;  
 	for($i = 0; $i < count($vornamen); $i++) {
 		if ($vornamen[$i] != '' && $nachnamen[$i] != '')  {
 			echo $vornamen[$i] . ' ';
 			echo $nachnamen[$i] . '<br>';
+      $namenZaehler++;
 		}
 	}
+  if ($namenZaehler>0 && $namenZaehler < 6) {
+      	echo '<b><font color="#FF0000"> Achtung: zu wenig Schüler in diesem Team (BB braucht mind 6)</font> </b><br>';
+  }
+	echo '<br>';
 	echo '<br>';
 		
 	// Volleyball
@@ -82,13 +98,17 @@
 	$_SESSION['vb_n'] = $nachnamen;
 	
 	echo '<b> Volleyball </b><br>';
-   
+  $namenZaehler=0;  
 	for($i = 0; $i < count($vornamen); $i++) {
 		if ($vornamen[$i] != '' && $nachnamen[$i] != '')  {
 			echo $vornamen[$i] . ' ';
 			echo $nachnamen[$i] . '<br>';
+      $namenZaehler++; 
 		}
 	}
+  if ($namenZaehler>0 && $namenZaehler < 6) {
+      	echo '<b><font color="#FF0000"> Achtung: zu wenig Schüler in diesem Team (VB braucht mind 6)</font> </b><br>';
+  }
 	echo '<br>';
 	
 	// Staffellauf
@@ -98,13 +118,17 @@
 	$_SESSION['st_n'] = $nachnamen;
 	
 	echo '<b> Staffellauf </b><br>';
-   
+  $namenZaehler=0;     
 	for($i = 0; $i < count($vornamen); $i++) {
 		if ($vornamen[$i] != '' && $nachnamen[$i] != '')  {
 			echo $vornamen[$i] . ' ';
 			echo $nachnamen[$i] . '<br>';
+      $namenZaehler++; 
 		}
 	}
+  if ($namenZaehler>0 && $namenZaehler < 4 ) {
+      	echo '<b><font color="#FF0000"> Achtung: zu wenig Schüler in diesem Team (Staffellauf braucht mind 4)</font> </b><br>';
+  }
 	echo '<br>';
 	
 	// Badminton
@@ -165,7 +189,9 @@
 			echo $nachnamen[$i] . '<br>';
 		}
 	}
-	echo '<br>';?>
+	echo '<br>';
+  
+  ?>
 	
 	<form action='submit.php' method='post'>
 		<input type='submit' value='Alles richtig!'>

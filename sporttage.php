@@ -24,7 +24,7 @@ Zu einem Vornamen gehört IMMER ein Nachname, sonst geht die Welt unter!<br>
 Klasse eingeben:
 <form action="check.php" method="post">
 <input type="checkbox" name="k1" value="k1"> K1  <br>
-<input type="text" name="klasse"/>
+<input type="text" name="klasse" required="required" />
 
 <table>
 	<!-- Fußball 1 + 2 & Fahrradtour -->
