@@ -475,6 +475,7 @@ Klasse eingeben:
 	$username = 'db1093417-sport';
 	$password = '%&SporTTage14@!';
 	$dbname = 'db1093417-sporttage';
+  ini_set("session.use_trans_sid",true);
 	session_start();
 	$conn = new mysqli($servername, $username, $password, $dbname);
 	

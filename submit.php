@@ -1,4 +1,19 @@
 <!DOCTYPE html>
+<?php //session_save_path('/tmp');
+//  session.use_trans_sid 1;
+// ini_set("session.use_trans_sid",true);
+ 
+// ini_set("session.use_cookies",true);
+// $sessName = session_name();
+   // session_id(SESSID);
+  // echo PHPSESSID;
+   //$sessionID = $_GET['PHPSESSID'];
+// session_id($sessionID);
+// session_start();
+
+//echo SID;
+//phpinfo();
+?>
 <html>
 <head>
 <meta charset='UTF-8' name='viewport' content='width=device-width' />
@@ -7,15 +22,28 @@
 
 <body>
 <?php
-session_start();
+
+
 $servername = 'wp052.webpack.hosteurope.de';
 $username = 'db1093417-sport';
 $password = '%&SporTTage14@!';
 $dbname = 'db1093417-sporttage';
+ /*
+if (ini_get('register_globals'))
+{
+    foreach ($_SESSION as $key=>$value)
+    {
+        if (isset($GLOBALS[$key]))
+            unset($GLOBALS[$key]);
+    }
+}      */
 
-$klasse = $_SESSION['klasse'];
-$k1 = $_SESSION['k1'];
-
+$klasse = $_POST['klasse'];
+$k1 = $_POST['k1'];
+echo $_POST['klasse'];
+echo $klasse;
+//echo $sessionID;
+echo "vor der stufe bla";
    
 if (strpos($klasse,'10') !== false || $k1 == "k1" || strpos($klasse,'K1') !== false ||  strpos($klasse,'K2') !== false) {
 	$stufenListe = "Mannschaften_OS";
@@ -24,6 +52,7 @@ if (strpos($klasse,'10') !== false || $k1 == "k1" || strpos($klasse,'K1') !== fa
 } else if (strpos($klasse,'5') !== false || strpos($klasse,'6') !== false) {
 	$stufenListe = "Mannschaften_US";	
 }
+
 
 echo $stufenListe . '<br>' ;
 
@@ -70,9 +99,10 @@ if($conn->connect_error){
 
 	//Fußball1
 //variablen wird der wert zugewiesen	
-$vornamen = $_SESSION['fb1_v'];
-$nachnamen = $_SESSION['fb1_n'];
+$vornamen = $_POST['fb1_v'];
+$nachnamen = $_POST['fb1_n'];
 $id = 0;
+  echo $vornamen[0];
 //manschaftname besteht aus klasse + zahl, z.B. 9a1 9a2, es geht hier um mannschaft 1
 $mannschaftFB1 = $klasse .  '1';
 //für die SQL Anweisung muss die Mannschaft in Anführungszeichen sein:
@@ -93,8 +123,8 @@ for($i = 0; $i < count($vornamen); $i++) {
 }	
 	
    //Fußball 2
-$vornamen = $_SESSION['fb2_v'];
-$nachnamen = $_SESSION['fb2_n'];
+$vornamen = $_POST['fb2_v'];
+$nachnamen = $_POST['fb2_n'];
 $id = 0;
 $mannschaftFB2 = $klasse .  '2';
 $mannschaftFB2= '"' . $mannschaftFB2 .  '"';
@@ -116,8 +146,8 @@ $mannschaftFB2= '"' . $mannschaftFB2 .  '"';
      
      //basketball
      
-  $vornamen = $_SESSION['bb_v'];
-	$nachnamen = $_SESSION['bb_n'];
+  $vornamen = $_POST['bb_v'];
+	$nachnamen = $_POST['bb_n'];
 	echo '<br>';
 	 $id = 0;
    $mannschaftBB = $klasse .  '1';
@@ -138,8 +168,8 @@ $mannschaftFB2= '"' . $mannschaftFB2 .  '"';
 	   }
      
      //volleyball
-  $vornamen = $_SESSION['vb_v'];
-	$nachnamen = $_SESSION['vb_n'];
+  $vornamen = $_POST['vb_v'];
+	$nachnamen = $_POST['vb_n'];
  // echo $nachnamen[1];
 	echo '<br>';
 	 $id = 0;
@@ -161,8 +191,8 @@ $mannschaftFB2= '"' . $mannschaftFB2 .  '"';
 	   }
      
           //staffellauf
-  $vornamen = $_SESSION['st_v'];
-	$nachnamen = $_SESSION['st_n'];
+  $vornamen = $_POST['st_v'];
+	$nachnamen = $_POST['st_n'];
  // echo $nachnamen[1];
 	echo '<br>';
 	 $id = 0;
@@ -184,8 +214,9 @@ $mannschaftFB2= '"' . $mannschaftFB2 .  '"';
 	   }
      
                //fahrradtour
-  $vornamen = $_SESSION['ft_v'];
-	$nachnamen = $_SESSION['ft_n'];
+  $vornamen = $_POST['ft_v'];
+	$nachnamen = $_POST['ft_n'];
+  echo $vornamen[0];
  // echo $nachnamen[1];
 	echo '<br>';
 	 $id = 0;
@@ -207,8 +238,8 @@ $mannschaftFB2= '"' . $mannschaftFB2 .  '"';
 	   }
      
      //tt
-  $vornamen = $_SESSION['tt_v'];
-	$nachnamen = $_SESSION['tt_n'];
+  $vornamen = $_POST['tt_v'];
+	$nachnamen = $_POST['tt_n'];
 	echo '<br>';
    $id = 0;
    $mannschaftsNummer=0;
@@ -247,8 +278,8 @@ $mannschaftFB2= '"' . $mannschaftFB2 .  '"';
 	   }        
      
        //bm
-  $vornamen = $_SESSION['bm_v'];
-	$nachnamen = $_SESSION['bm_n'];
+  $vornamen = $_POST['bm_v'];
+	$nachnamen = $_POST['bm_n'];
 	echo '<br>';
    $id = 0;
    $mannschaftsNummer=0;
@@ -285,8 +316,8 @@ $mannschaftFB2= '"' . $mannschaftFB2 .  '"';
   }        
  
  $conn->close();
- //session schließen, damit leute nicht mehrfach eingetragen werden, falls man den selben PC  nutzt
- session_destroy();
+ //SESSION schließen, damit leute nicht mehrfach eingetragen werden, falls man den selben PC  nutzt
+ //session_destroy();
  
 	?>
   
