@@ -7,6 +7,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -23,7 +24,6 @@ import org.apache.poi.ss.util.CellRangeAddress;
 
 public class KontrollistenWriter {
 	private Connection con; // Datenbankverbindung
-	private ResultSet plan; // Spielplan als ResulSet
 	PreparedStatement holeTeams1;
 	PreparedStatement holeTeams2;
 
@@ -36,10 +36,10 @@ public class KontrollistenWriter {
 	private CellStyle csNormal1;
 	private CellStyle csNormal2;
 	
-	private int aktReihe = 3; // Letzte Reihe, in die eingetragen wurde
+	private int currentRow = 3; // Letzte Reihe, in die eingetragen wurde
 	private int ueberschriftenReihe;
-	private int maxFelder;
 	private int hoechstesBespieltesFeld;
+	private int anzahlSpielrunden;
 	
 	private String tag;
 	private Sportart sportart;
@@ -50,7 +50,7 @@ public class KontrollistenWriter {
 		
 		String filename = String.format("%s/Kontrolliste_%s_%s_%s.xls", SpielplanerApp.dirKontrollisten.getCanonicalPath(), stufe.getStufeKurz(), sportart.getSportartKurz(), tag); // der Dateiname ist automatisch generiert
 		
-		tablePlanStamm = String.format("%s_%s_%s", stufe.getStufeKurz(), sportart.getSportartKurz(), tag); // Tabellennamen festlegen
+		this.tablePlanStamm = String.format("%s_%s_%s", stufe.getStufeKurz(), sportart.getSportartKurz(), tag); // Tabellennamen festlegen
 		String.format("Mannschaften_%s", stufe.getStufeKurz());
 		
 		this.tag = tag;
@@ -69,46 +69,19 @@ public class KontrollistenWriter {
 
 		sheet1 = wb.createSheet("Kontrolliste"); // Tabelle1 erstellen und "Spielplan" taufen
 		
-		PreparedStatement holePlan = null;
-		
-		switch(sportart.getSportartKurz()) {
-		case "BM": // sechs Felder
-			holePlan = con.prepareStatement(String.format(
-					"SELECT z.ID AS ID, z.Spielbeginn AS Beginn, z.Spielende AS Ende, f1.Paarung AS Feld1, f2.Paarung AS Feld2, f3.Paarung AS Feld3, f4.Paarung AS Feld4, f5.Paarung AS Feld5, f6.Paarung AS Feld6 FROM %s_zeiten z LEFT JOIN %s_feld1 f1 ON f1.ID = z.ID LEFT JOIN %s_feld2 f2 ON f2.ID = z.ID LEFT JOIN %s_feld3 f3 ON f3.ID = z.ID LEFT JOIN %s_feld4 f4 ON f4.ID = z.ID LEFT JOIN %s_feld5 f5 ON f5.ID = z.ID LEFT JOIN %s_feld6 f6 ON f6.ID = z.ID WHERE f1.Paarung != '' OR f2.Paarung != '' OR f3.Paarung != '' OR f4.Paarung != '' OR f5.Paarung != '' OR f6.Paarung != ''",
-					tablePlanStamm, tablePlanStamm, tablePlanStamm, tablePlanStamm, tablePlanStamm, tablePlanStamm, tablePlanStamm));
-			maxFelder = 6;
-			break;
-		case "FB": // drei Felder
-		case "BB":
-			holePlan = con.prepareStatement(String.format(
-					"SELECT z.ID AS ID, z.Spielbeginn AS Beginn, z.Spielende AS Ende, f1.Paarung AS Feld1, f2.Paarung AS Feld2, f3.Paarung AS Feld3 FROM %s_zeiten z LEFT JOIN %s_feld1 f1 ON f1.ID = z.ID LEFT JOIN %s_feld2 f2 ON f2.ID = z.ID LEFT JOIN %s_feld3 f3 ON f3.ID = z.ID WHERE f1.Paarung != '' OR f2.Paarung != '' OR f3.Paarung != ''",
-					tablePlanStamm, tablePlanStamm, tablePlanStamm, tablePlanStamm));
-			maxFelder = 3;
-			break;
-		case "TT": // vier Felder
-			holePlan = con.prepareStatement(String.format(
-					"SELECT z.ID AS ID, z.Spielbeginn AS Beginn, z.Spielende AS Ende, f1.Paarung AS Feld1, f2.Paarung AS Feld2, f3.Paarung AS Feld3, f4.Paarung AS Feld4 FROM %s_zeiten z LEFT JOIN %s_feld1 f1 ON f1.ID = z.ID LEFT JOIN %s_feld2 f2 ON f2.ID = z.ID LEFT JOIN %s_feld3 f3 ON f3.ID = z.ID LEFT JOIN %s_feld4 f4 ON f4.ID = z.ID WHERE f1.Paarung != '' OR f2.Paarung != '' OR f3.Paarung != '' OR f4.Paarung != ''",
-					tablePlanStamm, tablePlanStamm, tablePlanStamm, tablePlanStamm, tablePlanStamm));
-			maxFelder = 4;
-			break;
-		case "VB": // zwei Felder
-			holePlan = con.prepareStatement(String.format(
-					"SELECT z.ID AS ID, z.Spielbeginn AS Beginn, z.Spielende AS Ende, f1.Paarung AS Feld1, f2.Paarung AS Feld2 FROM %s_zeiten z LEFT JOIN %s_feld1 f1 ON f1.ID = z.ID LEFT JOIN %s_feld2 f2 ON f2.ID = z.ID WHERE f1.Paarung != '' OR f2.Paarung != ''",
-					tablePlanStamm, tablePlanStamm, tablePlanStamm, tablePlanStamm, tablePlanStamm));
-			maxFelder = 2;
-			break;
-		default: // ein Feld
-			holePlan = con.prepareStatement(String.format(
-					"SELECT z.ID AS ID, z.Spielbeginn AS Beginn, z.Spielende AS Ende, f1.Paarung AS Feld1 FROM %s_zeiten z LEFT JOIN %s_feld1 f1 ON f1.ID = z.ID WHERE f1.Paarung != ''",
-					tablePlanStamm, tablePlanStamm, tablePlanStamm, tablePlanStamm, tablePlanStamm));
-			maxFelder = 1;
-		}
-		plan = holePlan.executeQuery();
 		
 		holeTeams1 = con.prepareStatement(String.format("SELECT Vorname, Name FROM Mannschaften_%s WHERE %s = ?", stufe.getStufeKurz(), sportart.getSportartKurz())); // SQL-Statement, um Spieler einer bestimmten Mannschaft abzufragen
 		holeTeams2 = con.prepareStatement(String.format("SELECT Vorname, Name FROM Mannschaften_%s WHERE %s = ?", stufe.getStufeKurz(), sportart.getSportartKurz())); // SQL-Statement, um Spieler einer bestimmten Mannschaft abzufragen
-		plan = holePlan.executeQuery();
-		hoechstesBespieltesFeld = hoechstesBespieltesFeld(maxFelder);
+		
+		Statement stmt = con.createStatement();
+		
+		ResultSet hoechstesBespieltesFeldRS = stmt.executeQuery("SELECT MAX(Feld) FROM " + tablePlanStamm + "_spiele"); // hoechstes feld holen
+		hoechstesBespieltesFeldRS.next();
+		hoechstesBespieltesFeld = hoechstesBespieltesFeldRS.getInt(1); // INT extrahieren (yay :D)
+		
+		ResultSet anzahlSpielrundenRS = stmt.executeQuery("SELECT MAX(TimeID) FROM " + tablePlanStamm + "_spiele"); // anzahl der spiele
+		anzahlSpielrundenRS.next();
+		this.anzahlSpielrunden = anzahlSpielrundenRS.getInt(1); // INT extrahieren :D
 		
 		setStyles();
 	}
@@ -124,20 +97,17 @@ public class KontrollistenWriter {
 				0, // start column
 				hoechstesBespieltesFeld * 8, // end column
 				0, // start row
-				aktReihe - 1 // end row
+				currentRow - 1 // end row
 				);
 		wb.write(fos); // Excel-Datei schreiben
 		fos.flush();
 		fos.close(); // FileOutputStream schließen
-		plan.close(); // ResultSet schließen
 		con.close(); // Datenbankverbindung schließen
 	}
 	
 	public void eintragen() throws SQLException {
 		titelEintragen();
-		for(int i = 0; i < hoechstesBespieltesFeld; i++) {
-			ueberschriftenEintragen(i);
-		}
+		ueberschriftenEintragen();
 		spielerEintragen();
 	}
 	
@@ -148,7 +118,7 @@ public class KontrollistenWriter {
 		// Info in der ersten Zeile eintragen
 		cell.setCellStyle(csInfos);
 		cell.setCellValue("Die Spiele beginnen und enden jeweils mit der Durchsage. Bitte an die vorgegebenen Zeiten halten!");
-		sheet1.addMergedRegion(new CellRangeAddress(0,0,0,10));
+		sheet1.addMergedRegion(new CellRangeAddress(0,0,0,hoechstesBespieltesFeld * 8));
 		row.setHeightInPoints((short) 15);
 		
 		int reihe; // ich brauche mehrfach eine Referenz auf die gleiche Reihe
@@ -162,7 +132,7 @@ public class KontrollistenWriter {
 		csInfosNichtFett.setFont(fInfosNichtFett);
 		
 		// Lehrer IDEA Lehrer-management
-		reihe = aktReihe++;
+		reihe = currentRow++;
 		row = sheet1.createRow(reihe);
 		row.setHeightInPoints((short) 15);
 		// Linker Teil 
@@ -177,7 +147,7 @@ public class KontrollistenWriter {
 		sheet1.addMergedRegion(new CellRangeAddress(reihe, reihe, 4, 7));
 		
 		// Sportart / Stufe
-		reihe = aktReihe++;
+		reihe = currentRow++;
 		row = sheet1.createRow(reihe);
 		row.setHeightInPoints((short) 15);
 		// Linker Teil 
@@ -192,7 +162,7 @@ public class KontrollistenWriter {
 		sheet1.addMergedRegion(new CellRangeAddress(reihe, reihe, 4, 7));
 		
 		// Sportart / Stufe
-		reihe = aktReihe++;
+		reihe = currentRow++;
 		row = sheet1.createRow(reihe);
 		row.setHeightInPoints((short) 15);
 		// Linker Teil 
@@ -208,20 +178,39 @@ public class KontrollistenWriter {
 			tagLang = "Montag";
 		else // eigentlich gibts noch mehr aber nur zwei werden bei setzen akzeptiert
 			tagLang = "Dienstag";
-		plan.first();
-		Date beginnBlock = plan.getTime("Beginn");
-		plan.last();
-		Date endeBlock = plan.getTime("Ende");
-		SimpleDateFormat df = new SimpleDateFormat("HH:mm");
-		cell.setCellValue(String.format("%s, %s - %s", tagLang, df.format(beginnBlock), endeBlock));
+		PreparedStatement holeZeiten = con.prepareStatement(
+				"SELECT ID Nr, Spielbeginn Beginn, Spielende Ende " // Nummer, Beginn und Ende sind interessant
+				+ "FROM " + tablePlanStamm + "_zeiten " // richtige Tabelle wählen
+				+ "WHERE ID <= (SELECT MAX(TimeID) FROM " + tablePlanStamm + "_spiele) " // nur so viele Zeiten wie auch Spiele gebraucht werden holen
+				+ "ORDER BY Nr"); // nach Beginn sortiert
+		ResultSet zeiten = holeZeiten.executeQuery();
+		
+		if(!zeiten.next()) // Zeiten eins weiter
+			return; // aufhören wenn keine Zeiten mehr da
+		Date beginn = new Date(zeiten.getTime("Beginn").getTime()); // Beginn extrahieren
+		zeiten.last(); // letztes spiel anschauen
+		Date ende = new Date(zeiten.getTime("Ende").getTime()); // Ende extrahieren
+		zeiten.close(); // RS schließen
+		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm"); // Zur formatierung -> damit die :00 Sekunden weggehen
+		cell.setCellValue(String.format("%s, %s - %s", tagLang, sdf.format(beginn), sdf.format(ende))); // Von - Bis
+
 		sheet1.addMergedRegion(new CellRangeAddress(reihe, reihe, 4, 7));
 		
-		
 		// Zwischen dem "Info-Block" und der eigentlichen Liste noch etwas Abstand machen
-		aktReihe += 2;
+		currentRow += 2;
+		
+		// Feldnummern
+		row = sheet1.createRow(currentRow++);
+		row.setRowStyle(csNormal1);
+		for(int feld = 0; feld < hoechstesBespieltesFeld; feld++) {
+			cell = row.createCell(feld * 8 + 1); // jedes feld braucht 8 spalten
+			cell.setCellStyle(csNormal1); // CS normal nicht-grau
+			cell.setCellValue("Feld " + (feld + 1)); // Feldnummer (Feld 1 ....... x)
+			sheet1.addMergedRegion(new CellRangeAddress(currentRow - 1, currentRow - 1, feld * 8 + 1, feld * 8 + 8));
+		}
 		
 		// Uhrzeit
-		ueberschriftenReihe = aktReihe++;
+		ueberschriftenReihe = currentRow++;
 		row = sheet1.createRow(ueberschriftenReihe);
 		row.setHeightInPoints(15);;
 		cell = row.createCell(0);
@@ -229,140 +218,174 @@ public class KontrollistenWriter {
 		cell.setCellValue("Uhrzeit");
 	}
 	
-	private void ueberschriftenEintragen(int fuerFeld) {
+	private void ueberschriftenEintragen() {
 		Row row = sheet1.getRow(ueberschriftenReihe);
+		row.setRowStyle(csUeberschriften);
 		Cell cell;
 		
 		// Tabellenüberschriften		
-		// Team 1
-		cell = row.createCell(1 + fuerFeld * 8);
-		cell.setCellStyle(csUeberschriften);
-		cell.setCellValue("Team 1");
-		cell = row.createCell(2 + fuerFeld * 8);
-		cell.setCellStyle(csUeberschriften);
-		cell.setCellValue("Name");
-		cell = row.createCell(3 + fuerFeld * 8);
-		cell.setCellStyle(csUeberschriften);
-		cell.setCellValue("Vorname");
-		cell = row.createCell(4 + fuerFeld * 8);
-		cell.setCellStyle(csUeberschriften);
-		cell.setCellValue("anw");
-		// Team 2
-		cell = row.createCell(5 + fuerFeld * 8);
-		cell.setCellStyle(csUeberschriften);
-		cell.setCellValue("Team 2");
-		cell = row.createCell(6 + fuerFeld * 8);
-		cell.setCellStyle(csUeberschriften);
-		cell.setCellValue("Name");
-		cell = row.createCell(7 + fuerFeld * 8);
-		cell.setCellStyle(csUeberschriften);
-		cell.setCellValue("Vorname");
-		cell = row.createCell(8 + fuerFeld * 8);
-		cell.setCellStyle(csUeberschriften);
-		cell.setCellValue("anw");
+		for(int feld = 0; feld < hoechstesBespieltesFeld; feld++) {
+			// 1. Team
+			cell = row.createCell(1 + feld * 8);
+			cell.setCellStyle(csUeberschriften);
+			cell.setCellValue("Team 1");
+			cell = row.createCell(2 + feld * 8);
+			cell.setCellStyle(csUeberschriften);
+			cell.setCellValue("Name");
+			cell = row.createCell(3 + feld * 8);
+			cell.setCellStyle(csUeberschriften);
+			cell.setCellValue("Vorname");
+			cell = row.createCell(4 + feld * 8);
+			cell.setCellStyle(csUeberschriften);
+			cell.setCellValue("anw");
+			// Team 2
+			cell = row.createCell(5 + feld * 8);
+			cell.setCellStyle(csUeberschriften);
+			cell.setCellValue("Team 2");
+			cell = row.createCell(6 + feld * 8);
+			cell.setCellStyle(csUeberschriften);
+			cell.setCellValue("Name");
+			cell = row.createCell(7 + feld * 8);
+			cell.setCellStyle(csUeberschriften);
+			cell.setCellValue("Vorname");
+			cell = row.createCell(8 + feld * 8);
+			cell.setCellStyle(csUeberschriften);
+			cell.setCellValue("anw");
+		}
 	}
 	
 	public void spielerEintragen() throws SQLException {
 		SimpleDateFormat df = new SimpleDateFormat("HH:mm");
 		boolean gerade = false;
 		CellStyle cs = null;
-		plan.absolute(0); // wieder an den Anfang gehen
-		while(plan.next()) {
+		PreparedStatement holeSpieleMitGleicherID = con.prepareStatement(
+				"SELECT TimeID Nr, Feld, Paarung " // nur die Nummer und die Paarung sind interessant
+				+ "FROM " + tablePlanStamm + "_spiele " // richtige Tabelle wählen
+				+ "WHERE TimeID = ? ORDER BY TimeID"); // nur ein Feld; sortiert nach Nummer
+		
+		PreparedStatement holeZeiten = con.prepareStatement(
+				"SELECT ID Nr, Spielbeginn Beginn, Spielende Ende " // Nummer, Beginn und Ende sind interessant
+				+ "FROM " + tablePlanStamm + "_zeiten " // richtige Tabelle wählen
+				+ "WHERE ID <= (SELECT MAX(TimeID) FROM " + tablePlanStamm + "_spiele) " // nur so viele Zeiten wie auch Spiele gebraucht werden holen
+				+ "ORDER BY Nr"); // nach Beginn sortiert
+		
+		int beginnReihe = currentRow; // oberste Reihe zwischenspeichern für später
+		
+		Row row;
+		Cell cell;
+		
+		ResultSet zeiten = holeZeiten.executeQuery(); // Zeiten holen
+		
+		int endReihe = currentRow; // letzte Reihe zwischenspeichern
+		
+		// Spiele Feld fuer Feld eintragen
+		for(int rundennr = 0; rundennr < anzahlSpielrunden; rundennr++) { // Für jedes Feld
 			if(gerade) { // Immer abwechselnd mit weißem und grauem Hintergrund
+				cs = null;
 				cs = csNormal1;
 				gerade = !gerade;
 			} else if(!gerade) {
+				cs = null;
 				cs = csNormal2;
 				gerade = !gerade;
 			}
-			Row row = sheet1.createRow(aktReihe); // In der aktuellen Reihe
-			Cell cell = row.createCell(0);
-			cell.setCellStyle(cs);
-			// Zeit eintragen
-			cell.setCellStyle(cs);
-			cell.setCellValue(String.format("%s - %s", df.format(plan.getTime("Beginn")), df.format(plan.getTime("Ende"))));
+			currentRow = endReihe; // nächste Runde, deshalb currentRow neu setzen (das ist die reihe zu der wir nacher zurückgehen)
+			beginnReihe = currentRow; // beginnReihe ist jetzt eine Reihe weiter unten
+			holeSpieleMitGleicherID.setInt(1, rundennr + 1); // TimeID auswählen (i ist 0-basiert, deshalb +1)
+			ResultSet spieleMitGleicherID = holeSpieleMitGleicherID.executeQuery(); // Spiele holen
+			row = sheet1.getRow(currentRow); // rundennr Zeilen unter dem Beginn
+			if(row == null) {
+				row = sheet1.createRow(currentRow);
+			}
+			row.setRowStyle(cs);
+//			currentRow++;//  (konnte ja eben nicht erhöht werden)
 			
-			final int startReihe = aktReihe;
-			int endReihe = 0;
-			for(int i = 0; i < hoechstesBespieltesFeld; i++) {
-				aktReihe = startReihe;
-				row = sheet1.getRow(aktReihe++);
-				String spiel = plan.getString(String.format("Feld%d", i + 1));
-				if(spiel == null) { // nur weitermachen wenn auch gespielt wird, aber trotzdem cellstyle anwenden
-					cell = row.createCell(1 + i * 8);
-					cell.setCellStyle(cs);
-					cell = row.createCell(5 + i * 8);
-					cell.setCellStyle(cs);
-					cell = row.createCell(1 + i * 8);
-					cell.setCellStyle(cs);cell = row.createCell(5 + i * 8);
-					cell.setCellStyle(cs);
-					continue;
+			// Zeit eintragen
+			if(!zeiten.next()) // Zeiten eins weiter
+				continue; // aufhören wenn keine Zeiten mehr da
+			cell = row.createCell(0); // Immer die erste Spalte ist fuer die Uhrzeiton
+			cell.setCellStyle(cs); // CS setzen
+			Date beginn = new Date(zeiten.getTime("Beginn").getTime()); // Beginn extrahieren
+			Date ende = new Date(zeiten.getTime("Ende").getTime()); // Ende extrahieren
+			SimpleDateFormat sdf = new SimpleDateFormat("HH:mm"); // Zur formatierung -> damit die :00 Sekunden weggehen
+			cell.setCellValue(String.format("%s - %s", sdf.format(beginn), sdf.format(ende))); // Von - Bis
+			
+			if(!spieleMitGleicherID.next()) {
+				currentRow++;
+				if(currentRow > endReihe) { // endReihe aktualisieren, wenn wir tiefer als die aktuelle endReihe sind
+					endReihe = currentRow;
 				}
+			}
+			
+			spieleMitGleicherID.previous(); // eins zurück gehen weil ich gerade eben next() aufgerufen habe
+			
+			
+			// Spiele mit Spielern eintragen
+			while(spieleMitGleicherID.next()) {
+				currentRow = beginnReihe;
+				row = sheet1.getRow(currentRow);
+				if(row == null) {
+					row = sheet1.createRow(currentRow);
+				}
+				currentRow++;
+				row.setRowStyle(cs); // row stylen
+				
+				// Feld speichern
+				int feld = spieleMitGleicherID.getInt("Feld");
+				
+				String spielString = spieleMitGleicherID.getString("Paarung");
 				// Spiel-String in Teams zerlegen
-				String team1 = spiel.substring(0, spiel.indexOf(':')).trim();
-				String team2 = spiel.substring(spiel.indexOf(':') + 2).trim();
+				String team1 = spielString.substring(0, spielString.indexOf(':')).trim();
+				String team2 = spielString.substring(spielString.indexOf(':') + 2).trim();
 				// Spieler aus Team 1 vom Server holen
 				holeTeams1.setString(1, team1); // Nur nach Personen in team 1 suchen
 				ResultSet spielerTeam1 = holeTeams1.executeQuery();
 				// Spieler aus Team 2 vom Server holen
-				holeTeams2.setString(1, team2);
+				holeTeams2.setString(1, team2); // Nur Personen aus Team 2
 				ResultSet spielerTeam2 = holeTeams2.executeQuery();
 				
 				// Team 1 Name eintragen
-				cell = row.createCell(1 + i * 8);
+				cell = row.createCell(1 + (feld - 1) * 8);
 				cell.setCellStyle(cs);
 				cell.setCellValue(team1);
 				// Team 2 Name eintragen
-				cell = row.createCell(5 + i * 8);
+				cell = row.createCell(5 + (feld - 1) * 8);
 				cell.setCellStyle(cs);
 				cell.setCellValue(team2);
 				
 				// erste Person eintragen ohne in neue Reihe zu wechseln
 				// Team 1
-				spielerTeam1.next();
-				cell = row.createCell(2 + i * 8); // Zelle für Nachname
-				cell.setCellStyle(cs);
-				cell.setCellValue(spielerTeam1.getString("Vorname"));
-				cell = row.createCell(3 + i * 8); // Zelle für Nachname
-				cell.setCellStyle(cs);
-				cell.setCellValue(spielerTeam1.getString("Name"));
-				cell = row.createCell(4 + i * 8); // Leerzelle für Anwesenheit
-				cell.setCellStyle(cs); // mit csNormal formatieren, damit eine Umrandung da ist
+				if(spielerTeam1.next()) { // nur wenn es auch mind. einen Spieler gibt
+					cell = row.createCell(2 + (feld - 1) * 8); // Zelle für Vorname
+					cell.setCellStyle(cs);
+					cell.setCellValue(spielerTeam1.getString("Vorname"));
+					cell = row.createCell(3 + (feld - 1) * 8); // Zelle für Nachname
+					cell.setCellStyle(cs);
+					cell.setCellValue(spielerTeam1.getString("Name"));
+				}
 				// Team 2
-				spielerTeam2.next();
-				cell = row.createCell(6 + i * 8); // Zelle für Nachname
-				cell.setCellStyle(cs);
-				cell.setCellValue(spielerTeam2.getString("Vorname"));
-				cell = row.createCell(7 + i * 8); // Zelle für Nachname
-				cell.setCellStyle(cs);
-				cell.setCellValue(spielerTeam2.getString("Name"));
-				cell = row.createCell(8 + i * 8); // Leerzelle für Anwesenheit
-				cell.setCellStyle(cs); // mit csNormal formatieren, damit eine Umrandung da ist
+				if(spielerTeam2.next()) {
+					cell = row.createCell(6 + (feld - 1) * 8); // Zelle für Vorname
+					cell.setCellStyle(cs);
+					cell.setCellValue(spielerTeam2.getString("Vorname"));
+					cell = row.createCell(7 + (feld - 1) * 8); // Zelle für Nachname
+					cell.setCellStyle(cs);
+					cell.setCellValue(spielerTeam2.getString("Name"));
+				}
 				
-				// Alle weiteren Spieler darunter eintragen
+				// Personen zwei bis x eintragen
 				while(spielerTeam1.next() | spielerTeam2.next()) { // nicht-kurzschluss! (sonst gehen nicht beide eins weiter)
 					spielerTeam1.previous(); // gleich kommt nochmal next(), deshalb eins zurück
 					spielerTeam2.previous();
 					// Neue Reihe erstellen
-					row = sheet1.getRow(aktReihe);
+					row = sheet1.getRow(currentRow);
 					if(row == null) {
-						row = sheet1.createRow(aktReihe);
+						row = sheet1.createRow(currentRow);
 					}
-					aktReihe++;
+					row.setRowStyle(cs);
+					currentRow++;
 					
-					// Leerzellen für Uhrzeit, Teamname und Anwesenheit mit csNormal formatieren, damit sie Umrandungen haben
-					cell = row.createCell(0);
-					cell.setCellStyle(cs);
-					cell = row.createCell(1 + i * 8);
-					cell.setCellStyle(cs);
-					cell = row.createCell(4 + i * 8);
-					cell.setCellStyle(cs); // mit csNormal formatieren, damit eine Umrandung da ist
-					cell = row.createCell(5 + i * 8);
-					cell.setCellStyle(cs);
-					cell = row.createCell(8 + i * 8);
-					cell.setCellStyle(cs);
-
-					String vorname = "";
+					String vorname = ""; // Leerstring für den Fall, dass es keinen Spieler gibt
 					String name = "";
 					
 					// Team 1
@@ -372,10 +395,10 @@ public class KontrollistenWriter {
 					}
 					
 					// Spieler eintragen
-					cell = row.createCell(2 + i * 8); // Zelle für Nachname
+					cell = row.createCell(2 + (feld - 1) * 8); // Zelle für Nachname
 					cell.setCellStyle(cs);
 					cell.setCellValue(vorname);
-					cell = row.createCell(3 + i * 8); // Zelle für Nachname
+					cell = row.createCell(3 + (feld - 1) * 8); // Zelle für Nachname
 					cell.setCellStyle(cs);
 					cell.setCellValue(name);
 					
@@ -387,24 +410,163 @@ public class KontrollistenWriter {
 						name = spielerTeam2.getString("Name");
 					}
 					// Spieler eintragen
-					cell = row.createCell(6 + i * 8); // Zelle für Nachname
+					cell = row.createCell(6 + (feld - 1) * 8); // Zelle für Nachname
 					cell.setCellStyle(cs);
 					cell.setCellValue(vorname);
-					cell = row.createCell(7 + i * 8); // Zelle für Nachname
+					cell = row.createCell(7 + (feld - 1) * 8); // Zelle für Nachname
 					cell.setCellStyle(cs);
 					cell.setCellValue(name);
 				}
-				if(aktReihe > endReihe) {
-					endReihe = aktReihe;
+				if(currentRow > endReihe) { // endReihe aktualisieren, wenn wir tiefer als die aktuelle endReihe sind
+					endReihe = currentRow;
 				}
-			}
-			aktReihe = endReihe;
-			for(int i = startReihe; i < endReihe; i++) {
-				row = sheet1.getRow(i);
-				row.setRowStyle(cs);
+//				// Reihen formatieren
+//				for(int i = beginnReihe; i < endReihe; i++) {
+//					row = sheet1.getRow(i);
+//					row.setRowStyle(cs);
+//				}
 			}
 		}
 	}
+		
+//		while(plan.next()) {
+//			if(gerade) { // Immer abwechselnd mit weißem und grauem Hintergrund
+//				cs = csNormal1;
+//				gerade = !gerade;
+//			} else if(!gerade) {
+//				cs = csNormal2;
+//				gerade = !gerade;
+//			}
+//			Row row = sheet1.createRow(currentRow); // In der aktuellen Reihe
+//			Cell cell = row.createCell(0);
+//			cell.setCellStyle(cs);
+//			// Zeit eintragen
+//			cell.setCellStyle(cs);
+//			cell.setCellValue(String.format("%s - %s", df.format(plan.getTime("Beginn")), df.format(plan.getTime("Ende"))));
+//			
+//			final int startReihe = currentRow;
+//			int endReihe = 0;
+//			for(int i = 0; i < hoechstesBespieltesFeld; i++) {
+//				currentRow = startReihe;
+//				row = sheet1.getRow(currentRow++);
+//				String spiel = plan.getString(String.format("Feld%d", i + 1));
+//				if(spiel == null) { // nur weitermachen wenn auch gespielt wird, aber trotzdem cellstyle anwenden
+//					cell = row.createCell(1 + i * 8);
+//					cell.setCellStyle(cs);
+//					cell = row.createCell(5 + i * 8);
+//					cell.setCellStyle(cs);
+//					cell = row.createCell(1 + i * 8);
+//					cell.setCellStyle(cs);cell = row.createCell(5 + i * 8);
+//					cell.setCellStyle(cs);
+//					continue;
+//				}
+//				// Spiel-String in Teams zerlegen
+//				String team1 = spiel.substring(0, spiel.indexOf(':')).trim();
+//				String team2 = spiel.substring(spiel.indexOf(':') + 2).trim();
+//				// Spieler aus Team 1 vom Server holen
+//				holeTeams1.setString(1, team1); // Nur nach Personen in team 1 suchen
+//				ResultSet spielerTeam1 = holeTeams1.executeQuery();
+//				// Spieler aus Team 2 vom Server holen
+//				holeTeams2.setString(1, team2);
+//				ResultSet spielerTeam2 = holeTeams2.executeQuery();
+//				
+//				// Team 1 Name eintragen
+//				cell = row.createCell(1 + i * 8);
+//				cell.setCellStyle(cs);
+//				cell.setCellValue(team1);
+//				// Team 2 Name eintragen
+//				cell = row.createCell(5 + i * 8);
+//				cell.setCellStyle(cs);
+//				cell.setCellValue(team2);
+//				
+//				// erste Person eintragen ohne in neue Reihe zu wechseln
+//				// Team 1
+//				spielerTeam1.next();
+//				cell = row.createCell(2 + i * 8); // Zelle für Nachname
+//				cell.setCellStyle(cs);
+//				cell.setCellValue(spielerTeam1.getString("Vorname"));
+//				cell = row.createCell(3 + i * 8); // Zelle für Nachname
+//				cell.setCellStyle(cs);
+//				cell.setCellValue(spielerTeam1.getString("Name"));
+//				cell = row.createCell(4 + i * 8); // Leerzelle für Anwesenheit
+//				cell.setCellStyle(cs); // mit csNormal formatieren, damit eine Umrandung da ist
+//				// Team 2
+//				spielerTeam2.next();
+//				cell = row.createCell(6 + i * 8); // Zelle für Nachname
+//				cell.setCellStyle(cs);
+//				cell.setCellValue(spielerTeam2.getString("Vorname"));
+//				cell = row.createCell(7 + i * 8); // Zelle für Nachname
+//				cell.setCellStyle(cs);
+//				cell.setCellValue(spielerTeam2.getString("Name"));
+//				cell = row.createCell(8 + i * 8); // Leerzelle für Anwesenheit
+//				cell.setCellStyle(cs); // mit csNormal formatieren, damit eine Umrandung da ist
+//				
+//				// Alle weiteren Spieler darunter eintragen
+//				while(spielerTeam1.next() | spielerTeam2.next()) { // nicht-kurzschluss! (sonst gehen nicht beide eins weiter)
+//					spielerTeam1.previous(); // gleich kommt nochmal next(), deshalb eins zurück
+//					spielerTeam2.previous();
+//					// Neue Reihe erstellen
+//					row = sheet1.getRow(currentRow);
+//					if(row == null) {
+//						row = sheet1.createRow(currentRow);
+//					}
+//					currentRow++;
+//					
+//					// Leerzellen für Uhrzeit, Teamname und Anwesenheit mit csNormal formatieren, damit sie Umrandungen haben
+//					cell = row.createCell(0);
+//					cell.setCellStyle(cs);
+//					cell = row.createCell(1 + i * 8);
+//					cell.setCellStyle(cs);
+//					cell = row.createCell(4 + i * 8);
+//					cell.setCellStyle(cs); // mit csNormal formatieren, damit eine Umrandung da ist
+//					cell = row.createCell(5 + i * 8);
+//					cell.setCellStyle(cs);
+//					cell = row.createCell(8 + i * 8);
+//					cell.setCellStyle(cs);
+//
+//					String vorname = "";
+//					String name = "";
+//					
+//					// Team 1
+//					if(spielerTeam1.next()) {
+//						vorname = spielerTeam1.getString("Vorname");
+//						name = spielerTeam1.getString("Name");
+//					}
+//					
+//					// Spieler eintragen
+//					cell = row.createCell(2 + i * 8); // Zelle für Nachname
+//					cell.setCellStyle(cs);
+//					cell.setCellValue(vorname);
+//					cell = row.createCell(3 + i * 8); // Zelle für Nachname
+//					cell.setCellStyle(cs);
+//					cell.setCellValue(name);
+//					
+//					vorname = "";
+//					name = "";
+//					// Team 2
+//					if(spielerTeam2.next()) {
+//						vorname = spielerTeam2.getString("Vorname");
+//						name = spielerTeam2.getString("Name");
+//					}
+//					// Spieler eintragen
+//					cell = row.createCell(6 + i * 8); // Zelle für Nachname
+//					cell.setCellStyle(cs);
+//					cell.setCellValue(vorname);
+//					cell = row.createCell(7 + i * 8); // Zelle für Nachname
+//					cell.setCellStyle(cs);
+//					cell.setCellValue(name);
+//				}
+//				if(currentRow > endReihe) {
+//					endReihe = currentRow;
+//				}
+//			}
+//			currentRow = endReihe;
+//			// Reihen formatieren
+//			for(int i = startReihe; i < endReihe; i++) {
+//				row = sheet1.getRow(i);
+//				row.setRowStyle(cs);
+//			}
+//		}
 	
 	private void setStyles() {
 		csNormal1 = wb.createCellStyle(); // Stil für Uhrzeiten, Namen etc. (gerade Spiele)
@@ -465,23 +627,5 @@ public class KontrollistenWriter {
 		csNormal2.setFillPattern(CellStyle.SOLID_FOREGROUND);
 	}
 	
-	/**
-	 * Ermittelt die Anzahl der beplanten Felder aus dem resultset
-	 * 
-	 * @return
-	 * @throws SQLException
-	 */
-	private int hoechstesBespieltesFeld(int maxFelder) throws SQLException {
-		if (!plan.next()) // Wenn das rs leer ist
-			return 0;
-		int hoechstes = 0;
-		for (int i = maxFelder; i > 0; i--) { // Jedes Feld abchecken, ob es bespielt wird
-			if (plan.getString("Feld" + (i)) != null) {
-				hoechstes = i;
-				break;
-			}
-		}
-		plan.first(); // An den Anfang gehen
-		return hoechstes;
-	}
+	
 }

@@ -96,15 +96,15 @@ public class SpielplanerApp {
 			} catch (IOException e) { e.printStackTrace(); }
 		}
 		
-		
-		try {
-			Planer pl2 = new Planer(new Sportart("BM"), new Stufe("mS"));
-			pl2.holeAlleMannschaften();
-		} catch (SQLException e3) {
-			// TODO Auto-generated catch block
-			e3.printStackTrace();
-		}
-		System.exit(0);
+//		
+//		try {
+//			Planer pl2 = new Planer(new Sportart("BM"), new Stufe("mS"));
+//			pl2.holeAlleMannschaften();
+//		} catch (SQLException e3) {
+//			// TODO Auto-generated catch block
+//			e3.printStackTrace();
+//		}
+//		System.exit(0);
 		
 		//#####################################
 		Scanner scn = new Scanner(System.in);
