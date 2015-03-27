@@ -60,6 +60,7 @@ if ($k1=='k1') {
   $k1='';
   }
    
+
 ?>
 
   
@@ -75,7 +76,6 @@ Klasse eingeben:
 		<td colspan="2"> Fußball 1
 		<td colspan="2"> Fußball 2		
 		<td colspan="2"> Basketball
-<!--		<td colspan="2"> Fahrradtour       -->
 	</tr>
 	<tr>
 		<td> <b>Vorname
@@ -84,9 +84,6 @@ Klasse eingeben:
 		<td> <b>Nachname
 		<td> <b>Vorname
 		<td> <b>Nachname
-<!--
-		<td> <b>Vorname
-		<td> <b>Nachname -->
 	</tr>
 
 
@@ -210,6 +207,7 @@ Klasse eingeben:
        
   
 ?> 
+
   
 </table>
   <input type="submit" name="submit">

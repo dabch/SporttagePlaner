@@ -1,4 +1,19 @@
 <!DOCTYPE html>
+<?php //session_save_path('/tmp');
+//  session.use_trans_sid 1;
+// ini_set("session.use_trans_sid",true);
+ 
+// ini_set("session.use_cookies",true);
+// $sessName = session_name();
+   // session_id(SESSID);
+  // echo PHPSESSID;
+   //$sessionID = $_GET['PHPSESSID'];
+// session_id($sessionID);
+// session_start();
+
+//echo SID;
+//phpinfo();
+?>
 <html>
 <head>
 <meta charset='UTF-8' name='viewport' content='width=device-width' />
@@ -7,12 +22,39 @@
 
 <body>
 <?php
+
+
 $servername = 'wp052.webpack.hosteurope.de';
 $username = 'db1093417-sport';
 $password = '%&SporTTage14@!';
 $dbname = 'db1093417-sporttage';
-	
+ /*
+if (ini_get('register_globals'))
+{
+    foreach ($_SESSION as $key=>$value)
+    {
+        if (isset($GLOBALS[$key]))
+            unset($GLOBALS[$key]);
+    }
+}      */
+
 $klasse = $_POST['klasse'];
+$k1 = $_POST['k1'];
+echo $_POST['klasse'];
+echo $klasse;
+//echo $sessionID;
+echo "vor der stufe bla";
+   
+if (strpos($klasse,'10') !== false || $k1 == "k1" || strpos($klasse,'K1') !== false ||  strpos($klasse,'K2') !== false) {
+	$stufenListe = "Mannschaften_OS";
+} else if (strpos($klasse,'7') !== false || strpos($klasse,'8') !== false || strpos($klasse,'9') !== false || strpos($klasse,'A1') !== false) {
+	$stufenListe = "Mannschaften_MS";
+} else if (strpos($klasse,'5') !== false || strpos($klasse,'6') !== false) {
+	$stufenListe = "Mannschaften_US";	
+}
+
+
+echo $stufenListe . '<br>' ;
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
@@ -22,14 +64,19 @@ if($conn->connect_error){
 
   // Umlaute fixen
   $conn->query('SET NAMES "utf8"');
+  
+  $abfrageSchuelerStatement = 'SELECT ID FROM ' . $stufenListe . ' WHERE Vorname = ? AND Name = ? AND Klasse = ?';
   	
-	$abfrageSchueler = $conn->prepare('SELECT ID FROM Mannschaften_MS WHERE Vorname = ? AND Name = ? AND Klasse = ?');
+	$abfrageSchueler = $conn->prepare($abfrageSchuelerStatement);
 	
-	$schuelerHinzufuegen = $conn->prepare('INSERT INTO Mannschaften_MS (Vorname, Name, Klasse) VALUES (?, ?, ?);');
+  $schuelerHinzufuegenStatement =  'INSERT INTO ' . $stufenListe . ' (Vorname, Name, Klasse) VALUES (?, ?, ?);';
+	$schuelerHinzufuegen = $conn->prepare($schuelerHinzufuegenStatement);
 
 	function getSchuelerID($name, $vorname, $klasse) {
 	  //nun lokale variable damit man sie schließen und öffnen kann
-		$abfrageSchueler = $GLOBALS['conn']->prepare('SELECT ID FROM Mannschaften_MS WHERE Vorname = ? AND Name = ? AND Klasse = ?');	    $abfrageSchueler->bind_param('sss', $vorname, $name, $klasse);
+    
+		$abfrageSchueler = $GLOBALS['conn']->prepare($GLOBALS['abfrageSchuelerStatement']);	
+        $abfrageSchueler->bind_param('sss', $vorname, $name, $klasse);
 	    	$abfrageSchueler->execute();
 	    	$abfrageSchueler->bind_result($id);
 		if($abfrageSchueler->fetch()) {
@@ -55,6 +102,7 @@ if($conn->connect_error){
 $vornamen = $_POST['fb1_v'];
 $nachnamen = $_POST['fb1_n'];
 $id = 0;
+  echo $vornamen[0];
 //manschaftname besteht aus klasse + zahl, z.B. 9a1 9a2, es geht hier um mannschaft 1
 $mannschaftFB1 = $klasse .  '1';
 //für die SQL Anweisung muss die Mannschaft in Anführungszeichen sein:
@@ -63,7 +111,7 @@ $mannschaftFB1= '"' . $mannschaftFB1 .  '"';
 for($i = 0; $i < count($vornamen); $i++) {
 	if ($vornamen[$i] != '' && $nachnamen[$i] != '')  { //wenn etwas eingetragen ist
       		$id = getSchuelerID($nachnamen[$i], $vornamen[$i], $klasse);   //id holen
-		$addSportartToSchueler = "UPDATE Mannschaften_MS SET FB = " . $mannschaftFB1 . " WHERE ID = ". $id . " "; // string erstellenn
+		$addSportartToSchueler = "UPDATE " . $stufenListe . " SET FB = " . $mannschaftFB1 . " WHERE ID = ". $id . " "; // string erstellenn
 		if ($conn->query($addSportartToSchueler) === TRUE) {	//string ausführen und mit rückgabewert weitermachen
 			echo "Fussball update erfolgreich bei: ";		//erfolg ausgeben
 		} else {
@@ -83,14 +131,11 @@ $mannschaftFB2= '"' . $mannschaftFB2 .  '"';
      	for($i = 0; $i < count($vornamen); $i++) {
         if ($vornamen[$i] != '' && $nachnamen[$i] != '')  {
            $id = getSchuelerID($nachnamen[$i], $vornamen[$i], $klasse);
-            echo $id;
-            echo $mannschaftFB2;
-            $addSportartToSchueler = "UPDATE Mannschaften_MS SET FB = " . $mannschaftFB2 . " WHERE ID = ". $id . " ";
-             echo $addSportartToSchueler;
+            $addSportartToSchueler = "UPDATE " . $stufenListe . " SET FB = " . $mannschaftFB2 . " WHERE ID = ". $id . " ";
               if ($conn->query($addSportartToSchueler) === TRUE) {
-                  echo "update succesfully";
+                  echo "Fussball update erfolgreich bei: ";
               } else {
-                  echo "error: " . $conn->error;
+                  echo "error: " . $conn->error . " bei: ";
               }
 		          echo $vornamen[$i] . ' ';
 		          echo $nachnamen[$i] . '<br>';
@@ -104,23 +149,17 @@ $mannschaftFB2= '"' . $mannschaftFB2 .  '"';
   $vornamen = $_POST['bb_v'];
 	$nachnamen = $_POST['bb_n'];
 	echo '<br>';
-	echo $klasse . '<br>';
 	 $id = 0;
    $mannschaftBB = $klasse .  '1';
    $mannschaftBB= '"' . $mannschaftBB .  '"';
      	for($i = 0; $i < count($vornamen); $i++) {
         if ($vornamen[$i] != '' && $nachnamen[$i] != '')  {
            $id = getSchuelerID($nachnamen[$i], $vornamen[$i], $klasse);
-   
-            echo $id;
-            echo $mannschaftBB;
-            $addSportartToSchueler = "UPDATE Mannschaften_MS SET BB = " . $mannschaftBB . " WHERE ID = ". $id . " ";
-         //  echo $mannschaftFB2;
-             echo $addSportartToSchueler;
+            $addSportartToSchueler = "UPDATE " . $stufenListe . " SET BB = " . $mannschaftBB . " WHERE ID = ". $id . " ";
               if ($conn->query($addSportartToSchueler) === TRUE) {
-                  echo "Basketball update succesfully";
+                  echo "Basketball update erfolgreich bei: ";
               } else {
-                  echo "error: " . $conn->error;
+                  echo "error: " . $conn->error . " bei: ";
               }
 		          echo $vornamen[$i] . ' ';
 		          echo $nachnamen[$i] . '<br>';
@@ -133,23 +172,17 @@ $mannschaftFB2= '"' . $mannschaftFB2 .  '"';
 	$nachnamen = $_POST['vb_n'];
  // echo $nachnamen[1];
 	echo '<br>';
-	echo $klasse . '<br>';
 	 $id = 0;
    $mannschaftVB = $klasse .  '1';
    $mannschaftVB= '"' . $mannschaftVB .  '"';
      	for($i = 0; $i < count($vornamen); $i++) {
         if ($vornamen[$i] != '' && $nachnamen[$i] != '')  {
            $id = getSchuelerID($nachnamen[$i], $vornamen[$i], $klasse);
-   
-            echo $id;
-            echo $mannschaftVB;
-            $addSportartToSchueler = "UPDATE Mannschaften_MS SET VB = " . $mannschaftVB . " WHERE ID = ". $id . " ";
-         //  echo $mannschaftFB2;
-             echo $addSportartToSchueler;
+            $addSportartToSchueler = "UPDATE " . $stufenListe . " SET VB = " . $mannschaftVB . " WHERE ID = ". $id . " ";
               if ($conn->query($addSportartToSchueler) === TRUE) {
-                  echo "Volleyball update succesfully";
+                  echo "Volleyball update erfolgreich bei: ";
               } else {
-                  echo "error: " . $conn->error;
+                  echo "error: " . $conn->error . " bei: ";
               }
 		          echo $vornamen[$i] . ' ';
 		          echo $nachnamen[$i] . '<br>';
@@ -162,23 +195,17 @@ $mannschaftFB2= '"' . $mannschaftFB2 .  '"';
 	$nachnamen = $_POST['st_n'];
  // echo $nachnamen[1];
 	echo '<br>';
-	echo $klasse . '<br>';
 	 $id = 0;
    $mannschaftST = $klasse .  '1';
    $mannschaftST= '"' . $mannschaftST .  '"';
      	for($i = 0; $i < count($vornamen); $i++) {
         if ($vornamen[$i] != '' && $nachnamen[$i] != '')  {
            $id = getSchuelerID($nachnamen[$i], $vornamen[$i], $klasse);
-   
-            echo $id;
-            echo $mannschaftST;
-            $addSportartToSchueler = "UPDATE Mannschaften_MS SET ST = " . $mannschaftST . " WHERE ID = ". $id . " ";
-         //  echo $mannschaftFB2;
-             echo $addSportartToSchueler;
+            $addSportartToSchueler = "UPDATE " . $stufenListe . " SET ST = " . $mannschaftST . " WHERE ID = ". $id . " ";
               if ($conn->query($addSportartToSchueler) === TRUE) {
-                  echo "Staffellauf update succesfully für Schüler: ";
+                  echo "Staffellauf update erfolgreich bei: ";
               } else {
-                  echo "error: " . $conn->error;
+                  echo "error: " . $conn->error . " bei: ";
               }
 		          echo $vornamen[$i] . ' ';
 		          echo $nachnamen[$i] . '<br>';
@@ -189,25 +216,20 @@ $mannschaftFB2= '"' . $mannschaftFB2 .  '"';
                //fahrradtour
   $vornamen = $_POST['ft_v'];
 	$nachnamen = $_POST['ft_n'];
+  echo $vornamen[0];
  // echo $nachnamen[1];
 	echo '<br>';
-	echo $klasse . '<br>';
 	 $id = 0;
    $mannschaftFT = 'FT';
    $mannschaftFT= '"' . $mannschaftFT .  '"';
      	for($i = 0; $i < count($vornamen); $i++) {
         if ($vornamen[$i] != '' && $nachnamen[$i] != '')  {
            $id = getSchuelerID($nachnamen[$i], $vornamen[$i], $klasse);
-   
-            echo $id;
-            echo $mannschaftFT;
-            $addSportartToSchueler = "UPDATE Mannschaften_MS SET FT = " . $mannschaftFT . " WHERE ID = ". $id . " ";
-         //  echo $mannschaftFB2;
-             echo $addSportartToSchueler;
+            $addSportartToSchueler = "UPDATE " . $stufenListe . " SET FT = " . $mannschaftFT . " WHERE ID = ". $id . " ";
               if ($conn->query($addSportartToSchueler) === TRUE) {
-                  echo "Fahrradtour update succesfully für Schüler: ";
+                  echo "Fahrradtour update erfolgreich bei: ";
               } else {
-                  echo "error: " . $conn->error;
+                  echo "error: " . $conn->error . " bei: ";
               }
 		          echo $vornamen[$i] . ' ';
 		          echo $nachnamen[$i] . '<br>';
@@ -219,14 +241,12 @@ $mannschaftFB2= '"' . $mannschaftFB2 .  '"';
   $vornamen = $_POST['tt_v'];
 	$nachnamen = $_POST['tt_n'];
 	echo '<br>';
-	echo $klasse . '<br>'; 
-  // echo $vornamen[0];
    $id = 0;
    $mannschaftsNummer=0;
      	for($i = 1; $i < count($vornamen); $i+=2) {
         $mannschaftsNummer++;
      //   echo "in der for schleife";
-        if ($vornamen[$i] != '' && $nachnamen[$i] != '')  {
+        if ($vornamen[$i] != '' && $nachnamen[$i] != '' && $vornamen[$i-1] != '' && $nachnamen[$i-1] != '')  {
           //  echo "in der for schleife";
            $id1 = getSchuelerID($nachnamen[$i], $vornamen[$i], $klasse);
            $id2 = getSchuelerID($nachnamen[$i-1], $vornamen[$i-1], $klasse);
@@ -237,22 +257,19 @@ $mannschaftFB2= '"' . $mannschaftFB2 .  '"';
             echo $id1;
             echo $id2;
             echo $mannschaftTT;
-            $addSportartToSchueler1 = "UPDATE Mannschaften_MS SET TT = " . $mannschaftTT . " WHERE ID = ". $id1 . " ";
-            $addSportartToSchueler2 = "UPDATE Mannschaften_MS SET TT = " . $mannschaftTT . " WHERE ID = ". $id2 . " ";
-         //  echo $mannschaftFB2;
-         //    echo $addSportartToSchueler1;
-          //  echo $addSportartToSchueler2;
+            $addSportartToSchueler1 = "UPDATE " . $stufenListe . " SET TT = " . $mannschaftTT . " WHERE ID = ". $id1 . " ";
+            $addSportartToSchueler2 = "UPDATE " . $stufenListe . " SET TT = " . $mannschaftTT . " WHERE ID = ". $id2 . " ";
               if ($conn->query($addSportartToSchueler1) === TRUE) {
-                  echo "TT update succesfully";
+                  echo "TT update erfolgreich bei: ";
               } else {
-                  echo "error: " . $conn->error;
+                  echo "error: " . $conn->error . " bei: ";
               }
               echo $vornamen[$i] . ' ';
 		          echo $nachnamen[$i] . '<br>';
               if ($conn->query($addSportartToSchueler2) === TRUE) {
-                  echo "TT update succesfully";
+                  echo "TT update erfolgreich bei: ";
               } else {
-                  echo "error: " . $conn->error;
+                  echo "error: " . $conn->error . " bei: ";
               }
 		          echo $vornamen[$i-1] . ' ';
 		          echo $nachnamen[$i-1] . '<br>';
@@ -264,15 +281,11 @@ $mannschaftFB2= '"' . $mannschaftFB2 .  '"';
   $vornamen = $_POST['bm_v'];
 	$nachnamen = $_POST['bm_n'];
 	echo '<br>';
-	echo $klasse . '<br>'; 
-  // echo $vornamen[0];
    $id = 0;
    $mannschaftsNummer=0;
-     	for($i = 1; $i < count($vornamen); $i+=2) {
+  for($i = 1; $i < count($vornamen); $i+=2) {
         $mannschaftsNummer++;
-       // echo "in der for schleife";
-        if ($vornamen[$i] != '' && $nachnamen[$i] != '')  {
-       //     echo "in der for schleife";
+        if ($vornamen[$i] != '' && $nachnamen[$i] != '' && $vornamen[$i-1] != '' && $nachnamen[$i-1] != '')  {
            $id1 = getSchuelerID($nachnamen[$i], $vornamen[$i], $klasse);
            $id2 = getSchuelerID($nachnamen[$i-1], $vornamen[$i-1], $klasse);
            $mannschaftBM=0;
@@ -282,31 +295,34 @@ $mannschaftFB2= '"' . $mannschaftFB2 .  '"';
             echo $id1;
             echo $id2;
             echo $mannschaftBM . "<br>";
-            $addSportartToSchueler1 = "UPDATE Mannschaften_MS SET BM = " . $mannschaftBM . " WHERE ID = ". $id1 . " ";
-            $addSportartToSchueler2 = "UPDATE Mannschaften_MS SET BM = " . $mannschaftBM . " WHERE ID = ". $id2 . " ";
-         //  echo $mannschaftFB2;
-         //    echo $addSportartToSchueler1;
-         //   echo $addSportartToSchueler2;
+            $addSportartToSchueler1 = "UPDATE " . $stufenListe . " SET BM = " . $mannschaftBM . " WHERE ID = ". $id1 . " ";
+            $addSportartToSchueler2 = "UPDATE " . $stufenListe . " SET BM = " . $mannschaftBM . " WHERE ID = ". $id2 . " ";
               if ($conn->query($addSportartToSchueler1) === TRUE) {
-                  echo "BM update succesfully";
+                  echo "BM update erfolgreich bei: ";
               } else {
-                  echo "error: " . $conn->error;
+                  echo "error: " . $conn->error . " bei: ";
               }
               echo $vornamen[$i] . ' ';
 		          echo $nachnamen[$i] . '<br>';
               if ($conn->query($addSportartToSchueler2) === TRUE) {
-                  echo "BM update succesfully";
+                  echo "BM update erfolgreich bei: ";
               } else {
-                  echo "error: " . $conn->error;
+                  echo "error: " . $conn->error . " bei: ";
               }
 		          echo $vornamen[$i-1] . ' ';
 		          echo $nachnamen[$i-1] . '<br>';
     
        }	
-	   }        
+  }        
  
  $conn->close();
+ //SESSION schließen, damit leute nicht mehrfach eingetragen werden, falls man den selben PC  nutzt
+ //session_destroy();
  
 	?>
+  
+ Wenn oben ein Fehler steht, bitte bei Daniel/Sandesh melden und Fehlermeldung kopieren (Screenshot)! <br>
+ Wenn alles erfolgreich war geht es <a href="http://www.danielbuecheler.hol.es/sporttage.php">hier</a> wieder zum Anfang.
+
 </body>
 </html>
