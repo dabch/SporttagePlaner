@@ -4,6 +4,12 @@
 <title>Eingabe Klassenlisten @ Sporttage-Kepler</title>
 </head>
 
+<?php
+$badmintonAnzahlTeams=10; //anzahl badminton teams
+$AnzahlSpielerVB=9;
+$AnzahlSpielerFB=9;
+?>
+
 <style>
 table, th, td {
 	border: 1px solid black;
@@ -26,14 +32,86 @@ Klasse eingeben:
 <input type="checkbox" name="k1" value="k1"> K1  <br>
 <input type="text" name="klasse" required="required" />
 
+<?php 
+
+
+//klasse speichern
+$klasse = $_POST['klasse'];
+//k1 speichern
+$k1 = $_POST['k1'];
+
+$sportartenName = array(          //reihenfolge der Sportarten bestimmen für erstellen der tabelle
+  0 => 'fb1_v',
+  1 => 'fb1_n',
+  2 => 'fb2_v', 
+  3 => 'fb2_n',
+  4 => 'bb_v',
+  5 => 'bb_n', 
+  6 => 'ft_v', 
+  7 => 'ft_n',
+  //2. teil
+  8 => 'vb_v',
+  9 => 'vb_n',
+  10 => 'st_v', 
+  11 => 'st_n',
+  12 => 'bm_v',
+  13 => 'bm_n', 
+  14 => 'tt_v', 
+  15 => 'tt_n',
+     );
+
+   
+?>
+
+
+
 <table>
 	<!-- Fußball 1 + 2 & Fahrradtour -->
 	<tr>
 		<td colspan="2"> Fußball 1
 		<td colspan="2"> Fußball 2		
 		<td colspan="2"> Basketball
+	</tr>
+	<tr>
+		<td> <b>Vorname
+		<td> <b>Nachname
+		<td> <b>Vorname
+		<td> <b>Nachname
+		<td> <b>Vorname
+		<td> <b>Nachname
+	</tr>
+  
+  <?php 
+  //tabindex: zum vereinfachten 'tabben' durch die website, zwei aufeinanderfolgende sind vorname nachname, von _n zu _v zum nächsten +17
+  $tabindex = array(1, 2, 19, 20, 37, 38, 55, 56, 73, 74, 91, 92, 109, 110);
+ //die länge hängt mit der länge von fb1_v zusammen
+    
+    
+  for($zeile = 0; $zeile<$AnzahlSpielerFB; $zeile++) {   //zeilenweise durch die tabelle
+    echo "<tr> \n";                                   //neue reihe erstellen
+    for($spalte = 0 ; $spalte<6; $spalte++)  {      //in jeder spalte die richtige mannschaft einfügen
+      //echo "in der for schleife";
+      //richtigen namen gemäß spalte wählen und richtige daten nach spalte und zeile
+      echo "<td> <input type=\"text\" name=\"" . $sportartenName[$spalte] . "[]\" tabindex=" . $tabindex[$spalte] . "/> \n";   
+      //tabindex der spalte wird um zwei erhöht, da nach 22 (v) 23 (n) und danach dann wieder 24 (v) folgt
+      $tabindex[$spalte]+=2; //tabindexwert um 2 erhöhen für schönes eintippen  
+    }
+    echo "</tr> \n";  //row beenden
+  }
+ 
+  
+?> 
+  
+  
+ 	<tr>
+		<td colspan="8">  	
+	</tr>
 		<td colspan="2"> Fahrradtour
+		<td colspan="2"> Volleyball
+		<td colspan="2"> Staffellauf
+
 	</tr>
+	
 	<tr>
 		<td> <b>Vorname
 		<td> <b>Nachname
@@ -41,118 +119,29 @@ Klasse eingeben:
 		<td> <b>Nachname
 		<td> <b>Vorname
 		<td> <b>Nachname
-		<td> <b>Vorname
-		<td> <b>Nachname
 	</tr>
-	
-	<tr>
-		<td> <input type="text" name="fb1_v[]" tabindex=1/>
-		<td> <input type="text" name="fb1_n[]" tabindex=2/>
-		<td> <input type="text" name="fb2_v[]" tabindex=19/>
-		<td> <input type="text" name="fb2_n[]" tabindex=20/>
-		<td> <input type="text" name="bb_v[]"/>
-		<td> <input type="text" name="bb_n[]"/>
-		<td> <input type="text" name="ft_v[]"/>
-		<td> <input type="text" name="ft_n[]"/>
-	</tr>
-	
-	<tr>
-		<td> <input type="text" name="fb1_v[]" tabindex=3/>
-		<td> <input type="text" name="fb1_n[]" tabindex=4/>
-		<td> <input type="text" name="fb2_v[]" tabindex=21/>
-		<td> <input type="text" name="fb2_n[]" tabindex=22/>
-		<td> <input type="text" name="bb_v[]"/>
-		<td> <input type="text" name="bb_n[]"/>
-		<td> <input type="text" name="ft_v[]"/>
-		<td> <input type="text" name="ft_n[]"/>
-	</tr>
-	
-	<tr>
-		<td> <input type="text" name="fb1_v[]" tabindex=5/>
-		<td> <input type="text" name="fb1_n[]" tabindex=6/>
-		<td> <input type="text" name="fb2_v[]" tabindex=23/>
-		<td> <input type="text" name="fb2_n[]" tabindex=24/>
-		<td> <input type="text" name="bb_v[]"/>
-		<td> <input type="text" name="bb_n[]"/>
-		<td> <input type="text" name="ft_v[]"/>
-		<td> <input type="text" name="ft_n[]"/>
-	</tr>
-	
-	<tr>
-		<td> <input type="text" name="fb1_v[]" tabindex=7/>
-		<td> <input type="text" name="fb1_n[]" tabindex=8/>
-		<td> <input type="text" name="fb2_v[]" tabindex=25/>
-		<td> <input type="text" name="fb2_n[]" tabindex=26/>
-		<td> <input type="text" name="bb_v[]"/>
-		<td> <input type="text" name="bb_n[]"/>
-		<td> <input type="text" name="ft_v[]"/>
-		<td> <input type="text" name="ft_n[]"/>
-	</tr>
-	
-	<tr>
-		<td> <input type="text" name="fb1_v[]" tabindex=9/>
-		<td> <input type="text" name="fb1_n[]" tabindex=10/>
-		<td> <input type="text" name="fb2_v[]" tabindex=27/>
-		<td> <input type="text" name="fb2_n[]" tabindex=28/>
-		<td> <input type="text" name="bb_v[]"/>
-		<td> <input type="text" name="bb_n[]"/>
-		<td> <input type="text" name="ft_v[]"/>
-		<td> <input type="text" name="ft_n[]"/>
-	</tr>
-	
-	<tr>
-		<td> <input type="text" name="fb1_v[]" tabindex=11/>
-		<td> <input type="text" name="fb1_n[]" tabindex=12/>
-		<td> <input type="text" name="fb2_v[]" tabindex=29/>
-		<td> <input type="text" name="fb2_n[]" tabindex=30/>
-		<td> <input type="text" name="bb_v[]"/>
-		<td> <input type="text" name="bb_n[]"/>
-		<td> <input type="text" name="ft_v[]"/>
-		<td> <input type="text" name="ft_n[]"/>
-	</tr>
-	
-	<tr>
-		<td> <input type="text" name="fb1_v[]" tabindex=13/>
-		<td> <input type="text" name="fb1_n[]" tabindex=14/>
-		<td> <input type="text" name="fb2_v[]" tabindex=31/>
-		<td> <input type="text" name="fb2_n[]" tabindex=32/>
-		<td> <input type="text" name="bb_v[]"/>
-		<td> <input type="text" name="bb_n[]"/>
-		<td> <input type="text" name="ft_v[]"/>
-		<td> <input type="text" name="ft_n[]"/>
-	</tr>
-	
-	<tr>
-		<td> <input type="text" name="fb1_v[]" tabindex=15/>
-		<td> <input type="text" name="fb1_n[]" tabindex=16/>
-		<td> <input type="text" name="fb2_v[]" tabindex=33/>
-		<td> <input type="text" name="fb2_n[]" tabindex=34/>
-		<td> <input type="text" name="bb_v[]"/>
-		<td> <input type="text" name="bb_n[]"/>
-		<td> <input type="text" name="ft_v[]"/>
-		<td> <input type="text" name="ft_n[]"/>
-	</tr>
-	
-	<tr>
-		<td> <input type="text" name="fb1_v[]" tabindex=17/>
-		<td> <input type="text" name="fb1_n[]" tabindex=18/>
-		<td> <input type="text" name="fb2_v[]" tabindex=35/>
-		<td> <input type="text" name="fb2_n[]" tabindex=36/>
-		<td> <input type="text" name="bb_v[]"/>
-		<td> <input type="text" name="bb_n[]"/>
-		<td> <input type="text" name="ft_v[]"/>
-		<td> <input type="text" name="ft_n[]"/>
-	</tr>
-	
-	<!-- Badminton & Tischtennis & Volleyball -->
-	
-	<tr>
+      
+   <?php 
+ //die länge hängt mit der länge von vb1_v zusammen   
+  for($zeile = 0; $zeile<$AnzahlSpielerVB; $zeile++) {
+    echo "<tr> \n";
+    for($spalte = 6 ; $spalte<12; $spalte++)  {
+      //echo "in der for schleife";
+      echo "<td> <input type=\"text\" name=\"" . $sportartenName[$spalte] . "[]\" tabindex=" . $tabindex[$spalte] . "/> \n"; 
+      $tabindex[$spalte]+=2; //tabindexwert um 2 erhöhen für schönes eintippen  
+    }
+    echo "</tr> \n"; 
+  }
+ 
+  
+?>  
+    
+ 	<tr>
 		<td colspan="8">  	
 	</tr>
 		<td colspan="2"> Badminton
 		<td colspan="2"> Tischtennis
-		<td colspan="2"> Volleyball
-		<td colspan="2"> Staffellauf
+<!--		<td colspan="2"> Staffellauf -->
 	</tr>
 	
 	<tr>
@@ -160,329 +149,59 @@ Klasse eingeben:
 		<td> <b>Nachname
 		<td> <b>Vorname
 		<td> <b>Nachname
+
+<!--
 		<td> <b>Vorname
-		<td> <b>Nachname
-		<td> <b>Vorname
-		<td> <b>Nachname
+		<td> <b>Nachname    -->
 	</tr>
-	
-	<!-- Team1 -->
-	<tr>
-		<td colspan="2" style="text-align:center"> Team 1
-		<td colspan="2" style="text-align:center"> Team 1
-		
-		<td> <input type="text" name="vb_v[]"/>
-		<td> <input type="text" name="vb_n[]"/>
-		<td> <input type="text" name="st_v[]"/>
-		<td> <input type="text" name="st_n[]"/>
-	</tr>
-		<td> <input type="text" name="bm_v[]"/>
-		<td> <input type="text" name="bm_n[]"/>
-		<td> <input type="text" name="tt_v[]"/>
-		<td> <input type="text" name="tt_n[]"/>
-		
-		<td> <input type="text" name="vb_v[]"/>
-		<td> <input type="text" name="vb_n[]"/>
-		<td> <input type="text" name="st_v[]"/>
-		<td> <input type="text" name="st_n[]"/>
-	<tr>
-	
-	</tr>
-		<td> <input type="text" name="bm_v[]"/>
-		<td> <input type="text" name="bm_n[]"/>
-		<td> <input type="text" name="tt_v[]"/>
-		<td> <input type="text" name="tt_n[]"/>
-		
-		<td> <input type="text" name="vb_v[]"/>
-		<td> <input type="text" name="vb_n[]"/>
-		<td> <input type="text" name="st_v[]"/>
-		<td> <input type="text" name="st_n[]"/>
-	<tr>
-	
-	<!-- Team2 -->
-	<tr>
-		<td colspan="2" style="text-align:center"> Team 2
-		<td colspan="2" style="text-align:center"> Team 2
-		
-		<td> <input type="text" name="vb_v[]"/>
-		<td> <input type="text" name="vb_n[]"/>
-		<td> <input type="text" name="st_v[]"/>
-		<td> <input type="text" name="st_n[]"/>
-	</tr>
-		<td> <input type="text" name="bm_v[]"/>
-		<td> <input type="text" name="bm_n[]"/>
-		<td> <input type="text" name="tt_v[]"/>
-		<td> <input type="text" name="tt_n[]"/>
-		
-		<td> <input type="text" name="vb_v[]"/>
-		<td> <input type="text" name="vb_n[]"/>
-		<td> <input type="text" name="st_v[]"/>
-		<td> <input type="text" name="st_n[]"/>
-	<tr>
-	
-	</tr>
-		<td> <input type="text" name="bm_v[]"/>
-		<td> <input type="text" name="bm_n[]"/>
-		<td> <input type="text" name="tt_v[]"/>
-		<td> <input type="text" name="tt_n[]"/>
-		
-		<td> <input type="text" name="vb_v[]"/>
-		<td> <input type="text" name="vb_n[]"/>
-		<td> <input type="text" name="st_v[]"/>
-		<td> <input type="text" name="st_n[]"/>
-	<tr>
-	
-	<!-- Team3 -->
-	<tr>
-		<td colspan="2" style="text-align:center"> Team 3
-		<td colspan="2" style="text-align:center"> Team 3
-		
-		<td> <input type="text" name="vb_v[]"/>
-		<td> <input type="text" name="vb_n[]"/>
-		<td> <input type="text" name="st_v[]"/>
-		<td> <input type="text" name="st_n[]"/>
-	</tr>
-		<td> <input type="text" name="bm_v[]"/>
-		<td> <input type="text" name="bm_n[]"/>
-		<td> <input type="text" name="tt_v[]"/>
-		<td> <input type="text" name="tt_n[]"/>
-		
-		<td> <input type="text" name="vb_v[]"/>
-		<td> <input type="text" name="vb_n[]"/>
-		<td> <input type="text" name="st_v[]"/>
-		<td> <input type="text" name="st_n[]"/>
-	<tr>
-	
-	</tr>
-		<td> <input type="text" name="bm_v[]"/>
-		<td> <input type="text" name="bm_n[]"/>
-		<td> <input type="text" name="tt_v[]"/>
-		<td> <input type="text" name="tt_n[]"/>
-		
-		<td> <input type="text" name="vb_v[]"/>
-		<td> <input type="text" name="vb_n[]"/>
-		<td> <input type="text" name="st_v[]"/>
-		<td> <input type="text" name="st_n[]"/>
-	<tr>
-		
-	<!-- Team4 -->
-	<tr>
-		<td colspan="2" style="text-align:center"> Team 4
-		<td colspan="2" style="text-align:center"> Team 4
-	</tr>
-		<td> <input type="text" name="bm_v[]"/>
-		<td> <input type="text" name="bm_n[]"/>
-		<td> <input type="text" name="tt_v[]"/>
-		<td> <input type="text" name="tt_n[]"/>
-	<tr>
-	
-	</tr>
-		<td> <input type="text" name="bm_v[]"/>
-		<td> <input type="text" name="bm_n[]"/>
-		<td> <input type="text" name="tt_v[]"/>
-		<td> <input type="text" name="tt_n[]"/>
-	<tr>
-		
-	<!-- Team5 -->
-	<tr>
-		<td colspan="2" style="text-align:center"> Team 5
-		<td colspan="2" style="text-align:center"> Team 5
-	</tr>
-		<td> <input type="text" name="bm_v[]"/>
-		<td> <input type="text" name="bm_n[]"/>
-		<td> <input type="text" name="tt_v[]"/>
-		<td> <input type="text" name="tt_n[]"/>
-	<tr>
-	
-	</tr>
-		<td> <input type="text" name="bm_v[]"/>
-		<td> <input type="text" name="bm_n[]"/>
-		<td> <input type="text" name="tt_v[]"/>
-		<td> <input type="text" name="tt_n[]"/>
-	<tr>
-	
-	
-		
-	<!-- Team6 -->
-	<tr>
-		<td colspan="2" style="text-align:center"> Team 6
-		<td colspan="2" style="text-align:center"> Team 6
-	</tr>
-		<td> <input type="text" name="bm_v[]"/>
-		<td> <input type="text" name="bm_n[]"/>
-		<td> <input type="text" name="tt_v[]"/>
-		<td> <input type="text" name="tt_n[]"/>
-	<tr>
-	
-	</tr>
-		<td> <input type="text" name="bm_v[]"/>
-		<td> <input type="text" name="bm_n[]"/>
-		<td> <input type="text" name="tt_v[]"/>
-		<td> <input type="text" name="tt_n[]"/>
-	<tr>
-  
-  	<!-- Team7 -->
-	<tr>
-		<td colspan="2" style="text-align:center"> Team 7
-		<td colspan="2" style="text-align:center"> Team 7
-	</tr>
-		<td> <input type="text" name="bm_v[]"/>
-		<td> <input type="text" name="bm_n[]"/>
-		<td> <input type="text" name="tt_v[]"/>
-		<td> <input type="text" name="tt_n[]"/>
-	<tr>
-	
-	</tr>
-		<td> <input type="text" name="bm_v[]"/>
-		<td> <input type="text" name="bm_n[]"/>
-		<td> <input type="text" name="tt_v[]"/>
-		<td> <input type="text" name="tt_n[]"/>
-	<tr>
-  
-  	<!-- Team8 -->
-	<tr>
-		<td colspan="2" style="text-align:center"> Team 8
-		<td colspan="2" style="text-align:center"> Team 8
-	</tr>
-		<td> <input type="text" name="bm_v[]"/>
-		<td> <input type="text" name="bm_n[]"/>
-		<td> <input type="text" name="tt_v[]"/>
-		<td> <input type="text" name="tt_n[]"/>
-	<tr>
-	
-	</tr>
-		<td> <input type="text" name="bm_v[]"/>
-		<td> <input type="text" name="bm_n[]"/>
-		<td> <input type="text" name="tt_v[]"/>
-		<td> <input type="text" name="tt_n[]"/>
-	<tr>
-  
-  	<!-- Team9 -->
-	<tr>
-		<td colspan="2" style="text-align:center"> Team 9
-		<td colspan="2" style="text-align:center"> Team 9
-	</tr>
-		<td> <input type="text" name="bm_v[]"/>
-		<td> <input type="text" name="bm_n[]"/>
-		<td> <input type="text" name="tt_v[]"/>
-		<td> <input type="text" name="tt_n[]"/>
-	<tr>
-	
-	</tr>
-		<td> <input type="text" name="bm_v[]"/>
-		<td> <input type="text" name="bm_n[]"/>
-		<td> <input type="text" name="tt_v[]"/>
-		<td> <input type="text" name="tt_n[]"/>
-	<tr>
-  
-  	<!-- Team10 -->
-	<tr>
-		<td colspan="2" style="text-align:center"> Team 10
-		<td colspan="2" style="text-align:center"> Team 10
-	</tr>
-		<td> <input type="text" name="bm_v[]"/>
-		<td> <input type="text" name="bm_n[]"/>
-		<td> <input type="text" name="tt_v[]"/>
-		<td> <input type="text" name="tt_n[]"/>
-	<tr>
-	
-	</tr>
-		<td> <input type="text" name="bm_v[]"/>
-		<td> <input type="text" name="bm_n[]"/>
-		<td> <input type="text" name="tt_v[]"/>
-		<td> <input type="text" name="tt_n[]"/>
-	<tr>
-  
-  	<!-- Team11 -->
-	<tr>
-		<td colspan="2" style="text-align:center"> Team 11
-		<td colspan="2" style="text-align:center"> Team 11
-	</tr>
-		<td> <input type="text" name="bm_v[]"/>
-		<td> <input type="text" name="bm_n[]"/>
-		<td> <input type="text" name="tt_v[]"/>
-		<td> <input type="text" name="tt_n[]"/>
-	<tr>
-	
-	</tr>
-		<td> <input type="text" name="bm_v[]"/>
-		<td> <input type="text" name="bm_n[]"/>
-		<td> <input type="text" name="tt_v[]"/>
-		<td> <input type="text" name="tt_n[]"/>
-	<tr>
-  
-  	<!-- Team12 -->
-	<tr>
-		<td colspan="2" style="text-align:center"> Team 12
-		<td colspan="2" style="text-align:center"> Team 12
-	</tr>
-		<td> <input type="text" name="bm_v[]"/>
-		<td> <input type="text" name="bm_n[]"/>
-		<td> <input type="text" name="tt_v[]"/>
-		<td> <input type="text" name="tt_n[]"/>
-	<tr>
-	
-	</tr>
-		<td> <input type="text" name="bm_v[]"/>
-		<td> <input type="text" name="bm_n[]"/>
-		<td> <input type="text" name="tt_v[]"/>
-		<td> <input type="text" name="tt_n[]"/>
-	<tr>
-  
-  	<!-- Team13 -->
-	<tr>
-		<td colspan="2" style="text-align:center"> Team 13
-		<td colspan="2" style="text-align:center"> Team 13
-	</tr>
-		<td> <input type="text" name="bm_v[]"/>
-		<td> <input type="text" name="bm_n[]"/>
-		<td> <input type="text" name="tt_v[]"/>
-		<td> <input type="text" name="tt_n[]"/>
-	<tr>
-	
-	</tr>
-		<td> <input type="text" name="bm_v[]"/>
-		<td> <input type="text" name="bm_n[]"/>
-		<td> <input type="text" name="tt_v[]"/>
-		<td> <input type="text" name="tt_n[]"/>
-	<tr>
-	
-    	<!-- Team14 -->
-	<tr>
-		<td colspan="2" style="text-align:center"> Team 14
-		<td colspan="2" style="text-align:center"> Team 14
-	</tr>
-		<td> <input type="text" name="bm_v[]"/>
-		<td> <input type="text" name="bm_n[]"/>
-		<td> <input type="text" name="tt_v[]"/>
-		<td> <input type="text" name="tt_n[]"/>
-	<tr>
-	
-	</tr>
-		<td> <input type="text" name="bm_v[]"/>
-		<td> <input type="text" name="bm_n[]"/>
-		<td> <input type="text" name="tt_v[]"/>
-		<td> <input type="text" name="tt_n[]"/>
-	<tr>
   
   
+    <?php 
+    
+ // $tabindex = array(1, 2, 19, 20, 37, 38, 55, 56);
+  
+  //echo $tabindex[1];
+    $teamzaehler = 0; //zaehler für das einzutragende team alle 3 zeilen
+    $eintragZeile = 0; //zeile, in der ein textfeld ist   (anzahl beginnend bei 0 und spieler1 von team1)
+  for($zeile = 0; $zeile < ($badmintonAnzahlTeams*3); $zeile++) {
+    $teamRow=0;       //zeile in der ein teamname steht
+    $eintragZeile++;
+    
+    echo "<tr> \n";
+    if ($zeile%3 == 0) {     //team zeile (jede 3.)
+           $teamzaehler++;
+          echo "<td colspan=\"2\" style=\"text-align:center\"> Team " . $teamzaehler . "\n";
+          echo "<td colspan=\"2\" style=\"text-align:center\"> Team " . $teamzaehler . "\n";
+          $eintragZeile--;
+          $teamRow=1;
+      } 
+    for($spalte = 12; $spalte<16; $spalte++)  {
+      //echo "in der for schleife";
+    //  echo $zeile%3;
+       if ($teamRow) { 
+          break;   
+          //$teamRow=0;
+        } else {   
+       //echo $eintragZeile-1;     
+      echo "<td> <input type=\"text\" name=\"" . $sportartenName[$spalte] . "[]\" tabindex=" . $tabindex[$spalte] . "/> \n"; 
+      $tabindex[$spalte]+=2; //tabindexwert um 2 erhöhen für schönes eintippen  
+       }
+    }
+    
+    echo "</tr> \n"; 
+  }
+       
+  
+?> 
+    
+  
+
+	
+
 </table>
   <input type="submit" name="submit">
 </form>
 <br>
-<?php
-	$servername = 'wp052.webpack.hosteurope.de';
-	$username = 'db1093417-sport';
-	$password = '%&SporTTage14@!';
-	$dbname = 'db1093417-sporttage';
-  ini_set("session.use_trans_sid",true);
-	session_start();
-	$conn = new mysqli($servername, $username, $password, $dbname);
-	
-	if($conn->connect_error){
-		die('Connection failed:\n' . $conn->connect_error);
-	}
-?>
 </body>
 </html>
 
