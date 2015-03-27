@@ -16,12 +16,21 @@ th, td {
 </style>
 
 <body>
+<h1>Eingaben überprüfen</h1>   
 <b> BITTE ALLES NOCHMALS KONTROLLIEREN!!! </b> <br>
-KEINE LEERZEICHEN benutzen!<br>
-Umlaute können problemlos verarbeitet werden, aber bitte darauf achten, dass Namen nicht falsch geschrieben werden (oder wenn falsch, dann einheitlich falsch)<br>
-Zu einem Vornamen gehört IMMER ein Nachname, sonst geht die Welt unter!<br>
+KEINE LEERZEICHEN benutzen!
+DU bist kurz vor dem FINALEN Eintragen in die DATENBANK!<br> <br>
+<b><font color="#FF0000">HINWEISE: </font></b>
+
 <br>
 <?php 
+
+
+
+
+
+
+
 $badmintonAnzahlTeams=10; //anzahl badminton teams
 
 
@@ -55,15 +64,65 @@ for ($i=0; $i < count($sportartenName); $i++ )  {
       $sportarten1[$i] = $_POST[$sportartenName[$i]];
 }
 if ($k1=='k1') {
+  if (strpos($klasse,'D') !== false) {
   $k1 = 'checked';     //wenn k1 gecheckt war soll es wieder gecheckt werden
+  } else {
+  echo '<b><font color="#FF0000"> Achtung: K1 falsch eingetragen</font> </b><br>';  //deutschkurs angabe fehlt
+  }
 } else {
   $k1='';
   }
-   
+  
+//******************EINGABEN PRÜFEN******************************************************************************************************************  
+  
+  
+ //prüfen, ob bei den mannschaftssportarten ein fehler/problem vorhanden ist 
+for ($sportart=0; $sportart<12; $sportart+=2) {  
+  $namenZaehler=0;  //zaehler erstellen
+	for($i = 0; $i < count($sportarten1[$sportart]); $i++) {
+		if ($sportarten1[$sportart][$i] != '' || $sportarten1[$sportart+1][$i] != '')  {
+      $namenZaehler++;  //zaehler+1 je mannschaftsteam
+		}
+	}
+  if ($sportart==0 && $namenZaehler>0 && $namenZaehler < 6) {
+      	echo '<b><font color="#FF0000"> Achtung: zu wenig Schüler in Fußball Team 1 (FB braucht mind 6) oder ein Vor- oder Nachname fehlt!</font> </b><br>';
+  }
+  if ($sportart==2 && $namenZaehler>0 && $namenZaehler < 6) {
+      	echo '<b><font color="#FF0000"> Achtung: zu wenig Schüler in Fußball Team 2 (FB braucht mind 6) oder ein Vor- oder Nachname fehlt!</font> </b><br>';
+  }
+  if ($sportart==4 && $namenZaehler>0 && $namenZaehler < 5) {
+      	echo '<b><font color="#FF0000"> Achtung: zu wenig Schüler im Basketball Team (BB braucht mind 5) oder ein Vor- oder Nachname fehlt!</font> </b><br>';
+  }
+  if ($sportart==8 && $namenZaehler>0 && $namenZaehler < 6) {
+      	echo '<b><font color="#FF0000"> Achtung: zu wenig Schüler im Volleyball Team (VB braucht mind 6) oder ein Vor- oder Nachname fehlt!</font> </b><br>';
+  }
+  if ($sportart==10 && $namenZaehler>0 && $namenZaehler < 4) {
+      	echo '<b><font color="#FF0000"> Achtung: zu wenig Schüler im Staffellauf Team (ST braucht mind ) oder ein Vor- oder Nachname fehlt!</font> </b><br>';
+  } 
+  
+}
 
-?>
+for ($sportart=12; $sportart<16; $sportart+=2) { 
+	$mannschaftsNummer=0;
+  	for($i = 1; $i < count($sportarten1[$sportart]); $i+=2) {
+		  $mannschaftsNummer++; 
+		  if (($sportarten1[$sportart][$i] != '' xor $sportarten1[$sportart+1][$i] != '') or ($sportarten1[$sportart][$i-1] != '' xor $sportarten1[$sportart+1][$i-1] != ''))  {
+         	if ($sportart==12) {
+            echo '<b><font color="#FF0000"> Achtung:  ein Vor- oder Nachname fehlt in Badminton Team ' . $mannschaftsNummer . '!</font> </b><br>';
+		      }
+          if ($sportart==14) {
+            echo '<b><font color="#FF0000"> Achtung:  ein Vor- oder Nachname fehlt in Tischtennis Team ' . $mannschaftsNummer . '!</font> </b><br>';
+		      }
+      }
+	 }
+} 
 
   
+//******************************TABELLE BAUEN UND AUSFÜLLEN***************************************************************************************************************  
+   
+?>
+
+<br> 
 
 Klasse eingeben:
 <form action="submit.php" method="post">
@@ -76,6 +135,7 @@ Klasse eingeben:
 		<td colspan="2"> Fußball 1
 		<td colspan="2"> Fußball 2		
 		<td colspan="2"> Basketball
+<!--		<td colspan="2"> Fahrradtour       -->
 	</tr>
 	<tr>
 		<td> <b>Vorname
@@ -84,6 +144,9 @@ Klasse eingeben:
 		<td> <b>Nachname
 		<td> <b>Vorname
 		<td> <b>Nachname
+<!--
+		<td> <b>Vorname
+		<td> <b>Nachname -->
 	</tr>
 
 
@@ -136,8 +199,8 @@ Klasse eingeben:
 	</tr>
   
    <?php 
- //die länge hängt mit der länge von fb1_v zusammen   
-  for($zeile = 0; $zeile<count($sportarten1[0]); $zeile++) {
+ //die länge hängt mit der länge von vb1_v zusammen   
+  for($zeile = 0; $zeile<count($sportarten1[9]); $zeile++) {
     echo "<tr> \n";
     for($spalte = 6 ; $spalte<12; $spalte++)  {
       //echo "in der for schleife";
@@ -207,10 +270,10 @@ Klasse eingeben:
        
   
 ?> 
-
   
 </table>
-  <input type="submit" name="submit">
+<br> du bist sicher, dass alles stimmt? <br>
+  <input type="submit" name="submit" value="Alles Richtig?">
 </form>
 <br>
 </body>
