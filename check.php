@@ -79,26 +79,32 @@ if ($k1=='k1') {
  //prüfen, ob bei den mannschaftssportarten ein fehler/problem vorhanden ist 
 for ($sportart=0; $sportart<12; $sportart+=2) {  
   $namenZaehler=0;  //zaehler erstellen
+  $nameFehlt=0;
 	for($i = 0; $i < count($sportarten1[$sportart]); $i++) {
-		if ($sportarten1[$sportart][$i] != '' || $sportarten1[$sportart+1][$i] != '')  {
+		if ($sportarten1[$sportart][$i] != '' && $sportarten1[$sportart+1][$i] != '')  {
       $namenZaehler++;  //zaehler+1 je mannschaftsteam
 		}
+    if ($sportarten1[$sportart][$i] != '' xor $sportarten1[$sportart+1][$i] != '')  {
+      $nameFehlt=true;  //zaehler+1 je mannschaftsteam
+		}
+    
 	}
-  if ($sportart==0 && $namenZaehler>0 && $namenZaehler < 6) {
+  if ($sportart==0 && (($namenZaehler>0 && $namenZaehler < 6) || ($nameFehlt==true))) {
       	echo '<b><font color="#FF0000"> Achtung: zu wenig Schüler in Fußball Team 1 (FB braucht mind 6) oder ein Vor- oder Nachname fehlt!</font> </b><br>';
   }
-  if ($sportart==2 && $namenZaehler>0 && $namenZaehler < 6) {
+  if ($sportart==2 && (($namenZaehler>0 && $namenZaehler < 6) || ($nameFehlt==true))) {
       	echo '<b><font color="#FF0000"> Achtung: zu wenig Schüler in Fußball Team 2 (FB braucht mind 6) oder ein Vor- oder Nachname fehlt!</font> </b><br>';
   }
-  if ($sportart==4 && $namenZaehler>0 && $namenZaehler < 5) {
+  if ($sportart==4 && (($namenZaehler>0 && $namenZaehler < 5) || ($nameFehlt==true))) {
       	echo '<b><font color="#FF0000"> Achtung: zu wenig Schüler im Basketball Team (BB braucht mind 5) oder ein Vor- oder Nachname fehlt!</font> </b><br>';
   }
-  if ($sportart==8 && $namenZaehler>0 && $namenZaehler < 6) {
+  if ($sportart==8 && (($namenZaehler>0 && $namenZaehler < 6) || ($nameFehlt==true))) {
       	echo '<b><font color="#FF0000"> Achtung: zu wenig Schüler im Volleyball Team (VB braucht mind 6) oder ein Vor- oder Nachname fehlt!</font> </b><br>';
   }
-  if ($sportart==10 && $namenZaehler>0 && $namenZaehler < 4) {
+  if ($sportart==10 && (($namenZaehler>0 && $namenZaehler < 6) || ($nameFehlt==true))) {
       	echo '<b><font color="#FF0000"> Achtung: zu wenig Schüler im Staffellauf Team (ST braucht mind ) oder ein Vor- oder Nachname fehlt!</font> </b><br>';
-  } 
+  }
+  $nameFehlt=false; 
   
 }
 
@@ -153,7 +159,7 @@ Klasse eingeben:
 
  <?php 
   //tabindex: zum vereinfachten 'tabben' durch die website, zwei aufeinanderfolgende sind vorname nachname, von _n zu _v zum nächsten +17
-  $tabindex = array(1, 2, 19, 20, 37, 38, 55, 56, 73, 74, 91, 92, 109, 110);
+  $tabindex = array(1, 2, 19, 20, 37, 38, 55, 56, 73, 74, 91, 92, 109, 110, 110+($badmintonAnzahlTeams*4) , 110+($badmintonAnzahlTeams*4)+1);
  //die länge hängt mit der länge von fb1_v zusammen
     
     
@@ -240,7 +246,7 @@ Klasse eingeben:
   //echo $tabindex[1];
     $teamzaehler = 0; //zaehler für das einzutragende team alle 3 zeilen
     $eintragZeile = 0; //zeile, in der ein textfeld ist   (anzahl beginnend bei 0 und spieler1 von team1)
-  for($zeile = 0; $zeile < (((count($sportarten1[12])/2)+1)*3); $zeile++) {
+  for($zeile = 0; $zeile < (((count($sportarten1[12])/2))*3); $zeile++) {
     $teamRow=0;       //zeile in der ein teamname steht
     $eintragZeile++;
     
@@ -273,6 +279,9 @@ Klasse eingeben:
   
 </table>
 <br> du bist sicher, dass alles stimmt? <br>
+<input type="checkbox" name="blabla" value="1" required="required"> ich, 
+<input type="text" name="schuldiger" required="required" value="Idiot" /> (anderen Namen bei Bedarf eintragen) 
+bin verantwortlich dafür, wenn etwas nicht stimmt <br>
   <input type="submit" name="submit" value="Alles Richtig?">
 </form>
 <br>

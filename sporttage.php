@@ -29,8 +29,8 @@ Zu einem Vornamen gehört IMMER ein Nachname, sonst geht die Welt unter!<br>
 <br>
 Klasse eingeben:
 <form action="check.php" method="post">
-<input type="checkbox" name="k1" value="k1"> K1  <br>
-<input type="text" name="klasse" required="required" />
+<input type="checkbox" name="k1" value="k1" tabindex=1> K1  <br>
+<input type="text" name="klasse" required="required" tabindex=1 />
 
 <?php 
 
@@ -83,10 +83,12 @@ $sportartenName = array(          //reihenfolge der Sportarten bestimmen für er
   
   <?php 
   //tabindex: zum vereinfachten 'tabben' durch die website, zwei aufeinanderfolgende sind vorname nachname, von _n zu _v zum nächsten +17
-  $tabindex = array(1, 2, 19, 20, 37, 38, 55, 56, 73, 74, 91, 92, 109, 110);
- //die länge hängt mit der länge von fb1_v zusammen
-    
-    
+  $tabindex = array(1, 2, 19, 20, 37, 38, 55, 56, 73, 74, 91, 92, 109, 110, 110+($badmintonAnzahlTeams*4) , 110+($badmintonAnzahlTeams*4)+1);
+ //tabindex ehrhöhen, sodass tabelle erst bei 3 beginnt (für k1 feld und klasse feld)
+   for ($i=0; $i < count($tabindex); $i++) {
+    $tabindex[$i]+=2;
+   } 
+   //die länge hängt mit der länge von fb1_v zusammen 
   for($zeile = 0; $zeile<$AnzahlSpielerFB; $zeile++) {   //zeilenweise durch die tabelle
     echo "<tr> \n";                                   //neue reihe erstellen
     for($spalte = 0 ; $spalte<6; $spalte++)  {      //in jeder spalte die richtige mannschaft einfügen
@@ -199,6 +201,7 @@ $sportartenName = array(          //reihenfolge der Sportarten bestimmen für er
 	
 
 </table>
+<input type="checkbox" name="blabla" value="k1" required="required"> Ich akzeptiere, dass Daniel und Sandesh echte Kings sind und skill haben <br>
   <input type="submit" name="submit">
 </form>
 <br>
