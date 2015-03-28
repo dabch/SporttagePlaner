@@ -25,15 +25,6 @@ DU bist kurz vor dem FINALEN Eintragen in die DATENBANK!<br> <br>
 <br>
 <?php 
 
-
-
-
-
-
-
-$badmintonAnzahlTeams=10; //anzahl badminton teams
-
-
 //klasse speichern
 $klasse = $_POST['klasse'];
 //k1 speichern
@@ -58,6 +49,34 @@ $sportartenName = array(          //reihenfolge der Sportarten bestimmen für er
   14 => 'tt_v', 
   15 => 'tt_n',
      );
+     
+ $sportartenVollerName = array(          //reihenfolge der Sportarten bestimmen für erstellen der tabelle
+  0 => 'Fußball Team 1',
+  1 => 'Fußball Team 1',
+  2 => 'Fußball Team 2', 
+  3 => 'Fußball Team 2',
+  4 => 'Basketball Team',
+  5 => 'Basketball Team', 
+  6 => 'Fahrradtour', 
+  7 => 'Fahrradtour',
+  //2. teil
+  8 => 'Volleyball Team',
+  9 => 'Volleyball Team',
+  10 => 'Staffellauf Team', 
+  11 => 'Staffellauf Team',
+  12 => 'Badminton Teams',
+  13 => 'Badminton Teams', 
+  14 => 'Tischtennis Teams', 
+  15 => 'Tischtennis Teams',
+     );    
+     
+  $teamGroesse = array(          //reihenfolge der Sportarten bestimmen für erstellen der tabelle
+  0 => '6',   //FB
+  2 => '6',   //FB
+  4 => '6',   //BB
+  8 => '6',   //VB
+  10 => '4',  //ST
+     );       
 
 //läd die werte aus $_POST von sporttage.php in sportarten1 an der richtigen stelle
 for ($i=0; $i < count($sportartenName); $i++ )  {   
@@ -85,10 +104,15 @@ for ($sportart=0; $sportart<12; $sportart+=2) {
       $namenZaehler++;  //zaehler+1 je mannschaftsteam
 		}
     if ($sportarten1[$sportart][$i] != '' xor $sportarten1[$sportart+1][$i] != '')  {
-      $nameFehlt=true;  //zaehler+1 je mannschaftsteam
+      $nameFehlt=true;  //true, wennn es einen unvollständigen namen gibt
 		}
     
 	}
+  if ($sportart!=6 && (($namenZaehler>0 && $namenZaehler < $teamGroesse[$sportart]) || ($nameFehlt==true))) {
+     	echo '<b><font color="#FF0000"> Achtung: zu wenig Schüler in ' . $sportartenVollerName[$sportart] . ' (' . $sportartenVollerName[$sportart] . ' braucht mind ' . $teamGroesse[$sportart] . ') oder ein Vor- oder Nachname fehlt!</font> </b><br>';
+  }
+  
+ /* 
   if ($sportart==0 && (($namenZaehler>0 && $namenZaehler < 6) || ($nameFehlt==true))) {
       	echo '<b><font color="#FF0000"> Achtung: zu wenig Schüler in Fußball Team 1 (FB braucht mind 6) oder ein Vor- oder Nachname fehlt!</font> </b><br>';
   }
@@ -103,7 +127,7 @@ for ($sportart=0; $sportart<12; $sportart+=2) {
   }
   if ($sportart==10 && (($namenZaehler>0 && $namenZaehler < 6) || ($nameFehlt==true))) {
       	echo '<b><font color="#FF0000"> Achtung: zu wenig Schüler im Staffellauf Team (ST braucht mind ) oder ein Vor- oder Nachname fehlt!</font> </b><br>';
-  }
+  } */
   $nameFehlt=false; 
   
 }
