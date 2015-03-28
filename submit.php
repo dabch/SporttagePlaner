@@ -1,18 +1,5 @@
 <!DOCTYPE html>
-<?php //session_save_path('/tmp');
-//  session.use_trans_sid 1;
-// ini_set("session.use_trans_sid",true);
- 
-// ini_set("session.use_cookies",true);
-// $sessName = session_name();
-   // session_id(SESSID);
-  // echo PHPSESSID;
-   //$sessionID = $_GET['PHPSESSID'];
-// session_id($sessionID);
-// session_start();
-
-//echo SID;
-//phpinfo();
+<?php 
 ?>
 <html>
 <head>
@@ -24,26 +11,18 @@
 <?php
 
 
-$servername = 'wp052.webpack.hosteurope.de';
-$username = 'db1093417-sport';
+$servername = 'mysql20.1blu.de';
+$username = 's228201_2224606';
 $password = '%&SporTTage14@!';
-$dbname = 'db1093417-sporttage';
- /*
-if (ini_get('register_globals'))
-{
-    foreach ($_SESSION as $key=>$value)
-    {
-        if (isset($GLOBALS[$key]))
-            unset($GLOBALS[$key]);
-    }
-}      */
+$dbname = 'db228201x2224606';
 
-$klasse = $_POST['klasse'];
+$klasseA = $_POST['klasse'];
+$klasse = chop($klasseA);
 $k1 = $_POST['k1'];
 echo $_POST['klasse'];
-echo $klasse;
+//echo $klasse;
 //echo $sessionID;
-echo "vor der stufe bla";
+//echo "vor der stufe bla";
    
 if (strpos($klasse,'10') !== false || $k1 == "k1" || strpos($klasse,'K1') !== false ||  strpos($klasse,'K2') !== false) {
 	$stufenListe = "Mannschaften_OS";
@@ -54,7 +33,7 @@ if (strpos($klasse,'10') !== false || $k1 == "k1" || strpos($klasse,'K1') !== fa
 }
 
 
-echo $stufenListe . '<br>' ;
+//echo $stufenListe . '<br>' ;
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
@@ -97,146 +76,106 @@ if($conn->connect_error){
 	//echo getSchuelerID('Herbert', 'Idris', '9a');
 
 
+ $sportartenName = array(          //reihenfolge der Sportarten bestimmen für erstellen der tabelle
+  0 => 'fb1_v',
+  1 => 'fb1_n',
+  2 => 'fb2_v', 
+  3 => 'fb2_n',
+  4 => 'bb_v',
+  5 => 'bb_n', 
+  6 => 'ft_v', 
+  7 => 'ft_n',
+  //2. teil
+  8 => 'vb_v',
+  9 => 'vb_n',
+  10 => 'st_v', 
+  11 => 'st_n',
+  12 => 'bm_v',
+  13 => 'bm_n', 
+  14 => 'tt_v', 
+  15 => 'tt_n',
+     );   
+     
+$sportartenVollerName = array(          //reihenfolge der Sportarten bestimmen für erstellen der tabelle
+  0 => 'Fußball Team 1',
+  1 => 'Fußball Team 1',
+  2 => 'Fußball Team 2', 
+  3 => 'Fußball Team 2',
+  4 => 'Basketball Team',
+  5 => 'Basketball Team', 
+  6 => 'Fahrradtour', 
+  7 => 'Fahrradtour',
+  //2. teil
+  8 => 'Volleyball Team',
+  9 => 'Volleyball Team',
+  10 => 'Staffellauf Team', 
+  11 => 'Staffellauf Team',
+  12 => 'Badminton Teams',
+  13 => 'Badminton Teams', 
+  14 => 'Tischtennis Teams', 
+  15 => 'Tischtennis Teams',
+     ); 
+     
+$sportartenKurzerName = array(          //reihenfolge der Sportarten bestimmen für erstellen der tabelle
+  0 => 'FB',
+  1 => 'FB',
+  2 => 'FB', 
+  3 => 'FB',
+  4 => 'BB',
+  5 => 'BB', 
+  6 => 'FT', 
+  7 => 'FT',
+  //2. teil
+  8 => 'VB',
+  9 => 'VB',
+  10 => 'ST', 
+  11 => 'ST',
+  12 => 'BM',
+  13 => 'BM', 
+  14 => 'TT', 
+  15 => 'TT',
+     );          
+
+//läd die werte aus $_POST von sporttage.php in sportarten1 an der richtigen stelle
+for ($i=0; $i < count($sportartenName); $i++ )  {   
+      $sportarten1[$i] = $_POST[$sportartenName[$i]];
+}
+
+
 	//Fußball1
 //variablen wird der wert zugewiesen	
-$vornamen = $_POST['fb1_v'];
-$nachnamen = $_POST['fb1_n'];
+//$vornamen = $_POST['fb1_v'];
+//$nachnamen = $_POST['fb1_n'];
+for ($sportart=0; $sportart<12; $sportart+=2) {
+
 $id = 0;
-  echo $vornamen[0];
+ // echo $vornamen[0];
 //manschaftname besteht aus klasse + zahl, z.B. 9a1 9a2, es geht hier um mannschaft 1
-$mannschaftFB1 = $klasse .  '1';
+ if (strpos($sportartenName[$sportart],'2') !== false) {
+  $mannschaftNummer=2;
+ } else {
+  $mannschaftNummer=1;
+ }
+$mannschaft = $klasse .  '_' . $mannschaftNummer;
 //für die SQL Anweisung muss die Mannschaft in Anführungszeichen sein:
-$mannschaftFB1= '"' . $mannschaftFB1 .  '"';
+$mannschaft= '"' . $mannschaft .  '"';
    //für alle eingetragenen namen
-for($i = 0; $i < count($vornamen); $i++) {
-	if ($vornamen[$i] != '' && $nachnamen[$i] != '')  { //wenn etwas eingetragen ist
-      		$id = getSchuelerID($nachnamen[$i], $vornamen[$i], $klasse);   //id holen
-		$addSportartToSchueler = "UPDATE " . $stufenListe . " SET FB = " . $mannschaftFB1 . " WHERE ID = ". $id . " "; // string erstellenn
-		if ($conn->query($addSportartToSchueler) === TRUE) {	//string ausführen und mit rückgabewert weitermachen
-			echo "Fussball update erfolgreich bei: ";		//erfolg ausgeben
+for($i = 0; $i < count($sportarten1[$sportart]); $i++) {
+	if ($sportarten1[$sportart][$i] != '' && $sportarten1[$sportart+1][$i] != '')  { //wenn etwas eingetragen ist
+    $id = getSchuelerID($sportarten1[$sportart+1][$i], $sportarten1[$sportart][$i], $klasse);   //id holen
+		$addSportartToSchueler = "UPDATE " . $stufenListe . " SET " . $sportartenKurzerName[$sportart] . " = " . $mannschaft . " WHERE ID = ". $id . " "; // string erstellenn
+	//	echo $addSportartToSchueler;
+    if ($conn->query($addSportartToSchueler) === TRUE) {	//string ausführen und mit rückgabewert weitermachen
+			echo $sportartenVollerName[$sportart] . " update erfolgreich bei: ";		//erfolg ausgeben
 		} else {
 			echo "error: " . $conn->error . " bei: ";		//fehler ausgeben
 		}
-		echo $vornamen[$i] . ' ';		//jeweils den Namen des Schülers ausgeben
-		echo $nachnamen[$i] . '<br>';
+		echo $sportarten1[$sportart][$i] . ' ';		//jeweils den Namen des Schülers ausgeben
+		echo $sportarten1[$sportart+1][$i] . '<br>';
 	}
+}
 }	
 	
-   //Fußball 2
-$vornamen = $_POST['fb2_v'];
-$nachnamen = $_POST['fb2_n'];
-$id = 0;
-$mannschaftFB2 = $klasse .  '2';
-$mannschaftFB2= '"' . $mannschaftFB2 .  '"';
-     	for($i = 0; $i < count($vornamen); $i++) {
-        if ($vornamen[$i] != '' && $nachnamen[$i] != '')  {
-           $id = getSchuelerID($nachnamen[$i], $vornamen[$i], $klasse);
-            $addSportartToSchueler = "UPDATE " . $stufenListe . " SET FB = " . $mannschaftFB2 . " WHERE ID = ". $id . " ";
-              if ($conn->query($addSportartToSchueler) === TRUE) {
-                  echo "Fussball update erfolgreich bei: ";
-              } else {
-                  echo "error: " . $conn->error . " bei: ";
-              }
-		          echo $vornamen[$i] . ' ';
-		          echo $nachnamen[$i] . '<br>';
-    
-       }	
-	   }
-     
-     
-     //basketball
-     
-  $vornamen = $_POST['bb_v'];
-	$nachnamen = $_POST['bb_n'];
-	echo '<br>';
-	 $id = 0;
-   $mannschaftBB = $klasse .  '1';
-   $mannschaftBB= '"' . $mannschaftBB .  '"';
-     	for($i = 0; $i < count($vornamen); $i++) {
-        if ($vornamen[$i] != '' && $nachnamen[$i] != '')  {
-           $id = getSchuelerID($nachnamen[$i], $vornamen[$i], $klasse);
-            $addSportartToSchueler = "UPDATE " . $stufenListe . " SET BB = " . $mannschaftBB . " WHERE ID = ". $id . " ";
-              if ($conn->query($addSportartToSchueler) === TRUE) {
-                  echo "Basketball update erfolgreich bei: ";
-              } else {
-                  echo "error: " . $conn->error . " bei: ";
-              }
-		          echo $vornamen[$i] . ' ';
-		          echo $nachnamen[$i] . '<br>';
-    
-       }	
-	   }
-     
-     //volleyball
-  $vornamen = $_POST['vb_v'];
-	$nachnamen = $_POST['vb_n'];
- // echo $nachnamen[1];
-	echo '<br>';
-	 $id = 0;
-   $mannschaftVB = $klasse .  '1';
-   $mannschaftVB= '"' . $mannschaftVB .  '"';
-     	for($i = 0; $i < count($vornamen); $i++) {
-        if ($vornamen[$i] != '' && $nachnamen[$i] != '')  {
-           $id = getSchuelerID($nachnamen[$i], $vornamen[$i], $klasse);
-            $addSportartToSchueler = "UPDATE " . $stufenListe . " SET VB = " . $mannschaftVB . " WHERE ID = ". $id . " ";
-              if ($conn->query($addSportartToSchueler) === TRUE) {
-                  echo "Volleyball update erfolgreich bei: ";
-              } else {
-                  echo "error: " . $conn->error . " bei: ";
-              }
-		          echo $vornamen[$i] . ' ';
-		          echo $nachnamen[$i] . '<br>';
-    
-       }	
-	   }
-     
-          //staffellauf
-  $vornamen = $_POST['st_v'];
-	$nachnamen = $_POST['st_n'];
- // echo $nachnamen[1];
-	echo '<br>';
-	 $id = 0;
-   $mannschaftST = $klasse .  '1';
-   $mannschaftST= '"' . $mannschaftST .  '"';
-     	for($i = 0; $i < count($vornamen); $i++) {
-        if ($vornamen[$i] != '' && $nachnamen[$i] != '')  {
-           $id = getSchuelerID($nachnamen[$i], $vornamen[$i], $klasse);
-            $addSportartToSchueler = "UPDATE " . $stufenListe . " SET ST = " . $mannschaftST . " WHERE ID = ". $id . " ";
-              if ($conn->query($addSportartToSchueler) === TRUE) {
-                  echo "Staffellauf update erfolgreich bei: ";
-              } else {
-                  echo "error: " . $conn->error . " bei: ";
-              }
-		          echo $vornamen[$i] . ' ';
-		          echo $nachnamen[$i] . '<br>';
-    
-       }	
-	   }
-     
-               //fahrradtour
-  $vornamen = $_POST['ft_v'];
-	$nachnamen = $_POST['ft_n'];
-  echo $vornamen[0];
- // echo $nachnamen[1];
-	echo '<br>';
-	 $id = 0;
-   $mannschaftFT = 'FT';
-   $mannschaftFT= '"' . $mannschaftFT .  '"';
-     	for($i = 0; $i < count($vornamen); $i++) {
-        if ($vornamen[$i] != '' && $nachnamen[$i] != '')  {
-           $id = getSchuelerID($nachnamen[$i], $vornamen[$i], $klasse);
-            $addSportartToSchueler = "UPDATE " . $stufenListe . " SET FT = " . $mannschaftFT . " WHERE ID = ". $id . " ";
-              if ($conn->query($addSportartToSchueler) === TRUE) {
-                  echo "Fahrradtour update erfolgreich bei: ";
-              } else {
-                  echo "error: " . $conn->error . " bei: ";
-              }
-		          echo $vornamen[$i] . ' ';
-		          echo $nachnamen[$i] . '<br>';
-    
-       }	
-	   }
-     
      //tt
   $vornamen = $_POST['tt_v'];
 	$nachnamen = $_POST['tt_n'];
@@ -251,7 +190,7 @@ $mannschaftFB2= '"' . $mannschaftFB2 .  '"';
            $id1 = getSchuelerID($nachnamen[$i], $vornamen[$i], $klasse);
            $id2 = getSchuelerID($nachnamen[$i-1], $vornamen[$i-1], $klasse);
            $mannschaftTT=0;
-           $mannschaftTT = $klasse .  $mannschaftsNummer;
+           $mannschaftTT = $klasse . '_' . $mannschaftsNummer;
            $mannschaftTT= '"' . $mannschaftTT .  '"';
    
             echo $id1;
@@ -289,7 +228,7 @@ $mannschaftFB2= '"' . $mannschaftFB2 .  '"';
            $id1 = getSchuelerID($nachnamen[$i], $vornamen[$i], $klasse);
            $id2 = getSchuelerID($nachnamen[$i-1], $vornamen[$i-1], $klasse);
            $mannschaftBM=0;
-           $mannschaftBM = $klasse .  $mannschaftsNummer;
+           $mannschaftBM = $klasse . '_' . $mannschaftsNummer;
            $mannschaftBM= '"' . $mannschaftBM .  '"';
    
             echo $id1;
@@ -322,7 +261,7 @@ $mannschaftFB2= '"' . $mannschaftFB2 .  '"';
 	?>
   
  Wenn oben ein Fehler steht, bitte bei Daniel/Sandesh melden und Fehlermeldung kopieren (Screenshot)! <br>
- Wenn alles erfolgreich war geht es <a href="http://www.danielbuecheler.hol.es/sporttage.php">hier</a> wieder zum Anfang.
+ Wenn alles erfolgreich war geht es <a href="http://sporttage.smv-kepler.de/">hier</a> wieder zum Anfang.
 
 </body>
 </html>
