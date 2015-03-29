@@ -30,27 +30,97 @@ $klasse = $_POST['klasse'];
 //k1 speichern
 $k1 = $_POST['k1'];
 
+ $anzahlTeams = array(
+  0 => 2, //FB
+  1 => 1, //BB
+  2 => 1, //FT
+  3 => 1, //VB
+  4 => 1,  //ST 
+  );
+  $nameDB = array(
+  0 => 'fb', //FB
+  1 => 'bb', //BB
+  2 => 'ft', //FT
+  3 => 'vb', //VB
+  4 => 'st',  //ST 
+  );
+  $nameVoll = array(
+  0 => 'Fußball Team', //FB
+  1 => 'Basketball Team', //BB
+  2 => 'Fahrradtour', //FT
+  3 => 'Volleyball Team', //VB
+  4 => 'Staffellauf Team',  //ST 
+  );
+   
+  $neueArrayLaenge=0;
+  for ($i=0; $i<count($anzahlTeams); $i++) { //für alle Teams
+    for ($a=1; $a<$anzahlTeams[$i]+1; $a++) {
+        $teamNummer = $a;
+        //vornamen teil
+        $sportartenName[$neueArrayLaenge] = $nameDB[$i] . $teamNummer . '_v';          //array mit fb1_v etc
+        $sportartenVollerName[$neueArrayLaenge]= $nameVoll[$i] . ' ' . $teamNummer ;   //array fürs echo, ausgeschrieben
+        
+      /*  echo 'Nr. ' . $neueArrayLaenge . ' Team: ' . $sportartenName[$neueArrayLaenge] . '<br>';
+        echo 'Nr. ' . $neueArrayLaenge . ' Team: ' . $sportartenVollerName[$neueArrayLaenge] . '<br>';   */
+        
+        $neueArrayLaenge++;
+        
+        //nachnamen teil
+        $sportartenName[$neueArrayLaenge]= $nameDB[$i] . $teamNummer . '_n';
+        $sportartenVollerName[$neueArrayLaenge]= $nameVoll[$i] . ' ' . $teamNummer;        
+         
+      /*  echo 'Nr. ' . $neueArrayLaenge . ' Team: ' . $sportartenName[$neueArrayLaenge] . '<br>';
+        echo 'Nr. ' . $neueArrayLaenge . ' Team: ' . $sportartenVollerName[$neueArrayLaenge] . '<br>';   */
+        
+        $neueArrayLaenge++;
+      if ($anzahlTeams[$i]==1) {
+        //$a=$b;
+      }  
+    }
+  }
+  
+  $zweierTeamsName = array (
+      0 => 'bm_v',
+      1 => 'Badminton Teams',
+      2 => 'bm_n',
+      3 => 'Badminton Teams', 
+      4 => 'tt_v',
+      5 => 'Tischtennis Teams', 
+      6 => 'tt_n',
+      7 => 'Tischtennis Teams',  
+  );
+  
+   for ($i=0; $i < count($zweierTeamsName); $i+=2) {
+      $sportartenName[$neueArrayLaenge]= $zweierTeamsName[$i];
+      $sportartenVollerName[$neueArrayLaenge]= $zweierTeamsName[$i+1];
+      $neueArrayLaenge++;
+   }
+
+
+
+
+    /*
 $sportartenName = array(          //reihenfolge der Sportarten bestimmen für erstellen der tabelle
   0 => 'fb1_v',
   1 => 'fb1_n',
   2 => 'fb2_v', 
   3 => 'fb2_n',
-  4 => 'bb_v',
-  5 => 'bb_n', 
-  6 => 'ft_v', 
-  7 => 'ft_n',
+  4 => 'bb1_v',
+  5 => 'bb1_n', 
+  6 => 'ft1_v', 
+  7 => 'ft1_n',
   //2. teil
-  8 => 'vb_v',
-  9 => 'vb_n',
-  10 => 'st_v', 
-  11 => 'st_n',
+  8 => 'vb1_v',
+  9 => 'vb1_n',
+  10 => 'st1_v', 
+  11 => 'st1_n',
   12 => 'bm_v',
   13 => 'bm_n', 
   14 => 'tt_v', 
   15 => 'tt_n',
      );
      
- $sportartenVollerName = array(          //reihenfolge der Sportarten bestimmen für erstellen der tabelle
+ $sportartenVollerName = array(          //name der teams fürs echo
   0 => 'Fußball Team 1',
   1 => 'Fußball Team 1',
   2 => 'Fußball Team 2', 
@@ -68,9 +138,9 @@ $sportartenName = array(          //reihenfolge der Sportarten bestimmen für er
   13 => 'Badminton Teams', 
   14 => 'Tischtennis Teams', 
   15 => 'Tischtennis Teams',
-     );    
+     );   */ 
      
-  $teamGroesse = array(          //reihenfolge der Sportarten bestimmen für erstellen der tabelle
+  $teamGroesse = array(          //teamgroesse fürs checken
   0 => '6',   //FB
   2 => '6',   //FB
   4 => '6',   //BB
@@ -111,25 +181,7 @@ for ($sportart=0; $sportart<12; $sportart+=2) {
   if ($sportart!=6 && (($namenZaehler>0 && $namenZaehler < $teamGroesse[$sportart]) || ($nameFehlt==true))) {
      	echo '<b><font color="#FF0000"> Achtung: zu wenig Schüler in ' . $sportartenVollerName[$sportart] . ' (' . $sportartenVollerName[$sportart] . ' braucht mind ' . $teamGroesse[$sportart] . ') oder ein Vor- oder Nachname fehlt!</font> </b><br>';
   }
-  
- /* 
-  if ($sportart==0 && (($namenZaehler>0 && $namenZaehler < 6) || ($nameFehlt==true))) {
-      	echo '<b><font color="#FF0000"> Achtung: zu wenig Schüler in Fußball Team 1 (FB braucht mind 6) oder ein Vor- oder Nachname fehlt!</font> </b><br>';
-  }
-  if ($sportart==2 && (($namenZaehler>0 && $namenZaehler < 6) || ($nameFehlt==true))) {
-      	echo '<b><font color="#FF0000"> Achtung: zu wenig Schüler in Fußball Team 2 (FB braucht mind 6) oder ein Vor- oder Nachname fehlt!</font> </b><br>';
-  }
-  if ($sportart==4 && (($namenZaehler>0 && $namenZaehler < 5) || ($nameFehlt==true))) {
-      	echo '<b><font color="#FF0000"> Achtung: zu wenig Schüler im Basketball Team (BB braucht mind 5) oder ein Vor- oder Nachname fehlt!</font> </b><br>';
-  }
-  if ($sportart==8 && (($namenZaehler>0 && $namenZaehler < 6) || ($nameFehlt==true))) {
-      	echo '<b><font color="#FF0000"> Achtung: zu wenig Schüler im Volleyball Team (VB braucht mind 6) oder ein Vor- oder Nachname fehlt!</font> </b><br>';
-  }
-  if ($sportart==10 && (($namenZaehler>0 && $namenZaehler < 6) || ($nameFehlt==true))) {
-      	echo '<b><font color="#FF0000"> Achtung: zu wenig Schüler im Staffellauf Team (ST braucht mind ) oder ein Vor- oder Nachname fehlt!</font> </b><br>';
-  } */
-  $nameFehlt=false; 
-  
+  $nameFehlt=false;   
 }
 
 for ($sportart=12; $sportart<16; $sportart+=2) { 
@@ -183,7 +235,7 @@ Klasse eingeben:
 
  <?php 
   //tabindex: zum vereinfachten 'tabben' durch die website, zwei aufeinanderfolgende sind vorname nachname, von _n zu _v zum nächsten +17
-  $tabindex = array(1, 2, 19, 20, 37, 38, 55, 56, 73, 74, 91, 92, 109, 110, 110+($badmintonAnzahlTeams*4) , 110+($badmintonAnzahlTeams*4)+1);
+  $tabindex = array(1, 2, 19, 20, 37, 38, 55, 56, 73, 74, 91, 92, 109, 110, 110+(count($sportarten1[14])*4) , 110+(count($sportarten1[14])*4)+1);
  //die länge hängt mit der länge von fb1_v zusammen
     
     

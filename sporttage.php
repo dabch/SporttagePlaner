@@ -40,26 +40,83 @@ $klasse = $_POST['klasse'];
 //k1 speichern
 $k1 = $_POST['k1'];
 
+//sportartenName Variabel erstellen
+
+ $anzahlTeams = array(
+  0 => 2, //FB
+  1 => 1, //BB
+  2 => 1, //FT
+  3 => 1, //VB
+  4 => 1,  //ST 
+  );
+  $nameDB = array(
+  0 => 'fb', //FB
+  1 => 'bb', //BB
+  2 => 'ft', //FT
+  3 => 'vb', //VB
+  4 => 'st',  //ST 
+  );
+ 
+  $neueArrayLaenge=0;
+  for ($i=0; $i<count($anzahlTeams); $i++) { //für alle Teams
+    for ($a=1; $a<$anzahlTeams[$i]+1; $a++) {
+        $teamNummer = $a;
+        //vornamen teil
+        $sportartenName[$neueArrayLaenge] = $nameDB[$i] . $teamNummer . '_v';          //array mit fb1_v etc        
+       // echo 'Nr. ' . $neueArrayLaenge . ' Team: ' . $sportartenName[$neueArrayLaenge] . '<br>';
+        
+        $neueArrayLaenge++;
+        
+        //nachnamen teil
+        $sportartenName[$neueArrayLaenge]= $nameDB[$i] . $teamNummer . '_n';        
+         
+        //echo 'Nr. ' . $neueArrayLaenge . ' Team: ' . $sportartenName[$neueArrayLaenge] . '<br>';
+        
+        $neueArrayLaenge++;  
+    }
+  }
+    //bm und tt am ende anlegen
+    
+    $zweierTeamsName = array (
+      0 => 'bm_v',
+      1 => 'Badminton Teams',
+      2 => 'bm_n',
+      3 => 'Badminton Teams', 
+      4 => 'tt_v',
+      5 => 'Tischtennis Teams', 
+      6 => 'tt_n',
+      7 => 'Tischtennis Teams',  
+  );
+  
+   for ($i=0; $i < count($zweierTeamsName); $i+=2) {
+      $sportartenName[$neueArrayLaenge]= $zweierTeamsName[$i];
+      //$sportartenVollerName[$neueArrayLaenge]= $zweierTeamsName[$i+1];
+      $neueArrayLaenge++;
+   }  
+
+
+
+    /* 
 $sportartenName = array(          //reihenfolge der Sportarten bestimmen für erstellen der tabelle
   0 => 'fb1_v',
   1 => 'fb1_n',
   2 => 'fb2_v', 
   3 => 'fb2_n',
-  4 => 'bb_v',
-  5 => 'bb_n', 
-  6 => 'ft_v', 
-  7 => 'ft_n',
+  4 => 'bb1_v',
+  5 => 'bb1_n', 
+  6 => 'ft1_v', 
+  7 => 'ft1_n',
   //2. teil
-  8 => 'vb_v',
-  9 => 'vb_n',
-  10 => 'st_v', 
-  11 => 'st_n',
+  8 => 'vb1_v',
+  9 => 'vb1_n',
+  10 => 'st1_v', 
+  11 => 'st1_n', 
   12 => 'bm_v',
   13 => 'bm_n', 
   14 => 'tt_v', 
   15 => 'tt_n',
-     );
-
+     );          */
+         
    
 ?>
 
