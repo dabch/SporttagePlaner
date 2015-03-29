@@ -95,50 +95,6 @@ $k1 = $_POST['k1'];
       $sportartenVollerName[$neueArrayLaenge]= $zweierTeamsName[$i+1];
       $neueArrayLaenge++;
    }
-
-
-
-
-    /*
-$sportartenName = array(          //reihenfolge der Sportarten bestimmen für erstellen der tabelle
-  0 => 'fb1_v',
-  1 => 'fb1_n',
-  2 => 'fb2_v', 
-  3 => 'fb2_n',
-  4 => 'bb1_v',
-  5 => 'bb1_n', 
-  6 => 'ft1_v', 
-  7 => 'ft1_n',
-  //2. teil
-  8 => 'vb1_v',
-  9 => 'vb1_n',
-  10 => 'st1_v', 
-  11 => 'st1_n',
-  12 => 'bm_v',
-  13 => 'bm_n', 
-  14 => 'tt_v', 
-  15 => 'tt_n',
-     );
-     
- $sportartenVollerName = array(          //name der teams fürs echo
-  0 => 'Fußball Team 1',
-  1 => 'Fußball Team 1',
-  2 => 'Fußball Team 2', 
-  3 => 'Fußball Team 2',
-  4 => 'Basketball Team',
-  5 => 'Basketball Team', 
-  6 => 'Fahrradtour', 
-  7 => 'Fahrradtour',
-  //2. teil
-  8 => 'Volleyball Team',
-  9 => 'Volleyball Team',
-  10 => 'Staffellauf Team', 
-  11 => 'Staffellauf Team',
-  12 => 'Badminton Teams',
-  13 => 'Badminton Teams', 
-  14 => 'Tischtennis Teams', 
-  15 => 'Tischtennis Teams',
-     );   */ 
      
   $teamGroesse = array(          //teamgroesse fürs checken
   0 => '6',   //FB
