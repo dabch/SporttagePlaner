@@ -95,35 +95,11 @@ public class PfeiflistenMaker {
 		}
 		for (int i = 0; i < sportarten.length; i++) {
 			String tableStamm = String.format("%s_%s_%s", stufen[i].getStufeKurz(), sportarten[i].getSportartKurz(), tag);
-			PreparedStatement holeZeiten;
-			switch(sportarten[i].getSportartKurz()) {
-			case "BM": // sechs Felder
-				holeZeiten = con.prepareStatement(String.format(
-						"SELECT z.ID AS ID, z.Spielbeginn AS Beginn, z.Spielende AS Ende FROM %s_zeiten z LEFT JOIN %s_feld1 f1 ON f1.ID = z.ID LEFT JOIN %s_feld2 f2 ON f2.ID = z.ID LEFT JOIN %s_feld3 f3 ON f3.ID = z.ID LEFT JOIN %s_feld4 f4 ON f4.ID = z.ID LEFT JOIN %s_feld5 f5 ON f5.ID = z.ID LEFT JOIN %s_feld6 f6 ON f6.ID = z.ID WHERE f1.Paarung != '' OR f2.Paarung != '' OR f3.Paarung != '' OR f4.Paarung != '' OR f5.Paarung != '' OR f6.Paarung != ''",
-						tableStamm, tableStamm, tableStamm, tableStamm, tableStamm, tableStamm, tableStamm));
-				break;
-			case "FB": // drei Felder
-			case "BB":
-				holeZeiten = con.prepareStatement(String.format(
-						"SELECT z.ID AS ID, z.Spielbeginn AS Beginn, z.Spielende AS Ende FROM %s_zeiten z LEFT JOIN %s_feld1 f1 ON f1.ID = z.ID LEFT JOIN %s_feld2 f2 ON f2.ID = z.ID LEFT JOIN %s_feld3 f3 ON f3.ID = z.ID WHERE f1.Paarung != '' OR f2.Paarung != '' OR f3.Paarung != ''",
-						tableStamm, tableStamm, tableStamm, tableStamm));
-				break;
-			case "TT": // vier Felder
-				holeZeiten = con.prepareStatement(String.format(
-						"SELECT z.ID AS ID, z.Spielbeginn AS Beginn, z.Spielende AS Ende FROM %s_zeiten z LEFT JOIN %s_feld1 f1 ON f1.ID = z.ID LEFT JOIN %s_feld2 f2 ON f2.ID = z.ID LEFT JOIN %s_feld3 f3 ON f3.ID = z.ID LEFT JOIN %s_feld4 f4 ON f4.ID = z.ID WHERE f1.Paarung != '' OR f2.Paarung != '' OR f3.Paarung != '' OR f4.Paarung != ''",
-						tableStamm, tableStamm, tableStamm, tableStamm, tableStamm));
-				break;
-			case "VB": // zwei Felder
-				holeZeiten = con.prepareStatement(String.format(
-						"SELECT z.ID AS ID, z.Spielbeginn AS Beginn, z.Spielende AS Ende FROM %s_zeiten z LEFT JOIN %s_feld1 f1 ON f1.ID = z.ID LEFT JOIN %s_feld2 f2 ON f2.ID = z.ID WHERE f1.Paarung != '' OR f2.Paarung != ''",
-						tableStamm, tableStamm, tableStamm, tableStamm, tableStamm));
-				break;
-			default: // ein Feld
-				holeZeiten = con.prepareStatement(String.format(
-						"SELECT z.ID AS ID, z.Spielbeginn AS Beginn, z.Spielende AS Ende FROM %s_zeiten z LEFT JOIN %s_feld1 f1 ON f1.ID = z.ID WHERE f1.Paarung != ''",
-						tableStamm, tableStamm, tableStamm, tableStamm, tableStamm));
-			}
-			System.out.println(holeZeiten);
+			PreparedStatement holeZeiten = con.prepareStatement("SELECT ID Nr, Spielbeginn Beginn, Spielende Ende " // Nummer, Beginn und Ende sind interessant
+					+ "FROM " + tableStamm + "_zeiten " // richtige Tabelle wählen
+					+ "WHERE ID <= (SELECT MAX(TimeID) FROM " + tableStamm + "_spiele) " // nur so viele Zeiten wie auch Spiele gebraucht werden holen
+					+ "ORDER BY Nr"); // nach Beginn sortiert
+			
 			ResultSet rsZeiten = holeZeiten.executeQuery();
 
 			while (rsZeiten.next()) {
@@ -159,7 +135,7 @@ public class PfeiflistenMaker {
 			cell.setCellValue(zeiten.get(millis).substring(2)); // In der HashMap kann immer nur ein Wert gespeichert werden, deshalb wird der String vorher
 																// zusammengesetzt und hier wieder auseinandergenommen
 			// An- / Abpfiff
-			int pos = zeiten.get(millis).substring(0, 1).equals("+") ? 2 : 3;
+			int pos = zeiten.get(millis).substring(0, 1).equals("+") ? 2 : 3; // Kreuz bei Beginn in Spalte 3, bei Ende in Spalte vier setzen
 			cell = row.createCell(pos);
 			cell.setCellStyle(csTabelleNormal);
 			cell.setCellValue("x");
