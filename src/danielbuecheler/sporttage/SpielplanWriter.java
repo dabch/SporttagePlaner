@@ -55,7 +55,7 @@ public class SpielplanWriter {
 		this.stufe = stufe;
 		this.sportart = sportart;
 		
-		String filename = String.format("Sporttage Planung/Spielpläne/Plan_%s_%s.xls", stufe.getStufeKurz(), sportart.getSportartKurz());
+		String filename = String.format("%s/Plan_%s_%s.xls", SpielplanerApp.dirSpielplaene.getCanonicalPath(), stufe.getStufeKurz(), sportart.getSportartKurz());
 		
 		fos = new FileOutputStream(filename);
 
