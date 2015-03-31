@@ -19,6 +19,7 @@ public class SpielplanerApp {
 	static Properties properties;
 	
 	static File dirMannschaftslisten;
+	static File dirAusgegebeneKlassenlisten;
 	static File dirSpielplaene;
 	static File dirKontrollisten;
 	static File dirPfeiflisten;
@@ -32,7 +33,7 @@ public class SpielplanerApp {
 		String dirRoot = "Sporttage Planung";
 		
 		// Ordnerstruktur erstellen
-		dirMannschaftslisten = new File(dirRoot + "/Mannschaftslisten/");
+		dirMannschaftslisten = new File(dirRoot + "/Mannschaftslisten zum Einlesen/");
 		if(!dirMannschaftslisten.canWrite()) {
 			System.out.println("Mannschaftslisten-Ordner nicht vorhanden. Wird erstellt.");
 			if(!dirMannschaftslisten.mkdirs()) {
@@ -40,6 +41,14 @@ public class SpielplanerApp {
 				System.exit(2);
 			}
 		}
+		dirAusgegebeneKlassenlisten = new File(dirRoot + "/Ausgegebene Klassenlisten/");
+        if(!dirAusgegebeneKlassenlisten.canWrite()) {
+            System.out.println("Klassenlisten-Ordner nicht vorhanden. Wird erstellt.");
+            if(!dirAusgegebeneKlassenlisten.mkdirs()) {
+                System.out.println("Klassenlisten-Ordner konnte nicht erstellt werden. Bitte von Hand erstellen, ohne kann das Programm nicht starten.");
+                System.exit(2);
+            }
+        }
 		dirKontrollisten = new File(dirRoot + "/Kontrollisten/");
 		if(!dirKontrollisten.canWrite()) {
 			System.out.println("Kontrollisten-Ordner nicht vorhanden. Wird erstellt.");
@@ -289,6 +298,18 @@ public class SpielplanerApp {
 					System.out.println(e.getMessage());
 				}
 				break;
+			case "klassenliste":
+			    String klasse = argumente[0];
+			    try {
+                    new KlassenlistenMaker(klasse);
+                } catch (IllegalArgumentException e1) {
+                    e1.printStackTrace();
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+			    break;
 			case "pfeifliste":
 				try {
 					Stufe stufe1 = new Stufe(argumente[1].trim());
