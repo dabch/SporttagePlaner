@@ -10,7 +10,9 @@ Erstellt automatisch Spielpläne und Kontrolliisten
 * Schreibt Spielplan in Excel-Datei
 * Schreibt Kontrollisten in Excel-Datei
 * Interaktives CLI
+
 ## web (HTML5- / PHP-basiert)
 * Schreibt Spieler in DB
 * Schreibt Spielpläne in DB
+
 http://sporttage.smv-kepler.de
