@@ -7,6 +7,18 @@
 <title>Eingabe Klassenlisten @ Sporttage-Kepler</title>
 </head>
 
+<style>
+table, th, td {
+	border: 1px solid black;
+	border-collapse: collapse;
+	text-align: center;
+}
+
+th, td {
+	padding: 3px;
+}
+</style>
+
 <body>
 <?php
 
@@ -168,7 +180,12 @@ $id = 0;
  } else {
   $mannschaftNummer=1;
  }
-$mannschaft = $klasse .  '_' . $mannschaftNummer;
+ 
+if ($k1 == "k1") {
+   $mannschaft = $klasse .  '.' . $mannschaftNummer;
+} else {
+  $mannschaft = $klasse . $mannschaftNummer;
+} 
 //für die SQL Anweisung muss die Mannschaft in Anführungszeichen sein:
 $mannschaft= '"' . $mannschaft .  '"';
    //für alle eingetragenen namen
@@ -202,7 +219,11 @@ for($i = 0; $i < count($sportarten1[$sportart]); $i++) {
            $id1 = getSchuelerID($nachnamen[$i], $vornamen[$i], $klasse);
            $id2 = getSchuelerID($nachnamen[$i-1], $vornamen[$i-1], $klasse);
            $mannschaftTT=0;
-           $mannschaftTT = $klasse . '_' . $mannschaftsNummer;
+           if ($k1 == "k1") {
+              $mannschaftTT = $klasse .  '.' . $mannschaftNummer;
+           } else {
+              $mannschaftTT = $klasse . $mannschaftNummer;
+           } 
            $mannschaftTT= '"' . $mannschaftTT .  '"';
    
             //echo $id1;
@@ -240,7 +261,11 @@ for($i = 0; $i < count($sportarten1[$sportart]); $i++) {
            $id1 = getSchuelerID($nachnamen[$i], $vornamen[$i], $klasse);
            $id2 = getSchuelerID($nachnamen[$i-1], $vornamen[$i-1], $klasse);
            $mannschaftBM=0;
-           $mannschaftBM = $klasse . '_' . $mannschaftsNummer;
+           if ($k1 == "k1") {
+              $mannschaftBM = $klasse .  '.' . $mannschaftNummer;
+           } else {
+              $mannschaftBM = $klasse . $mannschaftNummer;
+           } 
            $mannschaftBM= '"' . $mannschaftBM .  '"';
    
             //echo $id1;
@@ -275,7 +300,7 @@ for($i = 0; $i < count($sportarten1[$sportart]); $i++) {
 	?>
   
  Wenn oben ein Fehler steht, bitte bei Daniel/Sandesh melden und Fehlermeldung kopieren (Screenshot)! <br>
- Wenn alles erfolgreich war geht es <a href="http://sporttage.smv-kepler.de/">hier</a> wieder zum Anfang.
+ Wenn alles erfolgreich war geht es <a href="http://sporttage.smv-kepler.de/klassenlisten.php">hier</a> wieder zum Anfang.
 
 </body>
 </html>
