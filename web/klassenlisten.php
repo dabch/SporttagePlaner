@@ -43,12 +43,12 @@ Dies ist nur nötig, wenn es zu wenig Mannschaften gibt, sonst können Felder le
 	<td> <input type="number" name="anzahlTeams[]" value="1" required="required" min="0" max="25"> Anzahl Basketballteams 
 	</tr>
 	<tr>
-
-	<td> <input type="number" name="anzahlTeams[]" value="1" required="required" min="0" max="25"> Anzahl Volleyballteams 
-	<td> <input type="number" name="anzahlTeams[]" value="1" required="required" min="0" max="25"> Anzahl Staffellaufteams 
+	<input type="hidden" name="anzahlTeams[]" value="1" required="required" > <!-- nur ein Fahrradtour "Team" macht Sinn --> 
+	<td> <input type="number" name="anzahlTeams[]" value="1" required="required" min="0" max="25"> Anzahl Volleyballteams   
+	<td> <input type="number" name="anzahlTeams[]" value="1" required="required" min="0" max="25"> Anzahl Staffellaufteams
 	</tr>
 </table>	
-<input type="hidden" name="anzahlTeams[]" value="1" required="required" > <!-- nur ein Fahrradtour "Team" macht Sinn --> 
+
 <input type="submit" name="Tabelle umbauen" value="Tabelle umbauen"> 
 
 </form>
