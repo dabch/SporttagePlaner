@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<?php 
-?>
+
 <html>
 <head>
 <meta charset='UTF-8' name='viewport' content='width=device-width' />
@@ -32,7 +31,7 @@ $klasseA = $_POST['klasse'];
 $klasse = chop($klasseA);
 $k1 = $_POST['k1'];
  $_POST['klasse'];
-echo 'Klasse: ' $klasse . '<br>';
+echo 'Klasse: ' . $klasse . '<br>';
 //echo $sessionID;
 //echo "vor der stufe bla";
    
