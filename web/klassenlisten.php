@@ -8,9 +8,9 @@
 $badmintonAnzahlTeams=10; //anzahl badminton teams
 $AnzahlSpielerMannschaft=9; //spieler/mannschaftssportart team
 $anzahlTeams = array(	//anzahl mannschaften pro sportart
-	0 => 2, //FB
+	0 => 4, //FB
   	1 => 1, //BB
-  	2 => 1, //FT
+  	2 => 4, //FT
   	3 => 1, //VB
   	4 => 1,  //ST 
   );
@@ -28,7 +28,36 @@ th, td {
 </style>
 
 <body>
-Bitte die K1-Kurse so eingeben: Box neben "K1" anklicken und dann den Kurs (D1,D2,D3 etc.) in das Feld eingeben <br>
+<h2>Tabelle konfigurieren</h2>
+<b> Wenn die Tabelle so in Ordnung ist, kann dieser Teil übersprungen werden!!! </b> <br> 
+Falls eine Andere Mannschaftsaufteilung gewünscht ist, bitte hier eingeben und auf "Tabelle umbauen" klicken, die Tabelle wird dann umgebaut. <br>
+Dies ist nur nötig, wenn es zu wenig Mannschaften gibt, sonst können Felder leer gelassen werden! <br>
+<form action="klassenlisten.php" method="post">
+<table>
+	<tr>
+   		<td> <input type="number" name="badmintonAnzahlTeams" value="10" required="required" min="0" max="25"> Anzahl Badminton und Tischtennis Teams
+  		<td> <input type="number" name="AnzahlSpielerMannschaft" value="9" required="required" min="0" max="25"> Spieler pro Mannschaftssportart
+	</tr>
+	<tr>
+	<td> <input type="number" name="anzahlTeams[]" value="2" required="required" min="0" max="25"> Anzahl Fußballteams   
+	<td> <input type="number" name="anzahlTeams[]" value="1" required="required" min="0" max="25"> Anzahl Basketballteams 
+	</tr>
+	<tr>
+
+	<td> <input type="number" name="anzahlTeams[]" value="1" required="required" min="0" max="25"> Anzahl Volleyballteams 
+	<td> <input type="number" name="anzahlTeams[]" value="1" required="required" min="0" max="25"> Anzahl Staffellaufteams 
+	</tr>
+</table>	
+<input type="hidden" name="anzahlTeams[]" value="1" required="required" > <!-- nur ein Fahrradtour "Team" macht Sinn --> 
+<input type="submit" name="Tabelle umbauen" value="Tabelle umbauen"> 
+
+</form>
+
+
+
+<h1>Mannschaften eintragen</h1>
+Bitte die K1-Kurse so eingeben: <br>
+Box neben "K1" anklicken und dann den Kurs (D1,D2,D3 etc.) in das Feld eingeben <br><br>
 KEINE LEERZEICHEN benutzen!<br>
 Umlaute können problemlos verarbeitet werden, aber bitte darauf achten, dass Namen nicht falsch geschrieben werden (oder wenn falsch, dann einheitlich falsch)<br>
 Zu einem Vornamen gehört IMMER ein Nachname, sonst geht die Welt unter!<br>
@@ -36,10 +65,19 @@ Zu einem Vornamen gehört IMMER ein Nachname, sonst geht die Welt unter!<br>
 Klasse eingeben:
 <form action="check.php" method="post">
 <input type="checkbox" name="k1" value="k1" tabindex=1> K1  <br>
-<input type="text" name="klasse" required="required" tabindex=1 />
+<input type="text" name="klasse" required="required" tabindex=2 />
 
 <?php 
+if ($_POST['badmintonAnzahlTeams'] != '' && $_POST['AnzahlSpielerMannschaft'] != '' && $_POST['anzahlTeams'] != '') {		//da alle required sind, sind alle oder keins ausgefüllt. keins wenn die seite zum ersten mal geöffnet wurde-> defaults laden!
+ 	$badmintonAnzahlTeams=$_POST['badmintonAnzahlTeams']; //anzahl badminton teams
+ 	$AnzahlSpielerMannschaft=$_POST['AnzahlSpielerMannschaft']; //spieler/mannschaftssportart team
+ 	$anzahlTeams = $_POST['anzahlTeams']; 
+}
 
+ 
+/*for ($i=0; $i < count($anzahlTeams); $i++) {
+	echo  $anzahlTeams[$i];   
+}*/
 
 //klasse speichern
 $klasse = $_POST['klasse'];
@@ -171,8 +209,8 @@ for ($i=0; $i < count($tabindex); $i++) {
 <?php 
 
 
-$anzahlMannschaftZeilen = ($anzahlTeamsGesamt)/3; //3 mannschaften pro zeile, bm und tt zählen nicht
-//echo "anzahl mannschaft zeilen: " . $anzahlMannschaftZeilen;
+$anzahlMannschaftZeilen = ceil(($anzahlTeamsGesamt)/3); //3 mannschaften pro zeile, bm und tt zählen nicht
+//echo "anzahl mannschaft zeilen: " . $anzahlMannschaftZeilen . '<br> ';
 $mannschaftZeile=0;	//zeile, in der mannschaften stehen
 $mannschaftSpalte=0; 	//spalten, in denen mannschaften stehen != spalte mit vor und nachnamen, max größe = mannschaftenProZeile
 $mannschaftenProZeile=3; //s.o.
@@ -182,13 +220,16 @@ $multiMannschaftSportart=0; //zähler für die mannschaften mit mehr als einem t
 //***************************TABELLE BAUEN********************************************************************
 for (; $mannschaftZeile < $anzahlMannschaftZeilen; $mannschaftZeile++) {
 	//anzahl mannschaften in dieser zeile ausrechnen, für später
-	$mannschaftenDieseZeile = (count($sportartenVollerName))%($mannschaftZeile+1);
-	if ($mannschaftenDieseZeile == 0) {
+	$mannschaftenDieseZeile = (count($sportartenVollerName))%($mannschaftenProZeile);
+	//echo ' count voller name: ' .  (count($sportartenVollerName)) . ' mannschaft/zeile ' . ($mannschaftenProZeile) . '<br>';
+	//echo " diese zeile " . $mannschaftenDieseZeile . '<br>';
+	if ($mannschaftZeile <  ($anzahlMannschaftZeilen-1) || $mannschaftenDieseZeile==0) {
 		$mannschaftenDieseZeile=3;
 	}
+	//echo 'wirklich diese zeile: ' . $mannschaftenDieseZeile . '<br>';
 	//**********überschrift bauen******************+
 	
-	echo '<tr>' . " \n";	//es müssen " sein, damit er eine neue seite für den seitenquelltext einfügt
+	//echo '<tr>' . " \n";	//es müssen " sein, damit er eine neue seite für den seitenquelltext einfügt
 
 	$oldMannschaftSpalte=$mannschaftSpalte;	//spaltenanzahl von vorher speichern, für die länge der for schleife wichtig
 	$multiMannschaftSportart=0; //für jede zeile von vorn, gibt an, ob eine sportarten mehrere mannschaften in dieser zeile hat
@@ -198,6 +239,7 @@ for (; $mannschaftZeile < $anzahlMannschaftZeilen; $mannschaftZeile++) {
 	}
  	
  	echo "</tr> \n"; //zeilenende einfügen
+ 	
  	echo '<tr>' . " \n";		//es müssen " sein, damit er eine neue seite für den seitenquelltext einfügt
 
 	for ($i=0; ($i<$mannschaftenProZeile) && $i<$mannschaftenDieseZeile; $i++) { //"vorname" und "nachname" einfügen
@@ -280,6 +322,17 @@ for($zeile = 0; $zeile < ($badmintonAnzahlTeams*3); $zeile++) {
 	
 
 </table>
+
+
+<!--- mannschaftsgrößen etc übergeben: -->
+    <input type="hidden" name="badmintonAnzahlTeams" value=" <?= $badmintonAnzahlTeams?>">
+   <input type="hidden" name="AnzahlSpielerMannschaft" value=" <?= $AnzahlSpielerMannschaft?>">
+<?php 
+for ($i=0; $i < count($anzahlTeams); $i++) {
+	echo   '<input type="hidden" name="anzahlTeams[]" value="' . $anzahlTeams[$i] . '">';   
+} 
+?>
+
 <input type="checkbox" name="blabla" value="danielundsandeshsindKINGS" required="required"> Ich akzeptiere die AGBs und die Datenschutzbestimmungen, außerdem akzeptiere ich, dass Daniel und Sandesh echte Kings sind und skill haben <br>
   <input type="submit" name="submit">
 </form>
