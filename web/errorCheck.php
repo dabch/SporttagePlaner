@@ -1,7 +1,7 @@
 <html>
 <head>
 <meta charset="UTF-8" name="viewport" content="width=device-width" />
-<title>Eingabe Klassenlisten @ Sporttage-Kepler</title>
+<title>Redirect... Eingabe Klassenlisten @ Sporttage-Kepler</title>
 </head>
 
 <style>
@@ -188,14 +188,25 @@ for ($sportart=(count($sportartenName)-4); $sportart<count($sportartenName); $sp
   	for($i = 1; $i < count($sportarten1[$sportart]); $i+=2) {
 		$mannschaftsNummer++; 
 		if (($sportarten1[$sportart][$i] != '' xor $sportarten1[$sportart+1][$i] != '') or ($sportarten1[$sportart][$i-1] != '' xor $sportarten1[$sportart+1][$i-1] != ''))  {
-        	 	if ($sportart==(count($sportartenName)-4)) {
+        	 	//if ($sportart==(count($sportartenName)-4)) {
         	 		$errorCount++;
             			//echo '<b><font color="#FF0000"> Achtung:  ein Vor- oder Nachname fehlt in Badminton Team ' . $mannschaftsNummer . '!</font> </b><br>';
-		      	}
+		      	/*
           		if ($sportart==(count($sportartenName)-2)) {
             			$errorCount++;
             			//echo '<b><font color="#FF0000"> Achtung:  ein Vor- oder Nachname fehlt in Tischtennis Team ' . $mannschaftsNummer . '!</font> </b><br>';
+		      	}*/
+		}      	
+		if (($sportarten1[$sportart][$i] != '' or $sportarten1[$sportart+1][$i] != '') xor ($sportarten1[$sportart][$i-1] != '' or $sportarten1[$sportart+1][$i-1] != ''))  {
+        	 	//if ($sportart==(count($sportartenName)-4)) {
+            			$errorCount++;
+            		/*	//echo '<b><font color="#FF0000"> Achtung: ein Name fehlt in Badminton Team ' . $mannschaftsNummer . '! (Badminton braucht genau 2 Personen pro Team)</font> </b><br>';
 		      	}
+          		if ($sportart==(count($sportartenName)-2)) {
+            			$errorCount++;
+            			//echo '<b><font color="#FF0000"> Achtung: ein Name fehlt in Tischtennis Team ' . $mannschaftsNummer . '! (Tischtennis braucht genau 2 Personen pro Team) </font> </b><br>';
+		      	}*/
+      		
       		}	
 	}
 } 
@@ -362,6 +373,13 @@ for ($i=0; $i < count($anzahlTeams); $i++) {
 	echo   '<input type="hidden" name="anzahlTeams[]" value="' . $anzahlTeams[$i] . '">';   
 } 
 ?>
+
+<!-- override sachen übergeben -->
+<input type="hidden" name="checkPassBox" value="<?= $_POST['checkPassBox'] ?>" >
+<input type="hidden" name="checkPassText" value="<?= $_POST['checkPassText']?>" />
+
+
+
 <noscript><input type="submit" value="Click here if you are not redirected."/></noscript> 
 
 

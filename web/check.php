@@ -1,7 +1,7 @@
 <html>
 <head>
 <meta charset="UTF-8" name="viewport" content="width=device-width" />
-<title>Eingabe Klassenlisten @ Sporttage-Kepler</title>
+<title>Check der Klassenlisten @ Sporttage-Kepler</title>
 </head>
 
 <style>
@@ -62,14 +62,17 @@ for ($i=0; $i<count($anzahlTeams); $i++) {
 	for ($a=0; $a<$anzahlTeams[$i]; $a++) {
 		$anzahlTeamsGesamt++;
 	}
-}   
+}
+   
 
  $teamGroesse = array(          //teamgroesse fürs checken
-  0 => '6',   //FB
-  1 => '6',   //BB
-  2 => '0',   //FT
-  3 => '6',   //VB
-  4 => '4',  //ST
+  0 => '6',   	//FB
+  1 => '6',   	//BB
+  2 => '0',   	//FT
+  3 => '6',   	//VB
+  4 => '4',  	//ST
+ // 5 => '2',  	//BM
+ // 6 => '2',	//TT
      );
   
   $nameDB = array(
@@ -125,6 +128,7 @@ for ($i=0; $i<count($anzahlTeams); $i++) { //für alle Teams
 for ($i=0; $i < count($zweierTeamsName); $i+=2) {
       	$sportartenName[$neueArrayLaenge]= $zweierTeamsName[$i];
       	$sportartenVollerName[$neueArrayLaenge]= $zweierTeamsName[$i+1];
+      //	$sportartenTeamGroesse[$neueArrayLaenge] = $teamGroesse[5]; //teamgrösse bm hard coded
       	$neueArrayLaenge++;
 }
    
@@ -197,6 +201,14 @@ for ($sportart=(count($sportartenName)-4); $sportart<count($sportartenName); $sp
           		if ($sportart==(count($sportartenName)-2)) {
             			echo '<b><font color="#FF0000"> Achtung:  ein Vor- oder Nachname fehlt in Tischtennis Team ' . $mannschaftsNummer . '!</font> </b><br>';
 		      	}
+      		}
+      		if (($sportarten1[$sportart][$i] != '' or $sportarten1[$sportart+1][$i] != '') xor ($sportarten1[$sportart][$i-1] != '' or $sportarten1[$sportart+1][$i-1] != ''))  {
+        	 	if ($sportart==(count($sportartenName)-4)) {
+            			echo '<b><font color="#FF0000"> Achtung: ein Name fehlt in Badminton Team ' . $mannschaftsNummer . '! (Badminton braucht genau 2 Personen pro Team)</font> </b><br>';
+		      	}
+          		if ($sportart==(count($sportartenName)-2)) {
+            			echo '<b><font color="#FF0000"> Achtung: ein Name fehlt in Tischtennis Team ' . $mannschaftsNummer . '! (Tischtennis braucht genau 2 Personen pro Team) </font> </b><br>';
+		      	}
       		}	
 	}
 } 
@@ -226,6 +238,20 @@ for ($i=0; $i < count($tabindex); $i++) {
     	$tabindex[$i]+=2;
 }
 
+//***********checkOverride*******************************+
+$checkPassBox = $_POST['checkPassBox'];
+$checkPassText = $_POST['checkPassText'];
+if (($checkPassBox == '1') && ($checkPassText == 'FORCE_OVERRIDE')) { //kommandos zum überspringen von check (z.B. falls andere Teamgröße abgesprochen wurde)
+	$formAction='submit.php';
+	echo '<h1><b><font color="#FF0000"> Achtung Check-OVERRIDE: Wenn jetzt Fehler in der Tabelle stehen werden sie DIREKT in die Datenbank geschrieben!!! <br> Nur mit Absprache benutzen! </font> </b></h1><br>';
+} else {
+	$formAction = 'errorCheck.php';
+}		
+
+
+
+
+
 
   
 //******************************TABELLE BAUEN UND AUSFÜLLEN***************************************************************************************************************  
@@ -235,9 +261,9 @@ for ($i=0; $i < count($tabindex); $i++) {
 <br> 
 
 Klasse eingeben:
-<form action="errorCheck.php" method="post">
+<form action="<?= $formAction ?>"  method="post">
 <input type="checkbox" name="k1" value="k1" <?= $k1 ?> tabindex=1> K1  <br>
-<input type="text" name="klasse" required="required" value="<?= $klasse ?> " tabindex=2/>
+<input type="text" name="klasse" required="required" value="<?= $klasse ?> " size="3" maxlength="3" tabindex=2/>
 <table>
 	<!-- Fußball 1 + 2 & Fahrradtour  & BB -->
 
@@ -372,10 +398,11 @@ for ($i=0; $i < count($anzahlTeams); $i++) {
 	echo   '<input type="hidden" name="anzahlTeams[]" value="' . $anzahlTeams[$i] . '">';   
 } 
 ?>
+<br>
+<input type="checkbox" name="checkPassBox" value="1" >
+<input type="text" name="checkPassText" /> Felder zum umgehen vom Check, nur in ausgewählten Fällen benutzen! <br>
+Funktion bei Daniel/Sandesh erfragen. DEVELOPMENT PURPOSES ONLY. <br>
 <br> Du bist sicher, dass alles stimmt? <br>
-<input type="checkbox" name="blabla" value="1" required="required"> Ich, 
-<input type="text" name="schuldiger" required="required" value="" /> (bitte den Namen eintragen) 
-bin verantwortlich dafür, wenn etwas nicht stimmt <br>
   <input type="submit" name="submit" value="Alles Richtig?">
 </form>
 <br>

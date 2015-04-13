@@ -3,7 +3,7 @@
 <html>
 <head>
 <meta charset='UTF-8' name='viewport' content='width=device-width' />
-<title>Eingabe Klassenlisten @ Sporttage-Kepler</title>
+<title>Datenbankübertragung der Klassenlisten @ Sporttage-Kepler</title>
 </head>
 
 <style>
@@ -165,6 +165,9 @@ for ($i=0; $i<count($anzahlTeams); $i++) { //für alle Teams
     	}
 }     
 
+echo 'beginne Spieler einzutragen... <br>';
+
+
 //läd die werte aus $_POST von sporttage.php in sportarten1 an der richtigen stelle
 for ($i=0; $i < count($sportartenName); $i++ )  {   
 	$sportarten1[$i] = $_POST[$sportartenName[$i]];
@@ -304,12 +307,11 @@ for($i = 1; $i < count($vornamen); $i+=2) {
  $conn->close();
  //SESSION schließen, damit leute nicht mehrfach eingetragen werden, falls man den selben PC  nutzt
  //session_destroy();
- $deinName = $_POST['schuldiger'];
- echo '<br> Ich kenne dich. du heißt ' . $deinName . ". <br><br>"
+ echo '<br> Eintragen abgeschlossen. <br>';
  
 	?>
-  
- Wenn oben ein Fehler steht, bitte bei Daniel/Sandesh melden und Fehlermeldung kopieren (Screenshot)! <br>
+  <br>
+ Wenn oben ein Fehler steht oder ein Spieler/Team fehlt, bitte bei Daniel/Sandesh melden und Fehlermeldung kopieren (Screenshot)! <br>
  Wenn alles erfolgreich war geht es <a href="http://sporttage.smv-kepler.de/klassenlisten.php">hier</a> wieder zum Anfang.
 
 </body>

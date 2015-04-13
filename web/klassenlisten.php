@@ -8,9 +8,9 @@
 $badmintonAnzahlTeams=10; //anzahl badminton teams
 $AnzahlSpielerMannschaft=9; //spieler/mannschaftssportart team
 $anzahlTeams = array(	//anzahl mannschaften pro sportart
-	0 => 4, //FB
+	0 => 2, //FB
   	1 => 1, //BB
-  	2 => 4, //FT
+  	2 => 1, //FT
   	3 => 1, //VB
   	4 => 1,  //ST 
   );
@@ -65,7 +65,7 @@ Zu einem Vornamen gehört IMMER ein Nachname, sonst geht die Welt unter!<br>
 Klasse eingeben:
 <form action="errorCheck.php" method="post">
 <input type="checkbox" name="k1" value="k1" tabindex=1> K1  <br>
-<input type="text" name="klasse" required="required" tabindex=2 />
+<input type="text" name="klasse" required="required" size="3" maxlength="3" tabindex=2 />
 
 <?php 
 if ($_POST['badmintonAnzahlTeams'] != '' && $_POST['AnzahlSpielerMannschaft'] != '' && $_POST['anzahlTeams'] != '') {		//da alle required sind, sind alle oder keins ausgefüllt. keins wenn die seite zum ersten mal geöffnet wurde-> defaults laden!
