@@ -16,11 +16,6 @@ th, td {
 </style>
 
 <body>
-<h1>Eingaben überprüfen</h1>   
-<b> BITTE ALLES NOCHMALS KONTROLLIEREN!!! </b> <br>
-KEINE LEERZEICHEN benutzen!
-DU bist kurz vor dem FINALEN Eintragen in die DATENBANK!<br> <br>
-<b><font color="#FF0000">HINWEISE: </font></b>
 
 <br>
 <?php 
@@ -149,7 +144,7 @@ for ($i=0; $i < count($sportartenName); $i++ )  {
 
 if ($k1=='k1') {
   if (strpos($klasse,'D') !== false) {
-  $k1 = 'checked';     //wenn k1 gecheckt war soll es wieder gecheckt werden
+  $k1 = 'k1';     //wenn k1 gecheckt war soll es wieder gecheckt werden
   } else {
   echo '<b><font color="#FF0000"> Achtung: K1 falsch eingetragen</font> </b><br>';  //deutschkurs angabe fehlt
   }
@@ -159,7 +154,7 @@ if ($k1=='k1') {
   
 //******************EINGABEN PRÜFEN******************************************************************************************************************  
   
-  
+$errorCount=0;  
  //prüfen, ob bei den mannschaftssportarten ein fehler/problem vorhanden ist 
 for ($sportart=0; $sportart<count($sportartenName)-4; $sportart+=2) {  
   	$namenZaehler=0;  //zaehler erstellen
@@ -175,11 +170,13 @@ for ($sportart=0; $sportart<count($sportartenName)-4; $sportart+=2) {
 	}
 	//echo 'sportart: ' . $sportart . ' teamgroesse: ' . $sportartenTeamGroesse[$sportart];
   	if ($stufenListe=="Mannschaften_US" && strpos($sportartenVollerName[$sportart],'Volleyball') !== false && $namenZaehler != 0) {
-  		echo '<b><font color="#FF0000"> Achtung:  es gibt kein Volleyball in der Unterstufe!!!</font> </b><br>';
+  		//echo '<b><font color="#FF0000"> Achtung:  es gibt kein Volleyball in der Unterstufe!!!</font> </b><br>';
+  		$errorCount++;
   		break;
   	}
   	if (strpos($sportartenVollerName[$sportart],'Fahrradtour') == false && (($namenZaehler>0 && $namenZaehler < $sportartenTeamGroesse[$sportart]) || ($nameFehlt==true))) {
-     		echo '<b><font color="#FF0000"> Achtung: zu wenig Schüler in ' . $sportartenVollerName[$sportart] . ' (' . $sportartenVollerName[$sportart] . ' braucht mind ' . $sportartenTeamGroesse[$sportart] . ') oder ein Vor- oder Nachname fehlt!</font> </b><br>';
+     		//echo '<b><font color="#FF0000"> Achtung: zu wenig Schüler in ' . $sportartenVollerName[$sportart] . ' (' . $sportartenVollerName[$sportart] . ' braucht mind ' . $sportartenTeamGroesse[$sportart] . ') oder ein Vor- oder Nachname fehlt!</font> </b><br>';
+  		$errorCount++;
   	}
   	
   	$nameFehlt=false;   
@@ -192,10 +189,12 @@ for ($sportart=(count($sportartenName)-4); $sportart<count($sportartenName); $sp
 		$mannschaftsNummer++; 
 		if (($sportarten1[$sportart][$i] != '' xor $sportarten1[$sportart+1][$i] != '') or ($sportarten1[$sportart][$i-1] != '' xor $sportarten1[$sportart+1][$i-1] != ''))  {
         	 	if ($sportart==(count($sportartenName)-4)) {
-            			echo '<b><font color="#FF0000"> Achtung:  ein Vor- oder Nachname fehlt in Badminton Team ' . $mannschaftsNummer . '!</font> </b><br>';
+        	 		$errorCount++;
+            			//echo '<b><font color="#FF0000"> Achtung:  ein Vor- oder Nachname fehlt in Badminton Team ' . $mannschaftsNummer . '!</font> </b><br>';
 		      	}
           		if ($sportart==(count($sportartenName)-2)) {
-            			echo '<b><font color="#FF0000"> Achtung:  ein Vor- oder Nachname fehlt in Tischtennis Team ' . $mannschaftsNummer . '!</font> </b><br>';
+            			$errorCount++;
+            			//echo '<b><font color="#FF0000"> Achtung:  ein Vor- oder Nachname fehlt in Tischtennis Team ' . $mannschaftsNummer . '!</font> </b><br>';
 		      	}
       		}	
 	}
@@ -226,7 +225,15 @@ for ($i=0; $i < count($tabindex); $i++) {
     	$tabindex[$i]+=2;
 }
 
+//***********************nach Errorcount die action auswählen********************************************************
 
+if ($errorCount > 0) { 
+	$formAction='check.php';
+} else if ($errorCount == 0) {
+	$formAction='submit.php';
+} else {
+	echo "da ist ein grober Schnitzer im Programm";
+}	
   
 //******************************TABELLE BAUEN UND AUSFÜLLEN***************************************************************************************************************  
    
@@ -234,11 +241,11 @@ for ($i=0; $i < count($tabindex); $i++) {
 
 <br> 
 
-Klasse eingeben:
-<form action="errorCheck.php" method="post">
-<input type="checkbox" name="k1" value="k1" <?= $k1 ?> tabindex=1> K1  <br>
-<input type="text" name="klasse" required="required" value="<?= $klasse ?> " tabindex=2/>
-<table>
+
+<form action="<?= $formAction ?>" method="post" name="formularRedirect"> 
+<input type="hidden" name="k1" value="<?= $k1 ?>" tabindex=1>  <br>
+<input type="hidden" name="klasse" required="required" value="<?= $klasse ?> " tabindex=2/>
+
 	<!-- Fußball 1 + 2 & Fahrradtour  & BB -->
 
 
@@ -265,37 +272,37 @@ for (; $mannschaftZeile < $anzahlMannschaftZeilen; $mannschaftZeile++) {
 	}
 	//**********überschrift bauen******************+
 	
-	echo '<tr>' . " \n";	//es müssen " sein, damit er eine neue seite für den seitenquelltext einfügt
+	//echo '<tr>' . " \n";	//es müssen " sein, damit er eine neue seite für den seitenquelltext einfügt
 
 	$oldMannschaftSpalte=$mannschaftSpalte;	//spaltenanzahl von vorher speichern, für die länge der for schleife wichtig
 	$multiMannschaftSportart=0; //für jede zeile von vorn, gibt an, ob eine sportarten mehrere mannschaften in dieser zeile hat
 	
 	for (; $mannschaftSpalte<($oldMannschaftSpalte+($mannschaftenProZeile-$multiMannschaftSportart)); $mannschaftSpalte++) { //for schleife soll 3 spalten ausgeben, ob es mehrere teams/sportart gibt beeinflusst die berechnung	
-		echo '<td colspan="2"> ' . $sportartenVollerNameEinzeln[$mannschaftSpalte] . " \n";	//human readable mannschaftsnamen eintragen, 2 spalten da es vor und nachname gibt
+		//echo '<td colspan="2"> ' . $sportartenVollerNameEinzeln[$mannschaftSpalte] . " \n";	//human readable mannschaftsnamen eintragen, 2 spalten da es vor und nachname gibt
 	}
  	
- 	echo "</tr> \n"; //zeilenende einfügen
- 	echo '<tr>' . " \n";		//es müssen " sein, damit er eine neue seite für den seitenquelltext einfügt
+ 	//echo "</tr> \n"; //zeilenende einfügen
+ 	//echo '<tr>' . " \n";		//es müssen " sein, damit er eine neue seite für den seitenquelltext einfügt
 
 	for ($i=0; ($i<$mannschaftenProZeile) && $i<$mannschaftenDieseZeile; $i++) { //"vorname" und "nachname" einfügen
-		echo '<td> <b>Vorname' . " \n";	
-		echo '<td> <b>Nachname' . " \n";	
+		//echo '<td> <b>Vorname' . " \n";	
+		//echo '<td> <b>Nachname' . " \n";	
 	}
-	echo "</tr> \n";
+	//echo "</tr> \n";
 
 	//*********textfelder bauen***********
  
     	$oldSpalte=$spalte;	//spaltenanzahl von vorher speichern, für die länge der for schleife wichtig
    	//die länge hängt mit der länge von anzahlspieler/mannschaft zusammen 
   	for($zeile = 0; $zeile<count($sportarten1[0]); $zeile++) {   //zeilenweise durch die tabelle
-    		echo "<tr> \n";                                   //neue reihe erstellen
+    		//echo "<tr> \n";                                   //neue reihe erstellen
     		for($spalte=$oldSpalte ; ($spalte<$oldSpalte+($mannschaftenProZeile*2)) && ($spalte < (count($sportartenName)-4)); $spalte++)  {      //in jeder spalte die richtige mannschaft einfügen
       			//richtigen namen gemäß spalte wählen und richtige daten nach spalte und zeile
-      			echo "<td> <input type=\"text\" name=\"" . $sportartenName[$spalte] . "[]\" value=\"" .  $sportarten1[$spalte][$zeile] .  "\" tabindex=" . $tabindex[$spalte] . "/> \n";   
+      			echo "<input type=\"hidden\" name=\"" . $sportartenName[$spalte] . "[]\" value=\"" .  $sportarten1[$spalte][$zeile] .  "\" tabindex=" . $tabindex[$spalte] . "/> \n";   
       			//tabindex der spalte wird um zwei erhöht, da nach 22 (v) 23 (n) und danach dann wieder 24 (v) folgt
      			 $tabindex[$spalte]+=2; //tabindexwert um 2 erhöhen für schönes eintippen  
    		}
-    		echo "</tr> \n";  //row beenden
+    		//echo "</tr> \n";  //row beenden
   	}	
  }
   
@@ -305,24 +312,7 @@ for (; $mannschaftZeile < $anzahlMannschaftZeilen; $mannschaftZeile++) {
   
 ?> 
    
-   	<tr>
-		<td colspan="8">  	
-	</tr>
-		<td colspan="2"> Badminton
-		<td colspan="2"> Tischtennis
-<!--		<td colspan="2"> Staffellauf -->
-	</tr>
-	
-	<tr>
-		<td> <b>Vorname
-		<td> <b>Nachname
-		<td> <b>Vorname
-		<td> <b>Nachname
 
-<!--
-		<td> <b>Vorname
-		<td> <b>Nachname    -->
-	</tr>
   
   
     <?php 
@@ -336,11 +326,11 @@ for (; $mannschaftZeile < $anzahlMannschaftZeilen; $mannschaftZeile++) {
     $teamRow=0;       //zeile in der ein teamname steht
     $eintragZeile++;
     
-    echo "<tr> \n";
+    //echo "<tr> \n";
     if ($zeile%3 == 0) {     //team zeile (jede 3.)
            $teamzaehler++;
-          echo "<td colspan=\"2\" style=\"text-align:center\"> Team " . $teamzaehler . "\n";
-          echo "<td colspan=\"2\" style=\"text-align:center\"> Team " . $teamzaehler . "\n";
+         // echo "<td colspan=\"2\" style=\"text-align:center\"> Team " . $teamzaehler . "\n";
+          //echo "<td colspan=\"2\" style=\"text-align:center\"> Team " . $teamzaehler . "\n";
           $eintragZeile--;
           $teamRow=1;
       } 
@@ -352,12 +342,12 @@ for (; $mannschaftZeile < $anzahlMannschaftZeilen; $mannschaftZeile++) {
           //$teamRow=0;
         } else {   
        //echo $eintragZeile-1;     
-      echo "<td> <input type=\"text\" name=\"" . $sportartenName[$spalte] . "[]\"  value=\"" .  $sportarten1[$spalte][$eintragZeile-1] .  "\" tabindex=" . $tabindex[$spalte] . "/> \n"; 
+      echo "<td> <input type=\"hidden\" name=\"" . $sportartenName[$spalte] . "[]\"  value=\"" .  $sportarten1[$spalte][$eintragZeile-1] .  "\" tabindex=" . $tabindex[$spalte] . "/> \n"; 
       $tabindex[$spalte]+=2; //tabindexwert um 2 erhöhen für schönes eintippen  
        }
     }
     
-    echo "</tr> \n"; 
+   // echo "</tr> \n"; 
   }
        
   
@@ -372,12 +362,15 @@ for ($i=0; $i < count($anzahlTeams); $i++) {
 	echo   '<input type="hidden" name="anzahlTeams[]" value="' . $anzahlTeams[$i] . '">';   
 } 
 ?>
-<br> Du bist sicher, dass alles stimmt? <br>
-<input type="checkbox" name="blabla" value="1" required="required"> Ich, 
-<input type="text" name="schuldiger" required="required" value="" /> (bitte den Namen eintragen) 
-bin verantwortlich dafür, wenn etwas nicht stimmt <br>
-  <input type="submit" name="submit" value="Alles Richtig?">
+<noscript><input type="submit" value="Click here if you are not redirected."/></noscript> 
+
+
+
+<!--  <input type="submit" name="submit" value="Alles Richtig?">-->
 </form>
+<script language="JavaScript">
+document.formularRedirect.submit();
+</script>
 <br>
 </body>
 </html>

@@ -63,7 +63,7 @@ Umlaute können problemlos verarbeitet werden, aber bitte darauf achten, dass Na
 Zu einem Vornamen gehört IMMER ein Nachname, sonst geht die Welt unter!<br>
 <br>
 Klasse eingeben:
-<form action="check.php" method="post">
+<form action="errorCheck.php" method="post">
 <input type="checkbox" name="k1" value="k1" tabindex=1> K1  <br>
 <input type="text" name="klasse" required="required" tabindex=2 />
 
