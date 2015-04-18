@@ -242,7 +242,8 @@ public class SpielplanWriter {
 					row = sheet1.createRow(beginnReihe + spiele.getInt("Nr") - 1);
 				}
 				// Paarung
-				cell = row.getCell(1 + feld * 3); // neue cell
+				cell = row.createCell(1 + feld * 3); // neue cell
+				cell.setCellStyle(csSpieleEtc);
 				String paarung = spiele.getString("Paarung");
 				if(paarung == null || paarung.isEmpty()) {  // Wenn kein Spiel stattfindet
 					cell.setCellValue(""); // Leerstring um merge zu verhindern und neu anfangen
