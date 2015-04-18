@@ -264,10 +264,8 @@ public class SpielplanerApp {
 					break;
 				}
 				try {
+                    System.out.printf("Schreibe Spielplan in \"Plan_%s_%s.xls\"%n", stufe.getStufeKurz(), sportart.getSportartKurz());
 					SpielplanWriter sw = new SpielplanWriter(stufe, sportart);
-					System.out.printf("Schreibe Spielplan in \"Plan_%s_%s.xls\"%n", stufe.getStufeKurz(), sportart.getSportartKurz());
-					sw.write();
-					sw.close();
 				} catch (SQLException | IOException e1) {
 					e1.printStackTrace();
 				} catch (IllegalArgumentException e) {
@@ -278,15 +276,11 @@ public class SpielplanerApp {
 			case "kontrolliste": // KL in Excel-Tabelle schreiben
 				try {
 					// Montag
+				    System.out.printf("Erstelle Kontrolliste in \"Kontrolliste_%s_%s_%s.xls\"%n", stufe.getStufeKurz(), sportart.getSportartKurz(), "MO");
 					KontrollistenWriter checklistmaker = new KontrollistenWriter(sportart, stufe, "MO");
-					System.out.printf("Erstelle Kontrolliste in \"Kontrolliste_%s_%s_%s.xls\"%n", stufe.getStufeKurz(), sportart.getSportartKurz(), "MO");
-					checklistmaker.eintragen();
-					checklistmaker.close();
 					// Dienstag
+                    System.out.printf("Erstelle Kontrolliste in \"Kontrolliste_%s_%s_%s.xls\"%n", stufe.getStufeKurz(), sportart.getSportartKurz(), "DI");
 					checklistmaker = new KontrollistenWriter(sportart, stufe, "DI");
-					System.out.printf("Erstelle Kontrolliste in \"Kontrolliste_%s_%s_%s.xls\"%n", stufe.getStufeKurz(), sportart.getSportartKurz(), "DI");
-					checklistmaker.eintragen();
-					checklistmaker.close();
 				} catch (SQLException e) {
 					System.out.println("FEHLER: Datenbankfehler");
 					e.printStackTrace();

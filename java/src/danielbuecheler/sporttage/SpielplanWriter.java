@@ -64,9 +64,38 @@ public class SpielplanWriter {
 				SpielplanerApp.properties.getProperty("database_name")), // Name der DB
 				SpielplanerApp.properties.getProperty("database_username"), // Username
 				SpielplanerApp.properties.getProperty("database_password")); // Passwort
+
+        Statement stmt = con.createStatement();
+		
+		
+		// Pruefen, ob schon Zeiten in der DB sind. Ansonsten abbrechen
+        // Mo
+        tableStamm = String.format("%s_%s_%s", stufe.getStufeKurz(), sportart.getSportartKurz(), "MO");
+        ResultSet anzahlZeiten = stmt.executeQuery("SELECT COUNT(ID) FROM " + tableStamm + "_zeiten");
+        anzahlZeiten.next();
+        int definierteZeiten = anzahlZeiten.getInt("COUNT(ID)");
+        anzahlZeiten.close();
+        if(definierteZeiten == 0) {
+            System.out.println("FEHLER: Noch keine Zeiten in der DB definiert. Ohne kann keine Liste erstellt werden");
+            return;
+        }
+        //Di
+        tableStamm = String.format("%s_%s_%s", stufe.getStufeKurz(), sportart.getSportartKurz(), "DI");
+        anzahlZeiten = stmt.executeQuery("SELECT COUNT(ID) FROM " + tableStamm + "_zeiten");
+        anzahlZeiten.next();
+        definierteZeiten = anzahlZeiten.getInt("COUNT(ID)");
+        anzahlZeiten.close();
+        if(definierteZeiten == 0) {
+            System.out.println("FEHLER: Noch keine Zeiten in der DB definiert. Ohne kann keine Liste erstellt werden");
+            return;
+        }
+		
+		write();
+		close();
 	}
 
-	public void write() throws SQLException {
+	private void write() throws SQLException {
+	    Statement stmt = con.createStatement();       
 
 		wb = new HSSFWorkbook();
 
@@ -74,7 +103,6 @@ public class SpielplanWriter {
 		
 		setStyles(); // Tabellen-Styles setzen
 		
-		Statement stmt = con.createStatement();
 		
 		// Montag		
 		tableStamm = String.format("%s_%s_%s", stufe.getStufeKurz(), sportart.getSportartKurz(), "MO"); // Tabellennamen festlegen
@@ -105,6 +133,7 @@ public class SpielplanWriter {
 			ueberschriftenEintragen("Dienstag");
 			spieleEintragen();
 		}
+		return;
 	}
 
 	/**
@@ -113,7 +142,7 @@ public class SpielplanWriter {
 	 * @throws IOException
 	 * @throws SQLException
 	 */
-	public void close() throws IOException, SQLException {
+	private void close() throws IOException, SQLException {
 		// Spaltenbreiten anpassen
 		hoechstesBespieltesFeld = (hoechstesBespieltesFeld > hoechstesBespieltesFeldMo) ? hoechstesBespieltesFeld : hoechstesBespieltesFeldMo; 
 		for (int spalte = 0; spalte < 1 + hoechstesBespieltesFeld * 3; spalte++) {

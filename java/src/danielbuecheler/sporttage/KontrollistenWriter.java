@@ -44,13 +44,13 @@ public class KontrollistenWriter {
 	private String tag;
 	private Sportart sportart;
 	private Stufe stufe;
-	private String tablePlanStamm; 
+	private String tableStamm; 
 
 	public KontrollistenWriter(Sportart sportart, Stufe stufe, String tag) throws SQLException, IllegalArgumentException, IOException {
 		
 		String filename = String.format("%s/Kontrolliste_%s_%s_%s.xls", SpielplanerApp.dirKontrollisten.getCanonicalPath(), stufe.getStufeKurz(), sportart.getSportartKurz(), tag); // der Dateiname ist automatisch generiert
 		
-		this.tablePlanStamm = String.format("%s_%s_%s", stufe.getStufeKurz(), sportart.getSportartKurz(), tag); // Tabellennamen festlegen
+		this.tableStamm = String.format("%s_%s_%s", stufe.getStufeKurz(), sportart.getSportartKurz(), tag); // Tabellennamen festlegen
 		String.format("Mannschaften_%s", stufe.getStufeKurz());
 		
 		this.tag = tag;
@@ -64,6 +64,18 @@ public class KontrollistenWriter {
 				SpielplanerApp.properties.getProperty("database_name")), // Name der DB
 				SpielplanerApp.properties.getProperty("database_username"), // Username
 				SpielplanerApp.properties.getProperty("database_password")); // Passwort
+		
+		Statement stmt = con.createStatement();
+		
+		// Pruefen, ob schon Zeiten in der DB sind. Ansonsten abbrechen
+		ResultSet anzahlZeiten = stmt.executeQuery("SELECT COUNT(ID) FROM " + tableStamm + "_zeiten");
+		anzahlZeiten.next();
+		int definierteZeiten = anzahlZeiten.getInt("COUNT(ID)");
+		anzahlZeiten.close();
+		if(definierteZeiten == 0) {
+		    System.out.println("FEHLER: Noch keine Zeiten in der DB definiert. Ohne kann keine Liste erstellt werden");
+		    return;
+		}
 
 		wb = new HSSFWorkbook();
 
@@ -73,20 +85,21 @@ public class KontrollistenWriter {
 		holeTeams1 = con.prepareStatement(String.format("SELECT Vorname, Name FROM Mannschaften_%s WHERE %s = ?", stufe.getStufeKurz(), sportart.getSportartKurz())); // SQL-Statement, um Spieler einer bestimmten Mannschaft abzufragen
 		holeTeams2 = con.prepareStatement(String.format("SELECT Vorname, Name FROM Mannschaften_%s WHERE %s = ?", stufe.getStufeKurz(), sportart.getSportartKurz())); // SQL-Statement, um Spieler einer bestimmten Mannschaft abzufragen
 		
-		Statement stmt = con.createStatement();
-		
-		ResultSet hoechstesBespieltesFeldRS = stmt.executeQuery("SELECT MAX(Feld) FROM " + tablePlanStamm + "_spiele"); // hoechstes feld holen
+		ResultSet hoechstesBespieltesFeldRS = stmt.executeQuery("SELECT MAX(Feld) FROM " + tableStamm + "_spiele"); // hoechstes feld holen
 		hoechstesBespieltesFeldRS.next();
 		hoechstesBespieltesFeld = hoechstesBespieltesFeldRS.getInt(1); // INT extrahieren (yay :D)
 		
-		ResultSet anzahlSpielrundenRS = stmt.executeQuery("SELECT MAX(TimeID) FROM " + tablePlanStamm + "_spiele"); // anzahl der spiele
+		ResultSet anzahlSpielrundenRS = stmt.executeQuery("SELECT MAX(TimeID) FROM " + tableStamm + "_spiele"); // anzahl der spiele
 		anzahlSpielrundenRS.next();
 		this.anzahlSpielrunden = anzahlSpielrundenRS.getInt(1); // INT extrahieren :D
 		
 		setStyles();
+		
+		eintragen();
+		close();
 	}
 	
-	public void close() throws IOException, SQLException {
+	private void close() throws IOException, SQLException {
 		// Spaltenbreiten anpassen
 		for (int spalte = 0; spalte < 1 + hoechstesBespieltesFeld * 8; spalte++) {
 			sheet1.autoSizeColumn(spalte);
@@ -105,7 +118,7 @@ public class KontrollistenWriter {
 		con.close(); // Datenbankverbindung schließen
 	}
 	
-	public void eintragen() throws SQLException {
+	private void eintragen() throws SQLException {
 		titelEintragen();
 		ueberschriftenEintragen();
 		spielerEintragen();
@@ -180,8 +193,8 @@ public class KontrollistenWriter {
 			tagLang = "Dienstag";
 		PreparedStatement holeZeiten = con.prepareStatement(
 				"SELECT ID Nr, Spielbeginn Beginn, Spielende Ende " // Nummer, Beginn und Ende sind interessant
-				+ "FROM " + tablePlanStamm + "_zeiten " // richtige Tabelle wählen
-				+ "WHERE ID <= (SELECT MAX(TimeID) FROM " + tablePlanStamm + "_spiele) " // nur so viele Zeiten wie auch Spiele gebraucht werden holen
+				+ "FROM " + tableStamm + "_zeiten " // richtige Tabelle wählen
+				+ "WHERE ID <= (SELECT MAX(TimeID) FROM " + tableStamm + "_spiele) " // nur so viele Zeiten wie auch Spiele gebraucht werden holen
 				+ "ORDER BY Nr"); // nach Beginn sortiert
 		ResultSet zeiten = holeZeiten.executeQuery();
 		
@@ -255,18 +268,17 @@ public class KontrollistenWriter {
 	}
 	
 	public void spielerEintragen() throws SQLException {
-		SimpleDateFormat df = new SimpleDateFormat("HH:mm");
 		boolean gerade = false;
 		CellStyle cs = null;
 		PreparedStatement holeSpieleMitGleicherID = con.prepareStatement(
 				"SELECT TimeID Nr, Feld, Paarung " // nur die Nummer und die Paarung sind interessant
-				+ "FROM " + tablePlanStamm + "_spiele " // richtige Tabelle wählen
+				+ "FROM " + tableStamm + "_spiele " // richtige Tabelle wählen
 				+ "WHERE TimeID = ? ORDER BY TimeID"); // nur ein Feld; sortiert nach Nummer
 		
 		PreparedStatement holeZeiten = con.prepareStatement(
 				"SELECT ID Nr, Spielbeginn Beginn, Spielende Ende " // Nummer, Beginn und Ende sind interessant
-				+ "FROM " + tablePlanStamm + "_zeiten " // richtige Tabelle wählen
-				+ "WHERE ID <= (SELECT MAX(TimeID) FROM " + tablePlanStamm + "_spiele) " // nur so viele Zeiten wie auch Spiele gebraucht werden holen
+				+ "FROM " + tableStamm + "_zeiten " // richtige Tabelle wählen
+				+ "WHERE ID <= (SELECT MAX(TimeID) FROM " + tableStamm + "_spiele) " // nur so viele Zeiten wie auch Spiele gebraucht werden holen
 				+ "ORDER BY Nr"); // nach Beginn sortiert
 		
 		int beginnReihe = currentRow; // oberste Reihe zwischenspeichern für später
