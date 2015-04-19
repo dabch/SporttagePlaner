@@ -334,6 +334,7 @@ for ($i=0; $i < count($anzahlTeams); $i++) {
 ?>
 
 <input type="checkbox" name="blabla" value="danielundsandeshsindKINGS" required="required"> Ich akzeptiere die <a href="http://sporttage.smv-kepler.de/agb.html">AGBs</a> und die <a href="http://sporttage.smv-kepler.de/datenschutzbestimmungen.html">Datenschutzbestimmungen</a>, außerdem akzeptiere ich, dass Daniel und Sandesh echte Kings sind und skill haben <br>
+<input type="checkbox" name="debug" value="1"> DEBUG_MODE <br>
   <input type="submit" name="submit">
 </form>
 <br>
