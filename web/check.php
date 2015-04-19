@@ -20,7 +20,13 @@ th, td {
 <b> BITTE ALLES NOCHMALS KONTROLLIEREN!!! </b> <br>
 KEINE LEERZEICHEN benutzen!
 DU bist kurz vor dem FINALEN Eintragen in die DATENBANK!<br> <br>
-<b><font color="#FF0000">HINWEISE: </font></b>
+<b><font color="#FF0000"> <h2> HINWEISE: </h2> <br>
+Bitte nochmals alle Namen auf korrekte Rechtschreibung überprüfen, dies kann das Programm naturlich nicht selbst kontrollieren!   <br>
+Bitte Doppelnamen mit Bindestrich '-' und nicht mit Leerzeile eingeben!   <br>
+
+
+
+</font></b>
 
 <br>
 <?php 
@@ -196,10 +202,10 @@ for ($sportart=(count($sportartenName)-4); $sportart<count($sportartenName); $sp
 		$mannschaftsNummer++; 
 		if (($sportarten1[$sportart][$i] != '' xor $sportarten1[$sportart+1][$i] != '') or ($sportarten1[$sportart][$i-1] != '' xor $sportarten1[$sportart+1][$i-1] != ''))  {
         	 	if ($sportart==(count($sportartenName)-4)) {
-            			echo '<b><font color="#FF0000"> Achtung:  ein Vor- oder Nachname fehlt in Badminton Team ' . $mannschaftsNummer . '!</font> </b><br>';
+            			echo '<b><font color="#FF0000"> Achtung:  ein oder mehrere Vor- oder Nachname/-n fehlt/fehlen in Badminton Team ' . $mannschaftsNummer . '!</font> </b><br>';
 		      	}
           		if ($sportart==(count($sportartenName)-2)) {
-            			echo '<b><font color="#FF0000"> Achtung:  ein Vor- oder Nachname fehlt in Tischtennis Team ' . $mannschaftsNummer . '!</font> </b><br>';
+            			echo '<b><font color="#FF0000"> Achtung:  ein oder mehrere Vor- oder Nachname/-n fehlt/fehlen in Tischtennis Team ' . $mannschaftsNummer . '!</font> </b><br>';
 		      	}
       		}
       		if (($sportarten1[$sportart][$i] != '' or $sportarten1[$sportart+1][$i] != '') xor ($sportarten1[$sportart][$i-1] != '' or $sportarten1[$sportart+1][$i-1] != ''))  {

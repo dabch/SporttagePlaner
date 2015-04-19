@@ -59,6 +59,7 @@ Dies ist nur nötig, wenn es zu wenig Mannschaften gibt, sonst können Felder le
 Bitte die K1-Kurse so eingeben: <br>
 Box neben "K1" anklicken und dann den Kurs (D1,D2,D3 etc.) in das Feld eingeben <br><br>
 KEINE LEERZEICHEN benutzen!<br>
+Bitte Doppelnamen mit Bindestrich '-' und nicht mit Leerzeile eingeben! <br> <br>
 Umlaute können problemlos verarbeitet werden, aber bitte darauf achten, dass Namen nicht falsch geschrieben werden (oder wenn falsch, dann einheitlich falsch)<br>
 Zu einem Vornamen gehört IMMER ein Nachname, sonst geht die Welt unter!<br>
 <br>
