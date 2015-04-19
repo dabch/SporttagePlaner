@@ -16,3 +16,5 @@ Erstellt automatisch Spielpläne und Kontrolliisten
 * Schreibt Spielpläne in DB
 
 http://sporttage.smv-kepler.de
+
+**PS:** Wir haben Passwörter im Code (in früheren Commits), das wissen wir. Es sind aber weder IP noch Username, DB-Name oder Passwort noch aktuell.
