@@ -256,7 +256,7 @@ for (; $mannschaftZeile < $anzahlMannschaftZeilen; $mannschaftZeile++) {
     		echo "<tr> \n";                                   //neue reihe erstellen
     		for($spalte=$oldSpalte ; ($spalte<$oldSpalte+($mannschaftenProZeile*2)) && ($spalte < (count($sportartenName)-4)); $spalte++)  {      //in jeder spalte die richtige mannschaft einfügen
       			//richtigen namen gemäß spalte wählen und richtige daten nach spalte und zeile
-      			echo "<td> <input type=\"text\" name=\"" . $sportartenName[$spalte] . "[]\" tabindex=" . $tabindex[$spalte] . "/> \n";   
+      			echo "<td> <input type=\"text\" name=\"" . $sportartenName[$spalte] . "[]\" tabindex=" . $tabindex[$spalte] . " size=\"20\" maxlength=\"20\" /> \n";   
       			//tabindex der spalte wird um zwei erhöht, da nach 22 (v) 23 (n) und danach dann wieder 24 (v) folgt
      			 $tabindex[$spalte]+=2; //tabindexwert um 2 erhöhen für schönes eintippen  
    		}
@@ -306,7 +306,7 @@ for($zeile = 0; $zeile < ($badmintonAnzahlTeams*3); $zeile++) {
        		if ($teamRow) { //wenn es eine "teamrow" gibt, keine textfelder einfügen
           		break;   
         	} else {   //sonst textfelder passend einfügen
-      			echo "<td> <input type=\"text\" name=\"" . $sportartenName[$spalte] . "[]\" tabindex=" . $tabindex[$spalte] . "/> \n"; 
+      			echo "<td> <input type=\"text\" name=\"" . $sportartenName[$spalte] . "[]\" tabindex=" . $tabindex[$spalte] . " size=\"20\" maxlength=\"20\" /> \n"; 
 	      		$tabindex[$spalte]+=2; //tabindexwert um 2 erhöhen für schönes eintippen  
 	       	}	
 	}

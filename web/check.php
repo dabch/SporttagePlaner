@@ -317,7 +317,7 @@ for (; $mannschaftZeile < $anzahlMannschaftZeilen; $mannschaftZeile++) {
     		echo "<tr> \n";                                   //neue reihe erstellen
     		for($spalte=$oldSpalte ; ($spalte<$oldSpalte+($mannschaftenProZeile*2)) && ($spalte < (count($sportartenName)-4)); $spalte++)  {      //in jeder spalte die richtige mannschaft einfügen
       			//richtigen namen gemäß spalte wählen und richtige daten nach spalte und zeile
-      			echo "<td> <input type=\"text\" name=\"" . $sportartenName[$spalte] . "[]\" value=\"" .  $sportarten1[$spalte][$zeile] .  "\" tabindex=" . $tabindex[$spalte] . "/> \n";   
+      			echo "<td> <input type=\"text\" name=\"" . $sportartenName[$spalte] . "[]\" value=\"" .  $sportarten1[$spalte][$zeile] .  "\" tabindex=" . $tabindex[$spalte] . " size=\"20\" maxlength=\"20\" /> \n";   
       			//tabindex der spalte wird um zwei erhöht, da nach 22 (v) 23 (n) und danach dann wieder 24 (v) folgt
      			 $tabindex[$spalte]+=2; //tabindexwert um 2 erhöhen für schönes eintippen  
    		}
@@ -378,7 +378,7 @@ for (; $mannschaftZeile < $anzahlMannschaftZeilen; $mannschaftZeile++) {
           //$teamRow=0;
         } else {   
        //echo $eintragZeile-1;     
-      echo "<td> <input type=\"text\" name=\"" . $sportartenName[$spalte] . "[]\"  value=\"" .  $sportarten1[$spalte][$eintragZeile-1] .  "\" tabindex=" . $tabindex[$spalte] . "/> \n"; 
+      echo "<td> <input type=\"text\" name=\"" . $sportartenName[$spalte] . "[]\"  value=\"" .  $sportarten1[$spalte][$eintragZeile-1] .  "\" tabindex=" . $tabindex[$spalte] . " size=\"20\" maxlength=\"20\" /> \n"; 
       $tabindex[$spalte]+=2; //tabindexwert um 2 erhöhen für schönes eintippen  
        }
     }
@@ -398,6 +398,7 @@ for ($i=0; $i < count($anzahlTeams); $i++) {
 	echo   '<input type="hidden" name="anzahlTeams[]" value="' . $anzahlTeams[$i] . '">';   
 } 
 ?>
+<input type="hidden" name="debug" value="<?= $_POST['debug'] ?>">
 <br>
 <input type="checkbox" name="checkPassBox" value="1" >
 <input type="text" name="checkPassText" /> Felder zum umgehen vom Check, nur in ausgewählten Fällen benutzen! <br>
