@@ -4,7 +4,7 @@
 <html>
 <head>
 <meta charset='UTF-8' name='viewport' content='width=device-width' />
-<title>Zeiten- und Mannschaftsanzeige @ Sporttage-Kepler</title>
+<title>Mannschaftsanzeige @ Sporttage-Kepler</title>
 </head>
 
 <style>
@@ -19,7 +19,7 @@ th, td {
 </style>
 
 <body>
-<h1>Mannschaften und Zeiten anzeigen</h1>
+<h1>Mannschaften anzeigen</h1>
 <form method="post">
 	<select name="stufe">
 		<option value="US">US</option>
@@ -43,16 +43,12 @@ $sportart = $_POST['sportart'];
 // Nur weitermachen wenn ein POST-String vorliegt (getestet an $stufe, weil das immer gesetzt ist)
 if($stufe != '') {
 
-        echo '<h3>Mannschaften und Zeiten für: ' . $stufe . ' ' . $sportart . '</h3>';
+        echo '<h3>Mannschaften für: ' . $stufe . ' ' . $sportart . '</h3>';
         
 	// ### Eintragen in DB ###
-	
-	$servername = 'mysql20.1blu.de';
-	$username = 's228201_2224606';
-	$password = '%&SporTTage14@!';
-	$dbname = 'db228201x2224606';
+	$inifile = parse_ini_file("db.ini", false);
 
-	$conn = new mysqli($servername, $username, $password, $dbname);
+	$conn = new mysqli($inifile['ip'], $inifile['username'], $inifile['password'], $inifile['dbname']);
 
 	if($conn->connect_error){
 		die('Connection failed:\n' . $conn->connect_error);
@@ -65,17 +61,21 @@ if($stufe != '') {
 	$getTeamsStmt = $conn->prepare('SELECT DISTINCT ' . $sportart . ' FROM Mannschaften_' . $stufe . ' WHERE ' . $sportart . ' != \'\'');
 	
 	// Zeiten am mo
-	//$getMoZeiten = $conn->prepare('SELECT ID, Spielbeginn Beginn, Spielende Ende FROM ' . $stufe . "_" . $sportart ." _MO_zeiten');
-	
+	//$getMoZeiten = $conn->prepare('SELECT ID, Spielbeginn Beginn, Spielende Ende FROM ' . $stufe . '_' . $sportart . '_MO_zeiten');
+	//$getDiZeiten = $conn->prepare('SELECT ID, Spielbeginn Beginn, Spielende Ende FROM ' . $stufe . '_' . $sportart . '_DI_zeiten');
 	
 	$getTeamsStmt->execute();
 	//$getMoZeiten->execute();
 	//$getDiZeiten->execute();
 	
 	$getTeamsStmt->bind_result($teamname);
+	//$getMoZeiten->bind_result($nrMo, $beginnMo, $endeMo);
+	//$getDiZeiten->bind_result($nrDi, $beginnDi, $endeDi);
 	
 	while($getTeamsStmt->fetch()) {
 	        echo $teamname . '<br>';
+	        //echo $nrMo . ', ' . $beginnMo . ' - ' . $endeMo . '; ';
+	        //echo $nrDi . ', ' . $beginnDi . ' - ' . $endeDi . '<br>';	        
 	}
 	
         $conn->close();

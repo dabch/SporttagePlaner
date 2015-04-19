@@ -141,13 +141,9 @@ if ($sportart == 'BM') {
 // Nur weitermachen wenn ein POST-String vorliegt (getestet an $tag, weil das immer gesetzt ist)
 if($tag != '') {
 	// ### Eintragen in DB ###
-	
-	$servername = 'mysql20.1blu.de';
-	$username = 's228201_2224606';
-	$password = '%&SporTTage14@!';
-	$dbname = 'db228201x2224606';
+	$inifile = parse_ini_file("db.ini", false);
 
-	$conn = new mysqli($servername, $username, $password, $dbname);
+	$conn = new mysqli($inifile['ip'], $inifile['username'], $inifile['password'], $inifile['dbname']);
 
 	if($conn->connect_error){
 		die('Connection failed:\n' . $conn->connect_error);
@@ -176,11 +172,13 @@ if($tag != '') {
 		echo $errmesg; // Fehlermeldung ausgeben
 	}
 
-	// Prepared Statement funktionieren aus irgendeinem grund nicht :/
+	// Prepared Statement funktionieren aus irgendeinem grund nicht :/  by Sandesh: liegt am query, das is ne funktion die nen string und kein objekt will glaub
 }
 
 ?>
-
+<br>
+<br>
+<iframe src="info.php" width="500" height="800" style="border:none"></iframe>
 
 </body>
 </html>
