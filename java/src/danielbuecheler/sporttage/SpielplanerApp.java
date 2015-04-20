@@ -105,16 +105,6 @@ public class SpielplanerApp {
 			} catch (IOException e) { e.printStackTrace(); }
 		}
 		
-//		
-//		try {
-//			Planer pl2 = new Planer(new Sportart("BM"), new Stufe("mS"));
-//			pl2.holeAlleMannschaften();
-//		} catch (SQLException e3) {
-//			// TODO Auto-generated catch block
-//			e3.printStackTrace();
-//		}
-//		System.exit(0);
-		
 		//#####################################
 		Scanner scn = new Scanner(System.in);
 		System.out.println("Was möchten Sie tun? (h, help oder hilfe für Hilfe)");
@@ -134,33 +124,18 @@ public class SpielplanerApp {
 			String input = scn.nextLine(); // Befehl einlesen
 			
 			// Eingegebenen String in Befehln Argumente zerlegen
-			int[] leerzeichen = new int[8]; // Positionen der Leerzeichen
-			for(int i = 0; i < leerzeichen.length; i++) {
-				if(i  == 0) {
-					leerzeichen[0] = input.indexOf(" ");
-					continue;
-				}
-				leerzeichen[i] = input.indexOf(" ", leerzeichen[i-1] + 1);
-			}
+			String[] inputArray = input.split("\\s+"); // bis zu sechs Argumente
 			
-			String cmd = leerzeichen[0] >= 0 ? input.substring(0, leerzeichen[0]) : input; // Erstes Wort
-			String[] argumente = new String[leerzeichen.length - 1]; // bis zu sechs Argumente
-			for(int i = 0; i < argumente.length; i++) {
-				if(leerzeichen[i] < 0){
-					break;
-				}
-				argumente[i] = leerzeichen[i+1] >= 0 ? input.substring(leerzeichen[i] + 1, leerzeichen[i+1]) : input.substring(leerzeichen[i] + 1, input.length());
-			}
-			switch (cmd.toLowerCase()) { // je nach Befehl etwas anderes tun
+			switch (inputArray[0].toLowerCase()) { // je nach Befehl etwas anderes tun
 			case "einlesen": // Einlesen aus einer xls-Datei
-				if(argumente[0] == null || argumente[0].isEmpty()) { // Check, ob Dateiname angegeben wurde
+				if(inputArray[1] == null || inputArray[1].isEmpty()) { // Check, ob Dateiname angegeben wurde
 					System.out.println("Bitte den Dateinamen angeben!");
 					break;
 				}
-				System.out.println("Einlesen von " + argumente[0]);
+				System.out.println("Einlesen von " + inputArray[0]);
 				Einleser einleser = null;
 				try {
-					einleser = new Einleser(argumente[0]); // Einleser erstellen
+					einleser = new Einleser(inputArray[1]); // Einleser erstellen
 					einleser.readAll(); // alle Sportarten einlesen
 				} catch (FileNotFoundException e) {
 					System.out.printf("FEHLER: Datei wurde nicht gefunden. Mannschaftslisten müssen sich im Ordner %s/Mannschaftslisten befinden%n", dirRoot);
@@ -177,38 +152,44 @@ public class SpielplanerApp {
 				break;
 			case "setze":
 			case "set":
+				if((inputArray[1] == null || inputArray[1].isEmpty()) || (inputArray[2] == null || inputArray[2].isEmpty()) || (inputArray[3] == null || inputArray[3].isEmpty())) { // Check, ob Dateiname angegeben wurde
+					System.out.println("Mindestens eine Angabe fehlt!");
+					break;
+				}
 				// Stufe setzen
-				stufe = new Stufe(argumente[0]);
+				stufe = new Stufe(inputArray[1]);
 				// Sportart setzen
-				sportart = new Sportart(argumente[1]);
+				sportart = new Sportart(inputArray[2]);
 				// Tag setzen
-				tag = argumente[2].toUpperCase();
+				switch(inputArray[3].toLowerCase()) {
+					case "montag":
+					case "mo":
+						tag = "MO";
+						break;
+					case "di":
+					case "dienstag":
+						tag = "DI";
+						break;
+					default:
+						System.out.println("FEHLER: Unbekannter Tag (nur Montag oder Dienstag)");
+				}
 				 // fällt durch, damit die Info noch angezeigt wird
 			case "info": // einfach nur kurz die umgebungsvariable anzeigen lassen
 				System.out.printf("Stufe: %s%nSportart: %s%nTag: %s%n", stufe.getStufeKurz(), sportart.getSportartKurz(), tag);
 				break;
-			case "tag":
-				switch(argumente[0].toLowerCase()) {
-				case "montag":
-				case "mo":
-					tag = "MO";
-					break;
-				case "di":
-				case "dienstag":
-					tag = "DI";
-					break;
-				default:
-					System.out.println("FEHLER: Unbekannter Tag (nur Montag oder Dienstag)");
-				}
 			case "block": // xx_xx_xx_zeiten-Tabelle erstellen
 			case "blockzeiten":
 			case "zeiten":
+				if((inputArray[1] == null || inputArray[1].isEmpty()) || (inputArray[2] == null || inputArray[2].isEmpty()) || (inputArray[3] == null || inputArray[3].isEmpty())) { // Check, ob Dateiname angegeben wurde
+					System.out.println("Mindestens eine Angabe fehlt!");
+					break;
+				}
 				beginnZeit = Calendar.getInstance();
 				SimpleDateFormat df = new SimpleDateFormat("HH:mm"); // DateFormat für die Eingabe
 				try {
-					beginnZeit.setTime(df.parse(argumente[0])); // Date-Objekt aus Eingabe erstellen und als Zeit für beginnZeit setzen
-					spieldauer = Integer.parseInt(argumente[1])	; // Die Pausendauer und Spieldauer setzen
-					pausendauer = Integer.parseInt(argumente[2]);
+					beginnZeit.setTime(df.parse(inputArray[1])); // Date-Objekt aus Eingabe erstellen und als Zeit für beginnZeit setzen
+					spieldauer = Integer.parseInt(inputArray[2])	; // Die Pausendauer und Spieldauer setzen
+					pausendauer = Integer.parseInt(inputArray[3]);
 				} catch (ParseException e2) {
 					System.out.println("FEHLER: Zeit im falschen Format angegeben!");  // Wenn der Nutzer nicht "HH:MM" eingegeben hat
 				} catch (NumberFormatException e) {
@@ -226,36 +207,37 @@ public class SpielplanerApp {
 			case "spielplanerstellen": // Spielplan erstellen für bis zu sechs Mannschaften, drei Kommandos möglich, deshalb durchfallen
 			case "plane":
 			case "planen":
-				int feld = 0; // Feld hier deklarieren, damit es auch außerhalb des trys gilt
-				try {
-					feld = Integer.parseInt(argumente[0]);
-				} catch (NumberFormatException e) {
-					System.out.println("FEHLER: Bitte Feld angeben!");
-					continue;
-				}
-				if(!kannPlanungBeginnen(sportart, stufe, beginnZeit, spieldauer, pausendauer)) {
-					System.out.println("Bitte erst Sportart, Stufe und Zeit festlegen!");
-					break;
-				}
-				try {
-					Planer spielplaner = new Planer(sportart, stufe); // SpielplanMaker erstellen
-					for(int i = 1; i < argumente.length; i++) { // Teams hinzufügen... (dabei den ersten String in argumente überspringen, da er das Feld angibt)
-						if(argumente[i] == null || argumente[i].isEmpty()) // ... natürlich nur wenn ein Team angegeben wurde
-							continue;
-						spielplaner.addMannschaft(argumente[i]);
-					}
-					spielplaner.plane(feld, tag); // Eigentliche Planung starten, erstellt Tabelle wenn nötig
-					System.out.println("Spielplan erstellt und hochgeladen");
-				} catch (SQLException e) {
-					e.printStackTrace();
-					System.out.println("FEHLER: Datenbankfehler");
-					System.out.println("Kein Spielplan erstellt");
-				} catch (IllegalArgumentException e) {
-					System.out.println("FEHLER: Minimal vier gültige Mannschaften angeben!"); // Bei weniger als vier Mannschaften Fehler ausgeben
-					System.out.println("Kein Spielplan erstellt");
-				} catch (TableNotExistentException e) {
-					System.out.println("FEHLER: Teams-Table in der DB existiert nicht!");
-				}
+				System.out.println("Fehler: Momentan kann nicht geplant werden, bitte die Spiele �ber die Webseite eingeben");
+//				int feld = 0; // Feld hier deklarieren, damit es auch außerhalb des trys gilt
+//				try {
+//					feld = Integer.parseInt(inputArray[0]);
+//				} catch (NumberFormatException e) {
+//					System.out.println("FEHLER: Bitte Feld angeben!");
+//					continue;
+//				}
+//				if(!kannPlanungBeginnen(sportart, stufe, beginnZeit, spieldauer, pausendauer)) {
+//					System.out.println("Bitte erst Sportart, Stufe und Zeit festlegen!");
+//					break;
+//				}
+//				try {
+//					Planer spielplaner = new Planer(sportart, stufe); // SpielplanMaker erstellen
+//					for(int i = 1; i < inputArray.length; i++) { // Teams hinzufügen... (dabei den ersten String in argumente überspringen, da er das Feld angibt)
+//						if(inputArray[i] == null || inputArray[i].isEmpty()) // ... natürlich nur wenn ein Team angegeben wurde
+//							continue;
+//						spielplaner.addMannschaft(inputArray[i]);
+//					}
+//					spielplaner.plane(feld, tag); // Eigentliche Planung starten, erstellt Tabelle wenn nötig
+//					System.out.println("Spielplan erstellt und hochgeladen");
+//				} catch (SQLException e) {
+//					e.printStackTrace();
+//					System.out.println("FEHLER: Datenbankfehler");
+//					System.out.println("Kein Spielplan erstellt");
+//				} catch (IllegalArgumentException e) {
+//					System.out.println("FEHLER: Minimal vier gültige Mannschaften angeben!"); // Bei weniger als vier Mannschaften Fehler ausgeben
+//					System.out.println("Kein Spielplan erstellt");
+//				} catch (TableNotExistentException e) {
+//					System.out.println("FEHLER: Teams-Table in der DB existiert nicht!");
+//				}
 				break;
 			case "ausgeben": // Spielplan in Excel-Tabelle schreiben
 			case "ausgabe":
@@ -265,6 +247,7 @@ public class SpielplanerApp {
 				}
 				try {
                     System.out.printf("Schreibe Spielplan in \"Plan_%s_%s.xls\"%n", stufe.getStufeKurz(), sportart.getSportartKurz());
+					@SuppressWarnings("unused")
 					SpielplanWriter sw = new SpielplanWriter(stufe, sportart);
 				} catch (SQLException | IOException e1) {
 					e1.printStackTrace();
@@ -277,6 +260,7 @@ public class SpielplanerApp {
 				try {
 					// Montag
 				    System.out.printf("Erstelle Kontrolliste in \"Kontrolliste_%s_%s_%s.xls\"%n", stufe.getStufeKurz(), sportart.getSportartKurz(), "MO");
+					@SuppressWarnings("unused")
 					KontrollistenWriter checklistmaker = new KontrollistenWriter(sportart, stufe, "MO");
 					// Dienstag
                     System.out.printf("Erstelle Kontrolliste in \"Kontrolliste_%s_%s_%s.xls\"%n", stufe.getStufeKurz(), sportart.getSportartKurz(), "DI");
@@ -293,7 +277,7 @@ public class SpielplanerApp {
 				}
 				break;
 			case "klassenliste":
-			    String klasse = argumente[0];
+			    String klasse = inputArray[0];
 			    try {
                     new KlassenlistenMaker(klasse);
                 } catch (IllegalArgumentException e1) {
@@ -306,10 +290,10 @@ public class SpielplanerApp {
 			    break;
 			case "pfeifliste":
 				try {
-					Stufe stufe1 = new Stufe(argumente[1].trim());
-					Stufe stufe2 = new Stufe(argumente[2].trim());
-					Stufe stufe3 = argumente[3]== null || argumente[3].trim().isEmpty() ? null : new Stufe(argumente[3]); // Null übergeben wenn keine dritte Stufe angegeben wurde
-					PfeiflistenMaker pl = new PfeiflistenMaker(argumente[0]);
+					Stufe stufe1 = new Stufe(inputArray[1].trim());
+					Stufe stufe2 = new Stufe(inputArray[2].trim());
+					Stufe stufe3 = inputArray[3]== null || inputArray[3].trim().isEmpty() ? null : new Stufe(inputArray[3]); // Null übergeben wenn keine dritte Stufe angegeben wurde
+					PfeiflistenMaker pl = new PfeiflistenMaker(inputArray[0]);
 					pl.erstellePfeifliste(tag, stufe1, stufe2, stufe3);
 					pl.close();
 				} catch (SQLException e) {
