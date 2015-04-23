@@ -58,7 +58,7 @@ if($stufe != '') {
 	$conn->query('SET NAMES "utf8"');
 	
 	// Um alle Mannschaften zu holen
-	$getTeamsStmt = $conn->prepare('SELECT DISTINCT ' . $sportart . ' FROM Mannschaften_' . $stufe . ' WHERE ' . $sportart . ' != \'\'');
+	$getTeamsStmt = $conn->prepare('SELECT DISTINCT ' . $sportart . ' FROM Mannschaften_' . $stufe . ' WHERE ' . $sportart . ' != \'\' ORDER BY Klasse, ' . $sportart);
 	
 	// Zeiten am mo
 	//$getMoZeiten = $conn->prepare('SELECT ID, Spielbeginn Beginn, Spielende Ende FROM ' . $stufe . '_' . $sportart . '_MO_zeiten');
