@@ -1,185 +1,125 @@
-<!DOCTYPE html>
-<?php 
-?>
 <html>
 <head>
-<meta charset='UTF-8' name='viewport' content='width=device-width' />
+<meta charset="UTF-8" name="viewport" content="width=device-width" />
 <title>Eingabe Spielpläne @ Sporttage-Kepler</title>
 </head>
 
+<?php
+$anzahlFelder = $_POST['anzahlFelder'];
+$spiele = $_POST['anzahlSpiele'];
+// default wenn nicht gesetzt
+if($anzahlFelder == '' || $spiele == '') {
+	$anzahlFelder=3; //anzahl badminton teams
+	$spiele=9; //spieler/mannschaftssportart team
+}
+?>
+
 <style>
 table, th, td {
-	border: 0px;
-	text-align: center;
+	border: 1px solid black;
+	border-collapse: collapse;
 }
 
 th, td {
 	padding: 3px;
+	text-align: center;
 }
 </style>
 
 <body>
-<h1>Bitte hier die Spiele eingeben:</h1>
-<i>Alle</i> Felder, außer Schiedsrichter, müssen ausgefüllt sein. Die Kombination aus Spielnummer und Feld muss eindeutig sein (d.h. es dürfen nicht auf einem Feld zeitgleich zwei Spiele stattfinden)<br>
+<h2>Tabelle konfigurieren</h2>
+<b> Wenn die Tabelle so in Ordnung ist, kann dieser Teil übersprungen werden!!! </b> <br> 
+Falls eine Andere Mannschaftsaufteilung gewünscht ist, bitte hier eingeben und auf "Tabelle umbauen" klicken, die Tabelle wird dann umgebaut. <br>
+Es dürfen auch Felder leer gelassen werden.<br>
 <br>
-<form method="post">
+
+<form action="" method="POST">
 <table>
+	<tr>
+	<td> <input type="number" name="anzahlFelder" value="3" required="required" min="0" max="25"> Anzahl Spielfelder
+	<td> <input type="number" name="anzahlSpiele" value="9" required="required" min="0" max="25"> Anzahl Spiele im gesamten Block
+	</tr>
+</table>	
+
+<input type="submit" name="Tabelle umbauen" value="Tabelle umbauen"> 
+
+</form>
+
+
+
+<h1>Spielplan eintragen</h1>
+Die <b>Spaltenüberschriften wiederholen sich</b> der Übersichtlichkeit halber <b>alle zehn Zeilen</b>, das hat keinen Effekt auf die Eintragung in die DB!<br>
+<br>
+<form action="submit_spiele.php" method="POST">
+<table>
+	<tr>
+	<th colspan="3">Dieser Spielplan ist für....
+	</tr>	
+	
 	<tr>
 	<td>Tag
 	<td>Stufe
 	<td>Sportart
-	<td>Spielnummer (Zeit)
-	<td>Feld
-	<td>Mannnschaft 1
-	<td>Mannschaft 2
-	<td>Schiri (optional)
 	</tr>
 	
-
-<br>
-<?php
-// Variablen aus POST extrahieren
-$sportart = $_POST['sportart'];
-$stufe = $_POST['stufe'];
-$tag = $_POST['tag'];
-
-$timeid = $_POST['timeid'];
-$feld = $_POST['feld'];
-$paarung = chop($_POST['team1']) . ' : ' . chop($_POST['team2']); // choppen um überflüssige Lehrzeichen zu verhindern
-$schiri = chop($_POST['schiri']);
-
-
-// ### <form> anpassen, um die vorherigen Einstellungen bei TAG, Sportart und Stufe zu übernehmen (man muss ja meistens mehrere Spiele eingeben ###
-echo '<tr>';
-
-// Mo / Di
-if($tag == 'DI') {
-	echo '<td><input type="radio" name="tag" value="MO">Montag <br>
-	<input type="radio" name="tag" value="DI" checked>Dienstag';
-} else {
-	echo '<td><input type="radio" name="tag" value="MO" checked>Montag <br>
-	<input type="radio" name="tag" value="DI">Dienstag'; // im Normalzustand (else{}) den Montag checken
-}
-// Stufe
-if($stufe == 'US') {
-	echo '<td><select name="stufe">
-		<option value="US" selected>US</option>
-		<option value="MS">MS</option>
-		<option value="OS">OS</option>
-	</select>';
-} elseif($stufe == 'OS') {
-	echo '<td><select name="stufe">
-		<option value="US">US</option>
-		<option value="MS">MS</option>
-		<option value="OS" selected>OS</option>
-	</select>';
-} else { // MS soll default sein
-	echo '<td><select name="stufe">
-		<option value="US">US</option>
-		<option value="MS" selected>MS</option>
-		<option value="OS">OS</option>
-	</select>';
-}
-echo $sportart;
-// Sportart
-if ($sportart == 'BM') {
-	echo '<td><select name="sportart">
-		<option value="BB">BB</option>
-		<option value="BM" selected>BM</option>
-		<option value="FB">FB </option>
-		<option value="TT">TT</option>
-		<option value="VB">VB</option>
-	</select>';
-} elseif ($sportart == 'FB') {
-	echo '<td><select name="sportart">
-		<option value="BB">BB</option>
-		<option value="BM">BM</option>
-		<option value="FB" selected>FB </option>
-		<option value="TT">TT</option>
-		<option value="VB">VB</option>
-	</select>';
-} elseif ($sportart == 'TT') {
-	echo '<td><select name="sportart">
-		<option value="BB">BB</option>
-		<option value="BM">BM</option>
-		<option value="FB">FB </option>
-		<option value="TT" selected>TT</option>
-		<option value="VB">VB</option>
-	</select>';
-} elseif ($sportart == 'VB') {
-	echo '<td><select name="sportart">
-		<option value="BB">BB</option>
-		<option value="BM">BM</option>
-		<option value="FB">FB </option>
-		<option value="TT">TT</option>
-		<option value="VB" selected>VB</option>
-	</select>';
-} else { // Default: BB
-	echo '<td><select name="sportart">
-		<option value="BB" selected>BB</option>
-		<option value="BM">BM</option>
-		<option value="FB">FB </option>
-		<option value="TT">TT</option>
-		<option value="VB">VB</option>
-	</select>';
-}
-?>
-		
-	
-<td><input type="number" name="timeid" min="1" style="width: 50px" required>
-<td><input type="number" name="feld" min="1" style="width: 50px" required>
-<td><input type="text" name="team1" maxlength="5" size="5" required>
-<td><input type="text" name="team2" maxlength="5" size="5" required>
-<td><input type="text" name="schiri">
-</tr>
-
+	<tr>
+		<td><input type="radio" name="tag" value="MO">Montag <br>
+			<input type="radio" name="tag" value="DI" checked>Dienstag
+		<td><select name="stufe">
+				<option value="US">US</option>
+				<option value="MS" selected>MS</option>
+				<option value="OS">OS</option>
+			</select>
+		<td><select name="sportart">
+				<option value="BB">BB</option>
+				<option value="BM" selected>BM</option>
+				<option value="FB">FB </option>
+				<option value="TT">TT</option>
+				<option value="VB">VB</option>
+			</select>
+	<tr>
 </table>
-<input type="submit" value="Spiel eintragen">
+<br>
+<!-- eigentlicher Spiel-Table -->
+<table>
+
+<?php 
+
+
+for($timeID = 0; $timeID < $spiele; $timeID++) {
+	if($timeID % 10 == 0) { // jede 10. Zeile
+		echo '<tr>';
+		echo '<th>'; // erste Spalte frei (Nr)
+		for($feld = 0; $feld < $anzahlFelder; $feld++) {
+			echo '<th colspan="2"> Feld ' . ($feld + 1);
+		}
+	echo '</tr>';
+		echo '<tr>
+<th>Nr';
+	for($feld = 0; $feld < $anzahlFelder; $feld++) {
+		echo '<th>Team 1
+<th>Team 2';
+	}
+	echo '</tr>
+';
+	}
+	
+	echo '<tr><td>' . ($timeID + 1);
+	for($feld = 0; $feld < $anzahlFelder; $feld++) {
+		echo '
+		<td><input type="text" name="team1[' . $feld . '][]" maxlength="5" size="5"><td><input type="text" name="team2['. $feld . '][]" maxlength="5" size="5">';
+	}
+	echo '</tr>
+';
+
+}
+
+echo '<input type="hidden" name="anzahlFelder" value="' . $anzahlFelder . '">';
+?>
+</table>
+<input type="submit" name="submit" value="Eintragen">
 </form>
 <br>
-<?php
-// Nur weitermachen wenn ein POST-String vorliegt (getestet an $tag, weil das immer gesetzt ist)
-if($tag != '') {
-	// ### Eintragen in DB ###
-	$inifile = parse_ini_file("db.ini", false);
-
-	$conn = new mysqli($inifile['ip'], $inifile['username'], $inifile['password'], $inifile['dbname']);
-
-	if($conn->connect_error){
-		die('Connection failed:\n' . $conn->connect_error);
-	}
-
-	// Umlaute fixen
-	$conn->query('SET NAMES "utf8"');
-	$sportart = $_POST['sportart'];
-	$stufe = $_POST['stufe'];
-	$tag = $_POST['tag'];
-
-	$timeid = $_POST['timeid'];
-	$feld = $_POST['feld'];
-	$paarung = chop($_POST['team1']) . ' : ' . chop($_POST['team2']); // choppen um überflüssige Lehrzeichen zu verhindern
-	$schiri = chop($_POST['schiri']);
-
-	$spielHinzufuegen = $conn->prepare('INSERT INTO ' . $stufe . '_' . $sportart . '_' . $tag . '_spiele (TimeID, Feld, Paarung) VALUES (?, ?, ?)');
-
-	$sql = 'INSERT INTO ' . $stufe . '_' . $sportart . '_' . $tag . '_spiele (TimeID, Feld, Paarung) VALUES (' . $timeid . ', ' . $feld . ', "' . $paarung . '")';
-
-	if($conn->query($sql) === TRUE) {
-		echo 'Erfolgreich hinzugefügt!<br>';
-	} else {
-		echo 'Fehler beim Hinzufügen:<br>';
-		$errmesg = $conn->error;
-		echo $errmesg; // Fehlermeldung ausgeben
-	}
-
-	// Prepared Statement funktionieren aus irgendeinem grund nicht :/  by Sandesh: liegt am query, das is ne funktion die nen string und kein objekt will glaub
-}
-
-?>
-<br>
-<br>
-<iframe src="info.php" width="500" height="800" style="border:none"></iframe>
-
 </body>
 </html>
 
