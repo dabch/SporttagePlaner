@@ -13,7 +13,7 @@ Da du es bis hierher geschafft hast, möchten wir dir Zugriff auf die folgenden 
 <ul>
 	<li><a href="klassenlisten.php">Klassenlisten eintragen</a></li>
 	<li><a href="spiele.php">Spiele eintragen</a></li>
-	<li><a href="info.php">Mannschaften und Zeiten in einer Sportart anzeigen</a> (Nicht fertig!)</li>
+	<li><a href="info.php">Mannschaften in einer Sportart anzeigen</a></li>
 </ul>
 <b>Bitte beachten: </b>Der Internet Explorer ist in Version 9 oder älter NICHT geeignet, außerdem wird HTML5 benötigt. Getestet wurde bisher mit Firefox 36.x <br>
 <br>

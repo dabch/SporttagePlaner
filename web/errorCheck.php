@@ -378,7 +378,7 @@ for ($i=0; $i < count($anzahlTeams); $i++) {
 <input type="hidden" name="checkPassBox" value="<?= $_POST['checkPassBox'] ?>" >
 <input type="hidden" name="checkPassText" value="<?= $_POST['checkPassText']?>" />
 
-
+<input type="hidden" name="debug" value="<?= $_POST['debug'] ?>">
 
 <noscript><input type="submit" value="Click here if you are not redirected."/></noscript> 
 
