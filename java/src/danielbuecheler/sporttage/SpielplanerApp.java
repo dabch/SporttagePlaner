@@ -277,7 +277,7 @@ public class SpielplanerApp {
 				}
 				break;
 			case "klassenliste":
-			    String klasse = inputArray[0];
+			    String klasse = inputArray[1];
 			    try {
                     new KlassenlistenMaker(klasse);
                 } catch (IllegalArgumentException e1) {

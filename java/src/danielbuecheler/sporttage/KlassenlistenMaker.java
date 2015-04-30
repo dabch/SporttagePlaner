@@ -101,8 +101,11 @@ public class KlassenlistenMaker {
         cell.setCellValue("Spielt ... in Mannschaft ...");
         sheet1.addMergedRegion(new CellRangeAddress(currentRow - 1, currentRow - 1, 3, 9));
         
-        cell = row.createCell(9);
-        cell.setCellStyle(csUeberschrift);
+        //CellStyles anwenden
+        for(int i = 3; i < 9; i++) {
+	        cell = row.createCell(i + 1);
+	        cell.setCellStyle(csUeberschrift);
+        }
         
         row = sheet1.createRow(currentRow++);
         row.setHeightInPoints(15);
