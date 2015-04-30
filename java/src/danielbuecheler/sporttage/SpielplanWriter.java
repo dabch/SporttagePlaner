@@ -103,6 +103,8 @@ public class SpielplanWriter {
 		
 		setStyles(); // Tabellen-Styles setzen
 		
+		gruppenSchreiben();
+		
 		
 		// Montag		
 		tableStamm = String.format("%s_%s_%s", stufe.getStufeKurz(), sportart.getSportartKurz(), "MO"); // Tabellennamen festlegen
@@ -134,6 +136,41 @@ public class SpielplanWriter {
 			spieleEintragen();
 		}
 		return;
+	}
+
+	private void gruppenSchreiben() throws SQLException {
+		// currentRow muss später zurückgesetzt werden
+		final int beginnReihe = currentRow;
+		
+		Row row;
+		Cell cell;
+		
+		ResultSet gruppen = null;
+		int anzahlGruppen = 0;
+		
+		for(int gruppe = 0; gruppe < anzahlGruppen; gruppe++) {
+			// Überschrift "Gruppe 1"
+			row = sheet1.getRow(currentRow++);
+			if(row == null) {
+				sheet1.createRow(currentRow - 1);
+			}
+			cell = row.createCell(gruppe);
+			cell.setCellStyle(csTabellenueberschrift);
+			cell.setCellValue("Gruppe " + (gruppe + 1));
+			// einzelne Mannschaften
+			while(gruppen.next()) {
+				row = sheet1.getRow(currentRow++);
+				if(row == null) {
+					sheet1.createRow(currentRow - 1);
+				}
+				cell = row.createCell(gruppe);
+				cell.setCellStyle(csSpieleEtc);
+				cell.setCellValue(gruppen.getString("Team"));
+			}
+			// currentRow zurücksetzen
+			currentRow = beginnReihe;
+		}
+		
 	}
 
 	/**
