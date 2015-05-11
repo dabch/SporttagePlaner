@@ -25,10 +25,12 @@ public class SpielplanerApp {
 	static File dirPfeiflisten;
 	
 	public static void main(String[] args) {
-		System.out.println("SporttagePlaner Beta by Daniel Bücheler");
+		System.out.println("SporttagePlaner by Daniel Bücheler, Sandesh Sharma");
 		SimpleDateFormat sdf = new SimpleDateFormat("EE, dd. MMMM yyyy, HH:mm:ss zzz"); // Datum auf Deutsch in der richtigen Reihenfolge (z.B. Fr, 31. Dezember 2000, 19:48:12 MEZ)
 		System.out.println(sdf.format(new Date()));
 		System.out.println();
+		
+		System.out.println("Dieses Programm inklusive aller Teile steht unter der GNU GPL, für den genauen Lizenztext siehe https://www.gnu.org/licenses/gpl.html");
 
 		String dirRoot = "Sporttage Planung";
 		
@@ -128,7 +130,7 @@ public class SpielplanerApp {
 			
 			switch (inputArray[0].toLowerCase()) { // je nach Befehl etwas anderes tun
 			case "einlesen": // Einlesen aus einer xls-Datei
-				if(inputArray[1] == null || inputArray[1].isEmpty()) { // Check, ob Dateiname angegeben wurde
+				if(inputArray.length < 4) { // Check, ob Dateiname angegeben wurde
 					System.out.println("Bitte den Dateinamen angeben!");
 					break;
 				}
@@ -152,7 +154,7 @@ public class SpielplanerApp {
 				break;
 			case "setze":
 			case "set":
-				if((inputArray[1] == null || inputArray[1].isEmpty()) || (inputArray[2] == null || inputArray[2].isEmpty()) || (inputArray[3] == null || inputArray[3].isEmpty())) { // Check, ob Dateiname angegeben wurde
+				if(inputArray.length < 4) { // Check, ob Dateiname angegeben wurde
 					System.out.println("Mindestens eine Angabe fehlt!");
 					break;
 				}
@@ -180,7 +182,7 @@ public class SpielplanerApp {
 			case "block": // xx_xx_xx_zeiten-Tabelle erstellen
 			case "blockzeiten":
 			case "zeiten":
-				if((inputArray[1] == null || inputArray[1].isEmpty()) || (inputArray[2] == null || inputArray[2].isEmpty()) || (inputArray[3] == null || inputArray[3].isEmpty())) { // Check, ob Dateiname angegeben wurde
+				if(inputArray.length < 4) { // Check, ob Dateiname angegeben wurde
 					System.out.println("Mindestens eine Angabe fehlt!");
 					break;
 				}
@@ -207,7 +209,7 @@ public class SpielplanerApp {
 			case "spielplanerstellen": // Spielplan erstellen für bis zu sechs Mannschaften, drei Kommandos möglich, deshalb durchfallen
 			case "plane":
 			case "planen":
-				System.out.println("Fehler: Momentan kann nicht geplant werden, bitte die Spiele �ber die Webseite eingeben");
+				System.out.println("Fehler: Momentan kann nicht geplant werden, bitte die Spiele �ber die Webseite eingeben");
 //				int feld = 0; // Feld hier deklarieren, damit es auch außerhalb des trys gilt
 //				try {
 //					feld = Integer.parseInt(inputArray[0]);
@@ -290,11 +292,12 @@ public class SpielplanerApp {
 			    break;
 			case "pfeifliste":
 				try {
-					Stufe stufe1 = new Stufe(inputArray[1].trim());
-					Stufe stufe2 = new Stufe(inputArray[2].trim());
-					Stufe stufe3 = inputArray[3]== null || inputArray[3].trim().isEmpty() ? null : new Stufe(inputArray[3]); // Null übergeben wenn keine dritte Stufe angegeben wurde
-					PfeiflistenMaker pl = new PfeiflistenMaker(inputArray[0]);
-					pl.erstellePfeifliste(tag, stufe1, stufe2, stufe3);
+				    String ort = inputArray[2].trim();
+					Stufe stufe1 = new Stufe(inputArray[3].trim());
+					Stufe stufe2 = new Stufe(inputArray[4].trim());
+					//Stufe stufe3 = inputArray.length > 4 || inputArray[5].trim().isEmpty() ? null : new Stufe(inputArray[5]); // Null übergeben wenn keine dritte Stufe angegeben wurde
+					PfeiflistenMaker pl = new PfeiflistenMaker(inputArray[1]);
+					pl.erstellePfeifliste(ort, tag, stufe1, stufe2);
 					pl.close();
 				} catch (SQLException e) {
 					System.out.println("FEHLER: Datenbankfehler");
@@ -319,7 +322,7 @@ public class SpielplanerApp {
 				System.out.println(" h - Diese Hilfe anzeigen (auch help oder hilfe)");
 				System.out.println(" exit - Programm beenden");
 				System.out.println();
-				System.out.println(" Bevor ein Spielplan erstellt werden kann müssen Sportart, Stufe und Tag gesetzt werden!");
+				System.out.println(" Bevor ein Spielplan oder eine Kontrolliste erstellt werden kann müssen Sportart, Stufe und Tag gesetzt werden,\n und außerdem die Blockzeiten in der Datenbank eingetragen sein!");
 				System.out.println();
 				break;
 			case "exit": // Programm komplett beenden
