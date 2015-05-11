@@ -84,15 +84,21 @@ public class PfeiflistenMaker {
 	 *            Für draußen: Basketball, für drinnen: {@code null}
 	 * @throws SQLException
 	 */
-	public void erstellePfeifliste(String tag, Stufe... stufen) throws SQLException {
-		Sportart[] sportarten;
-		if(stufen.length > 3) {
-			throw new IllegalArgumentException("Maximal drei Stufen angeben!");
-		} else if(stufen[2] == null) {
-			sportarten = sportartenInnen;
-		} else {
-			sportarten = sportartenDraussen;
-		}
+	public void erstellePfeifliste(String ort, String tag, Stufe... stufen) throws SQLException {
+	    Sportart[] sportarten = null;
+	    if(ort.equals("svo")) {
+	        Sportart[] sportarten2 = {new Sportart("VB"), new Sportart("FB")};
+	        sportarten = sportarten2;
+	    } else if(ort.equals("indoor")) {
+	        Sportart[] sportarten2 = {new Sportart("BM")};
+	        sportarten = sportarten2;
+	    } else if(ort.equals("outdoor")) {
+	        Sportart[] sportarten2 = {new Sportart("BB"), new Sportart("FB")};
+	        sportarten = sportarten2;
+	    } else {
+	        throw new IllegalArgumentException("Unbekannter Ort (Möglich sind \"svo\", \"indoor\" und \"outdoor\")");
+	    }
+	    		
 		for (int i = 0; i < sportarten.length; i++) {
 			String tableStamm = String.format("%s_%s_%s", stufen[i].getStufeKurz(), sportarten[i].getSportartKurz(), tag);
 			PreparedStatement holeZeiten = con.prepareStatement("SELECT ID Nr, Spielbeginn Beginn, Spielende Ende " // Nummer, Beginn und Ende sind interessant
