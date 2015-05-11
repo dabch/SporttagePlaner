@@ -103,7 +103,7 @@ public class SpielplanWriter {
 		
 		setStyles(); // Tabellen-Styles setzen
 		
-		gruppenSchreiben();
+		//gruppenSchreiben();
 		
 		
 		// Montag		
@@ -139,7 +139,7 @@ public class SpielplanWriter {
 	}
 
 	private void gruppenSchreiben() throws SQLException {
-		// currentRow muss später zurückgesetzt werden
+		/*// currentRow muss spï¿½ter zurï¿½ckgesetzt werden
 		final int beginnReihe = currentRow;
 		
 		Row row;
@@ -149,7 +149,7 @@ public class SpielplanWriter {
 		int anzahlGruppen = 0;
 		
 		for(int gruppe = 0; gruppe < anzahlGruppen; gruppe++) {
-			// Überschrift "Gruppe 1"
+			// ï¿½berschrift "Gruppe 1"
 			row = sheet1.getRow(currentRow++);
 			if(row == null) {
 				sheet1.createRow(currentRow - 1);
@@ -167,10 +167,10 @@ public class SpielplanWriter {
 				cell.setCellStyle(csSpieleEtc);
 				cell.setCellValue(gruppen.getString("Team"));
 			}
-			// currentRow zurücksetzen
+			// currentRow zurï¿½cksetzen
 			currentRow = beginnReihe;
 		}
-		
+		*/
 	}
 
 	/**

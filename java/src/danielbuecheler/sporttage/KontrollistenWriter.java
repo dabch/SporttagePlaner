@@ -57,7 +57,7 @@ public class KontrollistenWriter {
 		this.sportart = sportart;
 		this.stufe = stufe;
 		
-		fos = new FileOutputStream(filename);
+		// fos muss später erstellt werden, da sonst schon eine leere Datei entsteht
 
 		con = DriverManager.getConnection(String.format("jdbc:mysql://%s/%s", // Verbindung zur Datenbank herstellen
 				SpielplanerApp.properties.getProperty("database_ip_address"), // IP-Adresse des DB-Servers
@@ -76,6 +76,8 @@ public class KontrollistenWriter {
 		    System.out.println("FEHLER: Noch keine Zeiten in der DB definiert. Ohne kann keine Liste erstellt werden");
 		    return;
 		}
+		
+		fos = new FileOutputStream(filename);
 
 		wb = new HSSFWorkbook();
 
@@ -104,7 +106,7 @@ public class KontrollistenWriter {
 		for (int spalte = 0; spalte < 1 + hoechstesBespieltesFeld * 8; spalte++) {
 			sheet1.autoSizeColumn(spalte);
 		}
-		sheet1.getPrintSetup().setPaperSize(HSSFPrintSetup.A4_PAPERSIZE); // A4 Querformat
+		sheet1.getPrintSetup().setPaperSize(HSSFPrintSetup.A4_ROTATED_PAPERSIZE); // A4 Querformat
 		wb.setPrintArea(  // Druckbereich setzen
 				0, // sheet index
 				0, // start column
@@ -457,6 +459,7 @@ public class KontrollistenWriter {
 		// CellStyle für Überschriften
 		csUeberschriften.setFont(fUeberschriften); 
 		csUeberschriften.setAlignment(CellStyle.ALIGN_CENTER_SELECTION); // zentrieren
+        csUeberschriften.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
 		csUeberschriften.setBorderBottom(CellStyle.BORDER_THIN); // Umrandung unten einschalten
 		csUeberschriften.setBottomBorderColor(IndexedColors.BLACK.getIndex()); // Umrandung unten in schwarz
 		csUeberschriften.setBorderLeft(CellStyle.BORDER_THIN); // Umrandung links einschalten
@@ -475,6 +478,7 @@ public class KontrollistenWriter {
 		// CellStyle für Infos
 		csInfos.setFont(fInfos);
 		csInfos.setAlignment(CellStyle.ALIGN_CENTER_SELECTION); // zentriert
+        csInfos.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
 		csInfos.setDataFormat(dataFormat.getFormat("text")); // text
 		
 		// Schriftart für normales
@@ -485,6 +489,7 @@ public class KontrollistenWriter {
 		// CellStyle normal
 		csNormal1.setFont(fNormal);
 		csNormal1.setAlignment(CellStyle.ALIGN_LEFT); // linksbündig
+		csNormal1.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
 		csNormal1.setBorderBottom(CellStyle.BORDER_THIN); // Umrandung unten einschalten
 		csNormal1.setBottomBorderColor(IndexedColors.BLACK.getIndex()); // Umrandung unten in schwarz
 		csNormal1.setBorderLeft(CellStyle.BORDER_THIN); // Umrandung links einschalten
