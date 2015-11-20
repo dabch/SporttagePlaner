@@ -1,3 +1,6 @@
+DISCONTINUED - No more commits will be made as of Nov 2015
+
+
 SporttagePlaner :v:
 ==============
 (früher Spielplan_beta)
@@ -16,5 +19,3 @@ Erstellt automatisch Spielpläne und Kontrolliisten
 * Schreibt Spielpläne in DB
 
 http://sporttage.smv-kepler.de
-
-**PS:** Wir haben Passwörter im Code (in früheren Commits), das wissen wir. Es sind aber weder IP noch Username, DB-Name oder Passwort noch aktuell.
