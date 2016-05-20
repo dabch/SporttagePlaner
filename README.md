@@ -18,4 +18,3 @@ Erstellt automatisch Spielpläne und Kontrolliisten
 * Schreibt Spieler in DB
 * Schreibt Spielpläne in DB
 
-http://sporttage.smv-kepler.de
